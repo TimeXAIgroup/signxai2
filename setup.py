@@ -22,7 +22,7 @@ common_requirements = read_requirements("common.txt")
 
 setup(
     name="signxai2",
-    version="0.4.0",
+    version="0.5.0",
     author="TIME XAI Group",
     author_email="nils.gumpfer@kite.thm.de",
     description="A comprehensive explainable AI library supporting both TensorFlow and PyTorch with unified API and advanced XAI methods including SIGN, LRP, and Grad-CAM. Authored by Nils Gumpfer, Jana Fischer and Alexander Paul.",
