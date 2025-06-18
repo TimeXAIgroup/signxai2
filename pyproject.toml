@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "signxai2"
+version = "0.2.0"
+authors = [
+    {name = "Nils Gumpfer", email = "nils.gumpfer@kite.thm.de"},
+    {name = "Jana Fischer"},
+    {name = "Alexander Paul"},
+]
+maintainers = [
+    {name = "Nils Gumpfer", email = "nils.gumpfer@kite.thm.de"},
+]
+description = "A comprehensive explainable AI library supporting both TensorFlow and PyTorch with unified API and advanced XAI methods including SIGN, LRP, and Grad-CAM"
+readme = "README.md"
+license = {text = "BSD-3-Clause"}
+requires-python = ">=3.9,<3.13"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+keywords = ["explainable ai", "interpretability", "machine learning", "deep learning", "tensorflow", "pytorch", "lrp", "grad-cam", "sign"]
+dependencies = [
+    "numpy>=1.19.0,<2.0",
+    "matplotlib>=3.7.0",
+    "scipy>=1.10.0",
+    "pillow>=8.0.0",
+    "requests>=2.25.0",
+]
+
+[project.optional-dependencies]
+tensorflow = [
+    "tensorflow>=2.8.0,<=2.12.1",
+]
+pytorch = [
+    "torch>=1.10.0",
+    "zennit>=0.5.1",
+    "scikit-image>=0.19.0",
+]
+all = [
+    "tensorflow>=2.8.0,<=2.12.1",
+    "torch>=1.10.0",
+    "zennit>=0.5.1",
+    "scikit-image>=0.19.0",
+]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "black",
+    "flake8",
+    "mypy",
+    "pre-commit",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "nbsphinx",
+    "myst-parser",
+]
+full-dev = [
+    "tensorflow>=2.8.0,<=2.12.1",
+    "torch>=1.10.0",
+    "zennit>=0.5.1",
+    "scikit-image>=0.19.0",
+    "pytest>=6.0",
+    "pytest-cov",
+    "black",
+    "flake8",
+    "mypy",
+    "pre-commit",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "nbsphinx",
+    "myst-parser",
+]
+
+[project.urls]
+Homepage = "https://github.com/TimeXAI-group/signxai2"
+Documentation = "https://signxai2.readthedocs.io/"
+Repository = "https://github.com/TimeXAI-group/signxai2.git"
+"Bug Reports" = "https://github.com/TimeXAI-group/signxai2/issues"
+Changelog = "https://github.com/TimeXAI-group/signxai2/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "docs*", "examples*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.md", "*.rst"]

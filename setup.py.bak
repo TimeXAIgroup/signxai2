@@ -1,0 +1,70 @@
+from setuptools import setup, find_packages
+import os
+import platform
+
+def read_requirements(filename):
+    """Read requirements from a file and return a list of requirements."""
+    requirements_path = os.path.join(os.path.dirname(__file__), 'requirements', filename)
+    if os.path.exists(requirements_path):
+        with open(requirements_path) as f:
+            return [line for line in f.read().splitlines()
+                    if line and not line.startswith('#') and not line.startswith('-r')]
+    return []
+
+# Get requirements from files
+common_requires = read_requirements('common.txt')
+pytorch_requires = read_requirements('pytorch.txt')
+tf_requires = read_requirements('tensorflow.txt')
+dev_requires = read_requirements('dev.txt')
+
+# Filter out platform-specific TensorFlow dependencies based on current platform
+system = platform.system()
+tf_requires = [req for req in tf_requires if
+               not '; platform_system' in req or
+               f'; platform_system=="{system}"' in req]
+
+# Read long description
+readme_path = os.path.join(os.path.dirname(__file__), 'README.md')
+if os.path.exists(readme_path):
+    with open(readme_path, 'r') as f:
+        long_description = f.read()
+else:
+    long_description = "SIGNed explanations: Unveiling relevant features by reducing bias"
+
+setup(
+    name="signxai2",
+    version="0.1.0",
+    author="Nils Gumpfer, Jana Fischer und Alexander Paul",
+    author_email='nils.gumpfer@kite.thm.de',
+    maintainer='Nils Gumpfer',
+    maintainer_email='nils.gumpfer@kite.thm.de',
+    description="SIGNed explanations: Unveiling relevant features by reducing bias",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/TimeXAI-group/signxai2",
+    packages=find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.9,<3.13',
+    # Base installation includes common requirements
+    install_requires=common_requires,
+    extras_require={
+        # Framework-specific dependencies
+        'tensorflow': tf_requires,
+        'pytorch': pytorch_requires,
+        # Full installation with both frameworks
+        'all': tf_requires + pytorch_requires,
+        # Development dependencies
+        'dev': dev_requires,
+        # Complete development setup
+        'full-dev': tf_requires + pytorch_requires + dev_requires
+    },
+    include_package_data=True,
+)

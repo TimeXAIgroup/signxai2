@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Utilities &mdash; SignXAI 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ec77c5b5" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Explanation Methods List" href="methods_list.html" />
+    <link rel="prev" title="Common Module" href="common.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SignXAI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guide/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/basic_usage.html">Basic Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../guide/framework_interop.html">Framework Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/tensorflow.html">TensorFlow Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/pytorch.html">PyTorch Implementation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/image_classification.html">Image Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/time_series.html">ECG Time Series</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">TensorFlow Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytorch.html">PyTorch Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common.html">Common Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#general-utilities">General Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.load_image"><code class="docutils literal notranslate"><span class="pre">load_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.normalize_heatmap"><code class="docutils literal notranslate"><span class="pre">normalize_heatmap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.download_image"><code class="docutils literal notranslate"><span class="pre">download_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.download_model"><code class="docutils literal notranslate"><span class="pre">download_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.ensure_dir"><code class="docutils literal notranslate"><span class="pre">ensure_dir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.remove_softmax"><code class="docutils literal notranslate"><span class="pre">remove_softmax()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#visualization-utilities">Visualization Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.plot_relevancemap"><code class="docutils literal notranslate"><span class="pre">plot_relevancemap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.plot_comparison"><code class="docutils literal notranslate"><span class="pre">plot_comparison()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-handling">Data Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.batch_to_numpy"><code class="docutils literal notranslate"><span class="pre">batch_to_numpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signxai.utils.ensure_batch_dimension"><code class="docutils literal notranslate"><span class="pre">ensure_batch_dimension()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-specific-utilities">Framework-Specific Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow-utilities">TensorFlow Utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#signxai.utils.calculate_explanation_innvestigate"><code class="docutils literal notranslate"><span class="pre">calculate_explanation_innvestigate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pytorch-utilities">PyTorch Utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#signxai.utils.numpy_to_torch"><code class="docutils literal notranslate"><span class="pre">numpy_to_torch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#signxai.utils.torch_to_numpy"><code class="docutils literal notranslate"><span class="pre">torch_to_numpy()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="methods_list.html">Explanation Methods List</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SignXAI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Utilities</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/signxai/signxai/blob/main/docs/api/utils.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-signxai.utils">
+<span id="utilities"></span><h1>Utilities<a class="headerlink" href="#module-signxai.utils" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">signxai.utils</span></code> module provides utility functions used by both the TensorFlow and PyTorch implementations.</p>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#general-utilities" id="id1">General Utilities</a></p></li>
+<li><p><a class="reference internal" href="#visualization-utilities" id="id2">Visualization Utilities</a></p></li>
+<li><p><a class="reference internal" href="#data-handling" id="id3">Data Handling</a></p></li>
+<li><p><a class="reference internal" href="#framework-specific-utilities" id="id4">Framework-Specific Utilities</a></p>
+<ul>
+<li><p><a class="reference internal" href="#tensorflow-utilities" id="id5">TensorFlow Utilities</a></p></li>
+<li><p><a class="reference internal" href="#pytorch-utilities" id="id6">PyTorch Utilities</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="general-utilities">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">General Utilities</a><a class="headerlink" href="#general-utilities" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.load_image">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">load_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(224,</span> <span class="pre">224)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.load_image" title="Link to this definition"></a></dt>
+<dd><p>Loads and preprocesses an image for use with models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to the image file</p></li>
+<li><p><strong>target_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>, </em><em>optional</em>) – Target size for the image (height, width)</p></li>
+<li><p><strong>preprocess</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to preprocess the image (ImageNet normalization)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (original image, preprocessed image)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.normalize_heatmap">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">normalize_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">heatmap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.normalize_heatmap" title="Link to this definition"></a></dt>
+<dd><p>Normalizes a heatmap to the specified percentile for visualization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>heatmap</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a>) – The heatmap to normalize</p></li>
+<li><p><strong>percentile</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The percentile value for normalization</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Normalized heatmap</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.download_image">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">download_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.download_image" title="Link to this definition"></a></dt>
+<dd><p>Downloads an example image if it doesn’t exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to save the image</p></li>
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – URL to download from (default: example image)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.download_model">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">download_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.download_model" title="Link to this definition"></a></dt>
+<dd><p>Downloads an example model if it doesn’t exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to save the model</p></li>
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – URL to download from (default: example model)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.ensure_dir">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">ensure_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.ensure_dir" title="Link to this definition"></a></dt>
+<dd><p>Ensures that a directory exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to check/create</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.remove_softmax">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">remove_softmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.remove_softmax" title="Link to this definition"></a></dt>
+<dd><p>Removes the softmax activation from a model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> – Model to process</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Model with softmax removed</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NotImplementedError: If the model framework is not supported</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="visualization-utilities">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Visualization Utilities</a><a class="headerlink" href="#visualization-utilities" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.plot_relevancemap">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">plot_relevancemap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevance_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.plot_relevancemap" title="Link to this definition"></a></dt>
+<dd><p>Plots a relevance map as a heatmap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relevance_map</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a>) – The relevance map to visualize</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em>) – Matplotlib axes to plot on</p></li>
+<li><p><strong>colorbar_ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em>) – Axes for the colorbar</p></li>
+<li><p><strong>colorbar_kw</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Additional keyword arguments for the colorbar</p></li>
+<li><p><strong>kwargs</strong> – Additional keyword arguments for imshow</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matplotlib image object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.image.AxesImage</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.plot_comparison">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">plot_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explanations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(15,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'seismic'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.plot_comparison" title="Link to this definition"></a></dt>
+<dd><p>Plots multiple explanation methods side by side for comparison.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>original_image</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a>) – The original input image</p></li>
+<li><p><strong>explanations</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – List of explanations to compare</p></li>
+<li><p><strong>method_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – Names of the methods for the explanations</p></li>
+<li><p><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>, </em><em>optional</em>) – Figure size</p></li>
+<li><p><strong>cmap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Colormap for the heatmaps</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matplotlib figure</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="data-handling">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Data Handling</a><a class="headerlink" href="#data-handling" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.batch_to_numpy">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">batch_to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.batch_to_numpy" title="Link to this definition"></a></dt>
+<dd><p>Converts a batch of tensors to numpy arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>batch</strong> (<a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.7)"><em>torch.Tensor</em></a><em> or </em><em>tf.Tensor</em><em> or </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a>) – Batch of tensors</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Batch as numpy array</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.ensure_batch_dimension">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">ensure_batch_dimension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.ensure_batch_dimension" title="Link to this definition"></a></dt>
+<dd><p>Ensures input has a batch dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a>) – Input tensor</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Input with batch dimension</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="framework-specific-utilities">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Framework-Specific Utilities</a><a class="headerlink" href="#framework-specific-utilities" title="Link to this heading"></a></h2>
+<section id="tensorflow-utilities">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">TensorFlow Utilities</a><a class="headerlink" href="#tensorflow-utilities" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.calculate_explanation_innvestigate">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">calculate_explanation_innvestigate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.calculate_explanation_innvestigate" title="Link to this definition"></a></dt>
+<dd><p>Interface to iNNvestigate for explanation generation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>tf.keras.Model</em>) – TensorFlow model</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a>) – Input tensor</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – iNNvestigate method name</p></li>
+<li><p><strong>kwargs</strong> – Additional parameters for the method</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Explanation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="pytorch-utilities">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">PyTorch Utilities</a><a class="headerlink" href="#pytorch-utilities" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.numpy_to_torch">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">numpy_to_torch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_grad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.numpy_to_torch" title="Link to this definition"></a></dt>
+<dd><p>Converts a numpy array to a PyTorch tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a>) – Numpy array</p></li>
+<li><p><strong>requires_grad</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the tensor requires gradients</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PyTorch tensor</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.7)">torch.Tensor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="signxai.utils.torch_to_numpy">
+<span class="sig-prename descclassname"><span class="pre">signxai.utils.</span></span><span class="sig-name descname"><span class="pre">torch_to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#signxai.utils.torch_to_numpy" title="Link to this definition"></a></dt>
+<dd><p>Converts a PyTorch tensor to a numpy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tensor</strong> (<a class="reference external" href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.7)"><em>torch.Tensor</em></a>) – PyTorch tensor</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Numpy array</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="common.html" class="btn btn-neutral float-left" title="Common Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="methods_list.html" class="btn btn-neutral float-right" title="Explanation Methods List" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, SignXAI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

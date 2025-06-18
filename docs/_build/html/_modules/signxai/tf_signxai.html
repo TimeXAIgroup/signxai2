@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>signxai.tf_signxai &mdash; SignXAI 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ec77c5b5" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SignXAI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/basic_usage.html">Basic Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/framework_interop.html">Framework Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/tensorflow.html">TensorFlow Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/pytorch.html">PyTorch Implementation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/image_classification.html">Image Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/time_series.html">ECG Time Series</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/tensorflow.html">TensorFlow Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pytorch.html">PyTorch Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/common.html">Common Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/methods_list.html">Explanation Methods List</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SignXAI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">signxai.tf_signxai</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for signxai.tf_signxai</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Attempt to import common validation, handle if not found for robustness</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..common.validation</span> <span class="kn">import</span> <span class="n">validate_input</span>
+    <span class="c1"># If validate_input is successfully imported, you might want to log or know.</span>
+    <span class="c1"># print(&quot;Successfully imported &#39;validate_input&#39; from signxai.common.validation&quot;)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c1"># This block executes if &#39;validate_input&#39; cannot be imported from signxai.common.validation</span>
+    <span class="c1"># Define a dummy validate_input if the real one isn&#39;t found or needed immediately</span>
+    <span class="k">def</span> <span class="nf">validate_input</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dummy validate_input function. Does nothing.&quot;&quot;&quot;</span>
+        <span class="c1"># You can add a print here to confirm the dummy is being used:</span>
+        <span class="c1"># print(&quot;Warning: &#39;validate_input&#39; not found in signxai.common.validation. Using dummy placeholder.&quot;)</span>
+        <span class="k">pass</span>
+    <span class="c1"># print(&quot;Defined dummy &#39;validate_input&#39; due to ImportError.&quot;)</span>
+
+<span class="c1"># Define supported methods (ensure this list is comprehensive for your package)</span>
+<span class="n">SUPPORTED_METHODS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;gradient&quot;</span><span class="p">,</span> <span class="s2">&quot;smoothgrad&quot;</span><span class="p">,</span> <span class="s2">&quot;integrated_gradients&quot;</span><span class="p">,</span> <span class="s2">&quot;guided_backprop&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lrp.epsilon&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.alpha_beta&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.alpha_2_beta_1&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.z&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.w_square&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.flat&quot;</span><span class="p">,</span>  <span class="c1"># Common LRP rules</span>
+    <span class="s2">&quot;deep_taylor&quot;</span><span class="p">,</span> <span class="s2">&quot;input_t_gradient&quot;</span><span class="p">,</span> <span class="s2">&quot;deconvnet&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;occlusion&quot;</span><span class="p">,</span> <span class="s2">&quot;grad_cam&quot;</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="calculate_relevancemap">
+<a class="viewcode-back" href="../../api/tensorflow.html#signxai.tf_signxai.calculate_relevancemap">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_relevancemap</span><span class="p">(</span><span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                           <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                           <span class="n">model</span><span class="p">,</span>  <span class="c1"># This is the Keras model</span>
+                           <span class="n">neuron_selection</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the relevance map for a given input and model using the specified TensorFlow-based method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        method (str): The XAI method to use (e.g., &quot;gradient&quot;, &quot;lrp.epsilon&quot;).</span>
+<span class="sd">        x (np.ndarray): The input data (e.g., image) as a NumPy array.</span>
+<span class="sd">        model: The TensorFlow/Keras model (must be a model without softmax for many methods).</span>
+<span class="sd">        neuron_selection (int): The index of the output neuron for which to generate the explanation.</span>
+<span class="sd">        **kwargs: Additional arguments specific to the chosen XAI method.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: The calculated relevance map.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the method is not supported or if inputs are invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># If you intend to use validate_input, ensure it&#39;s called appropriately.</span>
+    <span class="c1"># For now, its call is commented out as its definition might be a dummy.</span>
+    <span class="c1"># validate_input(x, model)</span>
+
+    <span class="c1"># Check if method string is recognized, but allow to proceed if not strictly in list for flexibility</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Method argument must be a string.&quot;</span><span class="p">)</span>
+    <span class="c1"># if method not in SUPPORTED_METHODS:</span>
+    <span class="c1"># print(f&quot;Warning: Method &#39;{method}&#39; not in explicitly defined SUPPORTED_METHODS. Attempting to proceed.&quot;)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input x must be a NumPy array.&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.methods</span> <span class="kn">import</span> <span class="n">wrappers</span> <span class="k">as</span> <span class="n">tf_method_wrappers</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">tf_method_wrappers</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Warning: Could not import signxai.tf_signxai.methods.wrappers. TF-specific wrapped methods may not be available.&quot;</span><span class="p">)</span>
+
+    <span class="n">relevancemap</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Method dispatch using specific wrappers if available</span>
+    <span class="n">specific_wrapper_used</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">tf_method_wrappers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;gradient&#39;</span><span class="p">:</span>
+            <span class="c1"># This wrapper likely expects model_no_softmax directly, as it was working</span>
+            <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf_method_wrappers</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">model_no_softmax</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">neuron_selection</span><span class="o">=</span><span class="n">neuron_selection</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">specific_wrapper_used</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;smoothgrad&#39;</span><span class="p">:</span>
+            <span class="c1"># Corrected: pass &#39;model&#39; as &#39;model_no_softmax&#39;</span>
+            <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf_method_wrappers</span><span class="o">.</span><span class="n">smoothgrad</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">model_no_softmax</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">neuron_selection</span><span class="o">=</span><span class="n">neuron_selection</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">specific_wrapper_used</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;integrated_gradients&#39;</span><span class="p">:</span>
+            <span class="c1"># Corrected: pass &#39;model&#39; as &#39;model_no_softmax&#39;</span>
+            <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf_method_wrappers</span><span class="o">.</span><span class="n">integrated_gradients</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">model_no_softmax</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">neuron_selection</span><span class="o">=</span><span class="n">neuron_selection</span><span class="p">,</span>
+                                                                   <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">specific_wrapper_used</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;guided_backprop&#39;</span><span class="p">:</span>
+            <span class="c1"># Corrected: pass &#39;model&#39; as &#39;model_no_softmax&#39;</span>
+            <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf_method_wrappers</span><span class="o">.</span><span class="n">guided_backprop</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">model_no_softmax</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">neuron_selection</span><span class="o">=</span><span class="n">neuron_selection</span><span class="p">,</span>
+                                                              <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">specific_wrapper_used</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;grad_cam&#39;</span><span class="p">:</span>
+            <span class="c1"># Corrected: pass &#39;model&#39; as &#39;model_no_softmax&#39;</span>
+            <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf_method_wrappers</span><span class="o">.</span><span class="n">grad_cam</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">model_no_softmax</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">neuron_selection</span><span class="o">=</span><span class="n">neuron_selection</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">specific_wrapper_used</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;occlusion&#39;</span><span class="p">:</span>
+            <span class="c1"># Corrected: pass &#39;model&#39; as &#39;model_no_softmax&#39; (assuming it follows the same pattern)</span>
+            <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf_method_wrappers</span><span class="o">.</span><span class="n">occlusion</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">model_no_softmax</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">neuron_selection</span><span class="o">=</span><span class="n">neuron_selection</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">specific_wrapper_used</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Add other specific tf_method_wrappers calls here if you have them, ensuring to use model_no_softmax=model</span>
+
+    <span class="c1"># If not handled by a specific TF wrapper, or if wrappers failed to import,</span>
+    <span class="c1"># try the generic iNNvestigate handler for methods it supports.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">specific_wrapper_used</span><span class="p">:</span>
+        <span class="c1"># This list can be cross-referenced with iNNvestigate&#39;s own supported method strings</span>
+        <span class="c1"># Note: &#39;gradient&#39;, &#39;smoothgrad&#39;, &#39;integrated_gradients&#39;, &#39;guided_backprop&#39; might also be routed here</span>
+        <span class="c1"># if their specific wrappers above are commented out or tf_method_wrappers is None.</span>
+        <span class="c1"># The current logic prioritizes specific wrappers if tf_method_wrappers exists.</span>
+        <span class="n">innvestigate_methods</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;gradient&quot;</span><span class="p">,</span> <span class="s2">&quot;smoothgrad&quot;</span><span class="p">,</span> <span class="s2">&quot;integrated_gradients&quot;</span><span class="p">,</span> <span class="s2">&quot;guided_backprop&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lrp.epsilon&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.alpha_beta&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.alpha_2_beta_1&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.z&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.w_square&quot;</span><span class="p">,</span> <span class="s2">&quot;lrp.flat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;deep_taylor&quot;</span><span class="p">,</span> <span class="s2">&quot;input_t_gradient&quot;</span><span class="p">,</span> <span class="s2">&quot;deconvnet&quot;</span>
+        <span class="p">]</span>
+        <span class="c1"># Occlusion and Grad-CAM are typically custom wrappers not directly in iNNvestigate&#39;s generic analyzer call.</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">innvestigate_methods</span> <span class="ow">or</span> <span class="n">method</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;lrp&#39;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">calculate_explanation_innvestigate</span>
+                <span class="c1"># The &#39;model&#39; passed to calculate_explanation_innvestigate is expected to be</span>
+                <span class="c1"># the model without softmax by that utility&#39;s internal logic for iNNvestigate.</span>
+                <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">calculate_explanation_innvestigate</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                                                                  <span class="n">neuron_selection</span><span class="o">=</span><span class="n">neuron_selection</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to import &#39;calculate_explanation_innvestigate&#39; from signxai.utils.utils. Cannot proceed with iNNvestigate-based method.&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39; failed in generic iNNvestigate handler. Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="c1"># If method was not handled by specific wrappers AND not in innvestigate_methods list.</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_METHODS</span><span class="p">:</span> <span class="c1"># Check against the package&#39;s declared supported methods.</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unsupported method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">. Supported methods are: </span><span class="si">{</span><span class="n">SUPPORTED_METHODS</span><span class="si">}</span><span class="s2"> or check iNNvestigate specific methods if applicable.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># Method in SUPPORTED_METHODS but no handler was found/triggered.</span>
+                  <span class="c1"># This case implies a logic error in the dispatch (e.g. tf_method_wrappers was None but method expected it)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39; is listed as supported but could not be processed. Check tf_method_wrappers import and dispatch logic for this method.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">relevancemap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="c1"># This should ideally not be reached if the dispatch logic is complete and error handling within methods is robust.</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39; could not be processed and did not produce a result. Check specific handlers.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">relevancemap</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, SignXAI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

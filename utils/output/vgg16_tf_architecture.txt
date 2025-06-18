@@ -1,0 +1,286 @@
+Model successfully loaded from examples/data/models/tensorflow/VGG16/model.h5.
+
+--- Model Summary (model.summary()) ---
+Model: "vgg16"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ input_1 (InputLayer)        [(None, 224, 224, 3)]     0         
+                                                                 
+ block1_conv1 (Conv2D)       (None, 224, 224, 64)      1792      
+                                                                 
+ block1_conv2 (Conv2D)       (None, 224, 224, 64)      36928     
+                                                                 
+ block1_pool (MaxPooling2D)  (None, 112, 112, 64)      0         
+                                                                 
+ block2_conv1 (Conv2D)       (None, 112, 112, 128)     73856     
+                                                                 
+ block2_conv2 (Conv2D)       (None, 112, 112, 128)     147584    
+                                                                 
+ block2_pool (MaxPooling2D)  (None, 56, 56, 128)       0         
+                                                                 
+ block3_conv1 (Conv2D)       (None, 56, 56, 256)       295168    
+                                                                 
+ block3_conv2 (Conv2D)       (None, 56, 56, 256)       590080    
+                                                                 
+ block3_conv3 (Conv2D)       (None, 56, 56, 256)       590080    
+                                                                 
+ block3_pool (MaxPooling2D)  (None, 28, 28, 256)       0         
+                                                                 
+ block4_conv1 (Conv2D)       (None, 28, 28, 512)       1180160   
+                                                                 
+ block4_conv2 (Conv2D)       (None, 28, 28, 512)       2359808   
+                                                                 
+ block4_conv3 (Conv2D)       (None, 28, 28, 512)       2359808   
+                                                                 
+ block4_pool (MaxPooling2D)  (None, 14, 14, 512)       0         
+                                                                 
+ block5_conv1 (Conv2D)       (None, 14, 14, 512)       2359808   
+                                                                 
+ block5_conv2 (Conv2D)       (None, 14, 14, 512)       2359808   
+                                                                 
+ block5_conv3 (Conv2D)       (None, 14, 14, 512)       2359808   
+                                                                 
+ block5_pool (MaxPooling2D)  (None, 7, 7, 512)         0         
+                                                                 
+ flatten (Flatten)           (None, 25088)             0         
+                                                                 
+ fc1 (Dense)                 (None, 4096)              102764544 
+                                                                 
+ fc2 (Dense)                 (None, 4096)              16781312  
+                                                                 
+ predictions (Dense)         (None, 1000)              4097000   
+                                                                 
+=================================================================
+Total params: 138,357,544
+Trainable params: 138,357,544
+Non-trainable params: 0
+_________________________________________________________________
+
+==================================================
+
+--- Detailed Layer Information (model.layers) ---
+Layer 0: input_1 (Type: InputLayer)
+  Config: {'batch_input_shape': (None, 224, 224, 3), 'dtype': 'float32', 'sparse': False, 'ragged': False, 'name': 'input_1'}
+  Input shape: [(None, 224, 224, 3)]
+  Output shape: [(None, 224, 224, 3)]
+------------------------------
+Layer 1: block1_conv1 (Type: Conv2D)
+  Config: {'name': 'block1_conv1', 'trainable': True, 'dtype': 'float32', 'filters': 64, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 224, 224, 3)
+  Output shape: (None, 224, 224, 64)
+  Conv2D - Filters: 64
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 2: block1_conv2 (Type: Conv2D)
+  Config: {'name': 'block1_conv2', 'trainable': True, 'dtype': 'float32', 'filters': 64, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 224, 224, 64)
+  Output shape: (None, 224, 224, 64)
+  Conv2D - Filters: 64
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 3: block1_pool (Type: MaxPooling2D)
+  Config: {'name': 'block1_pool', 'trainable': True, 'dtype': 'float32', 'pool_size': (2, 2), 'padding': 'valid', 'strides': (2, 2), 'data_format': 'channels_last'}
+  Input shape: (None, 224, 224, 64)
+  Output shape: (None, 112, 112, 64)
+  Pooling - Pool Size: (2, 2)
+  Pooling - Strides: (2, 2)
+  Pooling - Padding: valid
+------------------------------
+Layer 4: block2_conv1 (Type: Conv2D)
+  Config: {'name': 'block2_conv1', 'trainable': True, 'dtype': 'float32', 'filters': 128, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 112, 112, 64)
+  Output shape: (None, 112, 112, 128)
+  Conv2D - Filters: 128
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 5: block2_conv2 (Type: Conv2D)
+  Config: {'name': 'block2_conv2', 'trainable': True, 'dtype': 'float32', 'filters': 128, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 112, 112, 128)
+  Output shape: (None, 112, 112, 128)
+  Conv2D - Filters: 128
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 6: block2_pool (Type: MaxPooling2D)
+  Config: {'name': 'block2_pool', 'trainable': True, 'dtype': 'float32', 'pool_size': (2, 2), 'padding': 'valid', 'strides': (2, 2), 'data_format': 'channels_last'}
+  Input shape: (None, 112, 112, 128)
+  Output shape: (None, 56, 56, 128)
+  Pooling - Pool Size: (2, 2)
+  Pooling - Strides: (2, 2)
+  Pooling - Padding: valid
+------------------------------
+Layer 7: block3_conv1 (Type: Conv2D)
+  Config: {'name': 'block3_conv1', 'trainable': True, 'dtype': 'float32', 'filters': 256, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 56, 56, 128)
+  Output shape: (None, 56, 56, 256)
+  Conv2D - Filters: 256
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 8: block3_conv2 (Type: Conv2D)
+  Config: {'name': 'block3_conv2', 'trainable': True, 'dtype': 'float32', 'filters': 256, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 56, 56, 256)
+  Output shape: (None, 56, 56, 256)
+  Conv2D - Filters: 256
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 9: block3_conv3 (Type: Conv2D)
+  Config: {'name': 'block3_conv3', 'trainable': True, 'dtype': 'float32', 'filters': 256, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 56, 56, 256)
+  Output shape: (None, 56, 56, 256)
+  Conv2D - Filters: 256
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 10: block3_pool (Type: MaxPooling2D)
+  Config: {'name': 'block3_pool', 'trainable': True, 'dtype': 'float32', 'pool_size': (2, 2), 'padding': 'valid', 'strides': (2, 2), 'data_format': 'channels_last'}
+  Input shape: (None, 56, 56, 256)
+  Output shape: (None, 28, 28, 256)
+  Pooling - Pool Size: (2, 2)
+  Pooling - Strides: (2, 2)
+  Pooling - Padding: valid
+------------------------------
+Layer 11: block4_conv1 (Type: Conv2D)
+  Config: {'name': 'block4_conv1', 'trainable': True, 'dtype': 'float32', 'filters': 512, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 28, 28, 256)
+  Output shape: (None, 28, 28, 512)
+  Conv2D - Filters: 512
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 12: block4_conv2 (Type: Conv2D)
+  Config: {'name': 'block4_conv2', 'trainable': True, 'dtype': 'float32', 'filters': 512, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 28, 28, 512)
+  Output shape: (None, 28, 28, 512)
+  Conv2D - Filters: 512
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 13: block4_conv3 (Type: Conv2D)
+  Config: {'name': 'block4_conv3', 'trainable': True, 'dtype': 'float32', 'filters': 512, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 28, 28, 512)
+  Output shape: (None, 28, 28, 512)
+  Conv2D - Filters: 512
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 14: block4_pool (Type: MaxPooling2D)
+  Config: {'name': 'block4_pool', 'trainable': True, 'dtype': 'float32', 'pool_size': (2, 2), 'padding': 'valid', 'strides': (2, 2), 'data_format': 'channels_last'}
+  Input shape: (None, 28, 28, 512)
+  Output shape: (None, 14, 14, 512)
+  Pooling - Pool Size: (2, 2)
+  Pooling - Strides: (2, 2)
+  Pooling - Padding: valid
+------------------------------
+Layer 15: block5_conv1 (Type: Conv2D)
+  Config: {'name': 'block5_conv1', 'trainable': True, 'dtype': 'float32', 'filters': 512, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 14, 14, 512)
+  Output shape: (None, 14, 14, 512)
+  Conv2D - Filters: 512
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 16: block5_conv2 (Type: Conv2D)
+  Config: {'name': 'block5_conv2', 'trainable': True, 'dtype': 'float32', 'filters': 512, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 14, 14, 512)
+  Output shape: (None, 14, 14, 512)
+  Conv2D - Filters: 512
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 17: block5_conv3 (Type: Conv2D)
+  Config: {'name': 'block5_conv3', 'trainable': True, 'dtype': 'float32', 'filters': 512, 'kernel_size': (3, 3), 'strides': (1, 1), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1, 1), 'groups': 1, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 14, 14, 512)
+  Output shape: (None, 14, 14, 512)
+  Conv2D - Filters: 512
+  Conv2D - Kernel Size: (3, 3)
+  Conv2D - Strides: (1, 1)
+  Conv2D - Padding: same
+  Conv2D - Activation: relu
+  Conv2D - Bias is used.
+------------------------------
+Layer 18: block5_pool (Type: MaxPooling2D)
+  Config: {'name': 'block5_pool', 'trainable': True, 'dtype': 'float32', 'pool_size': (2, 2), 'padding': 'valid', 'strides': (2, 2), 'data_format': 'channels_last'}
+  Input shape: (None, 14, 14, 512)
+  Output shape: (None, 7, 7, 512)
+  Pooling - Pool Size: (2, 2)
+  Pooling - Strides: (2, 2)
+  Pooling - Padding: valid
+------------------------------
+Layer 19: flatten (Type: Flatten)
+  Config: {'name': 'flatten', 'trainable': True, 'dtype': 'float32', 'data_format': 'channels_last'}
+  Input shape: (None, 7, 7, 512)
+  Output shape: (None, 25088)
+  Flatten - Data Format: channels_last
+------------------------------
+Layer 20: fc1 (Type: Dense)
+  Config: {'name': 'fc1', 'trainable': True, 'dtype': 'float32', 'units': 4096, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 25088)
+  Output shape: (None, 4096)
+  Dense - Units: 4096
+  Dense - Activation: relu
+  Dense - Bias is used.
+------------------------------
+Layer 21: fc2 (Type: Dense)
+  Config: {'name': 'fc2', 'trainable': True, 'dtype': 'float32', 'units': 4096, 'activation': 'relu', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 4096)
+  Output shape: (None, 4096)
+  Dense - Units: 4096
+  Dense - Activation: relu
+  Dense - Bias is used.
+------------------------------
+Layer 22: predictions (Type: Dense)
+  Config: {'name': 'predictions', 'trainable': True, 'dtype': 'float32', 'units': 1000, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'GlorotUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 4096)
+  Output shape: (None, 1000)
+  Dense - Units: 1000
+  Dense - Activation: linear
+  Dense - Bias is used.
+------------------------------
+
+==================================================
+
+--- Overall Model Input/Output ---
+Model Inputs: [<KerasTensor: shape=(None, 224, 224, 3) dtype=float32 (created by layer 'input_1')>]
+Model Outputs: [<KerasTensor: shape=(None, 1000) dtype=float32 (created by layer 'predictions')>]

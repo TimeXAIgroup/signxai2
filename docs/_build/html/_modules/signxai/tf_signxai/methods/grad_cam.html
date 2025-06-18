@@ -1,0 +1,442 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>signxai.tf_signxai.methods.grad_cam &mdash; SignXAI 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=ec77c5b5" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            SignXAI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guide/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guide/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guide/basic_usage.html">Basic Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guide/framework_interop.html">Framework Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guide/advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guide/visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guide/tensorflow.html">TensorFlow Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../guide/pytorch.html">PyTorch Implementation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/image_classification.html">Image Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/time_series.html">ECG Time Series</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/tensorflow.html">TensorFlow Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/pytorch.html">PyTorch Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/common.html">Common Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/methods_list.html">Explanation Methods List</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">SignXAI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../tf_signxai.html">signxai.tf_signxai</a></li>
+      <li class="breadcrumb-item active">signxai.tf_signxai.methods.grad_cam</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for signxai.tf_signxai.methods.grad_cam</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Title: Grad-CAM class activation visualization</span>
+<span class="sd">Author: [fchollet](https://twitter.com/fchollet)</span>
+<span class="sd">Date created: 2020/04/26</span>
+<span class="sd">Last modified: 2021/03/07</span>
+<span class="sd">Description: How to obtain a class activation heatmap for an image classification model.</span>
+
+<span class="sd">Adapted from Deep Learning with Python (2017).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">from</span> <span class="nn">tensorflow</span> <span class="kn">import</span> <span class="n">keras</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.keras</span> <span class="kn">import</span> <span class="n">Model</span>
+
+
+<span class="k">class</span> <span class="nc">GradCAM</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Grad-CAM implementation for TensorFlow models.</span>
+<span class="sd">    </span>
+<span class="sd">    Grad-CAM uses the gradients of a target concept flowing into the final</span>
+<span class="sd">    convolutional layer to produce a coarse localization map highlighting</span>
+<span class="sd">    important regions in the image for prediction.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">last_conv_layer_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize GradCAM.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            model: TensorFlow model</span>
+<span class="sd">            last_conv_layer_name: Name of the last convolutional layer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_conv_layer_name</span> <span class="o">=</span> <span class="n">last_conv_layer_name</span>
+        
+        <span class="c1"># Create a model that maps the input to the activations of the last conv layer and model output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grad_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">],</span> 
+            <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="n">last_conv_layer_name</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">output</span><span class="p">]</span>
+        <span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">compute_heatmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">target_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute Grad-CAM heatmap.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            x: Input tensor or array (must include batch dimension)</span>
+<span class="sd">            target_class: Target class index (None for argmax)</span>
+<span class="sd">            resize: Whether to resize the heatmap to input size</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Grad-CAM heatmap</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if input has batch dimension, if not add it</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            
+        <span class="c1"># Convert to tensor if numpy array</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            
+        <span class="c1"># Compute gradient of target class with respect to last conv layer</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="c1"># Forward pass</span>
+            <span class="n">last_conv_layer_output</span><span class="p">,</span> <span class="n">preds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            
+            <span class="c1"># Determine target class if not specified</span>
+            <span class="k">if</span> <span class="n">target_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">target_class</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                
+            <span class="c1"># Select target class output</span>
+            <span class="n">class_channel</span> <span class="o">=</span> <span class="n">preds</span><span class="p">[:,</span> <span class="n">target_class</span><span class="p">]</span>
+        
+        <span class="c1"># Gradient of target class with respect to last conv layer output</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">class_channel</span><span class="p">,</span> <span class="n">last_conv_layer_output</span><span class="p">)</span>
+        
+        <span class="c1"># Vector of importance weights for each feature map</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">grads</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># For images (B, H, W, C)</span>
+            <span class="n">pooled_grads</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># For time series (B, T, C)</span>
+            <span class="n">pooled_grads</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1"># Extract first sample&#39;s conv output</span>
+        <span class="n">last_conv_output</span> <span class="o">=</span> <span class="n">last_conv_layer_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="c1"># Weight feature maps by importance</span>
+        <span class="n">weighted_output</span> <span class="o">=</span> <span class="n">last_conv_output</span> <span class="o">*</span> <span class="n">pooled_grads</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        
+        <span class="c1"># Sum across feature map channels</span>
+        <span class="n">heatmap</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">weighted_output</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Apply ReLU and normalize</span>
+        <span class="n">heatmap</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">heatmap</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">heatmap</span><span class="p">)</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">epsilon</span><span class="p">())</span>
+        
+        <span class="c1"># Convert to numpy</span>
+        <span class="n">heatmap</span> <span class="o">=</span> <span class="n">heatmap</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        
+        <span class="c1"># Resize if requested</span>
+        <span class="k">if</span> <span class="n">resize</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>  <span class="c1"># Image input</span>
+            <span class="kn">import</span> <span class="nn">cv2</span>
+            <span class="c1"># Resize to input spatial dimensions</span>
+            <span class="n">heatmap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">heatmap</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            
+        <span class="k">elif</span> <span class="n">resize</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Time series input</span>
+            <span class="c1"># Interpolate to match input time steps</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">heatmap</span><span class="p">)),</span> 
+                <span class="n">y</span><span class="o">=</span><span class="n">heatmap</span><span class="p">,</span>
+                <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span>
+            <span class="p">)</span>
+            <span class="n">heatmap</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">heatmap</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            
+            <span class="c1"># Match channel dimension</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">heatmap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">heatmap</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">heatmap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">heatmap</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                
+        <span class="k">return</span> <span class="n">heatmap</span>
+
+
+<div class="viewcode-block" id="calculate_grad_cam_relevancemap_timeseries">
+<a class="viewcode-back" href="../../../../api/tensorflow.html#signxai.tf_signxai.methods.grad_cam.calculate_grad_cam_relevancemap_timeseries">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_grad_cam_relevancemap_timeseries</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">last_conv_layer_name</span><span class="p">,</span> <span class="n">neuron_selection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Grad-CAM relevance map specifically adapted for time series data.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        x: Input data, expected shape: (batch_size, time_steps, channels)</span>
+<span class="sd">        model: Model to analyze</span>
+<span class="sd">        last_conv_layer_name: Name of the last convolutional layer</span>
+<span class="sd">        neuron_selection: Index of neuron to analyze (None for predicted class)</span>
+<span class="sd">        resize: Whether to resize heatmap to input size</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Relevance map with shape matching the input if resize=True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Debug input shape</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: GradCAM-Timeseries input shape: </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Ensure input has batch dimension</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Shape (time_steps, channels)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Add batch -&gt; (1, time_steps, channels)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Added batch dimension, new shape: </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Convert numpy array to tensor</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    
+    <span class="c1"># Create a model that maps the input to the activations of the last conv layer and model output</span>
+    <span class="n">grad_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">],</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="n">last_conv_layer_name</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">output</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Compute the gradient of the target class with respect to the activations of the last conv layer</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+        <span class="c1"># Need to watch the input to the gradient tape in TF2</span>
+        <span class="n">tape</span><span class="o">.</span><span class="n">watch</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="c1"># Forward pass</span>
+        <span class="n">last_conv_layer_output</span><span class="p">,</span> <span class="n">preds</span> <span class="o">=</span> <span class="n">grad_model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Conv layer output shape: </span><span class="si">{</span><span class="n">last_conv_layer_output</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Model prediction shape: </span><span class="si">{</span><span class="n">preds</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Determine target class if not specified</span>
+        <span class="k">if</span> <span class="n">neuron_selection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">neuron_selection</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="c1"># Get the specific class output</span>
+        <span class="n">class_channel</span> <span class="o">=</span> <span class="n">preds</span><span class="p">[:,</span> <span class="n">neuron_selection</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Selected neuron </span><span class="si">{</span><span class="n">neuron_selection</span><span class="si">}</span><span class="s2">, activation: </span><span class="si">{</span><span class="n">class_channel</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate gradient of the target class with respect to feature maps</span>
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">class_channel</span><span class="p">,</span> <span class="n">last_conv_layer_output</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Gradients shape: </span><span class="si">{</span><span class="n">grads</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate importance weights for each feature map</span>
+    <span class="c1"># Pool across temporal dimension (axis 1) and batches (axis 0)</span>
+    <span class="n">pooled_grads</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Pooled gradients shape: </span><span class="si">{</span><span class="n">pooled_grads</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Apply the importance weights to each feature map</span>
+    <span class="n">last_conv_layer_output</span> <span class="o">=</span> <span class="n">last_conv_layer_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get first sample</span>
+    
+    <span class="c1"># Ensure proper broadcasting by adding a dimension</span>
+    <span class="n">pooled_grads_reshaped</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">pooled_grads</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Reshaped pooled gradients: </span><span class="si">{</span><span class="n">pooled_grads_reshaped</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Calculate weighted feature maps (properly vectorized)</span>
+    <span class="n">weighted_maps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;tc,c-&gt;t&#39;</span><span class="p">,</span> <span class="n">last_conv_layer_output</span><span class="p">,</span> <span class="n">pooled_grads</span><span class="p">)</span>
+    <span class="n">heatmap</span> <span class="o">=</span> <span class="n">weighted_maps</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Pre-normalization heatmap shape: </span><span class="si">{</span><span class="n">heatmap</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ReLU and normalize</span>
+    <span class="n">heatmap</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">heatmap</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">max_val</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">heatmap</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_val</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">heatmap</span> <span class="o">=</span> <span class="n">heatmap</span> <span class="o">/</span> <span class="n">max_val</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  WARNING: Max value is zero, heatmap will be all zeros&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Convert to numpy for further processing</span>
+    <span class="n">heatmap_np</span> <span class="o">=</span> <span class="n">heatmap</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="c1"># Resize to match input time steps</span>
+    <span class="k">if</span> <span class="n">resize</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Get number of time steps and channels from input</span>
+            <span class="n">input_time_steps</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">input_channels</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            
+            <span class="c1"># Check if we need to resize</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">heatmap_np</span><span class="p">)</span> <span class="o">!=</span> <span class="n">input_time_steps</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Resizing heatmap from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">heatmap_np</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">input_time_steps</span><span class="si">}</span><span class="s2"> time steps&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># Create interpolation function for the temporal dimension</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">heatmap_np</span><span class="p">)),</span> 
+                    <span class="n">y</span><span class="o">=</span><span class="n">heatmap_np</span><span class="p">,</span>
+                    <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span>
+                <span class="p">)</span>
+                
+                <span class="c1"># Interpolate to match input time steps</span>
+                <span class="n">heatmap_resized</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">heatmap_np</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">input_time_steps</span><span class="p">))</span>
+                
+                <span class="c1"># Expand to match channel dimension if needed</span>
+                <span class="k">if</span> <span class="n">input_channels</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">heatmap_resized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">heatmap_resized</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">heatmap_resized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">heatmap_resized</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">input_channels</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Expanded heatmap to match </span><span class="si">{</span><span class="n">input_channels</span><span class="si">}</span><span class="s2"> channels, shape: </span><span class="si">{</span><span class="n">heatmap_resized</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="k">return</span> <span class="n">heatmap_resized</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Just expand to match channels if needed</span>
+                <span class="k">if</span> <span class="n">input_channels</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">heatmap_np</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">heatmap_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">heatmap_np</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">heatmap_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">heatmap_np</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">input_channels</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DEBUG: Expanded heatmap to match </span><span class="si">{</span><span class="n">input_channels</span><span class="si">}</span><span class="s2"> channels, shape: </span><span class="si">{</span><span class="n">heatmap_np</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="k">return</span> <span class="n">heatmap_np</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ERROR in resizing: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Fall back to unresized heatmap</span>
+            <span class="k">return</span> <span class="n">heatmap_np</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">heatmap_np</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_grad_cam_relevancemap">
+<a class="viewcode-back" href="../../../../api/tensorflow.html#signxai.tf_signxai.methods.grad_cam.calculate_grad_cam_relevancemap">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_grad_cam_relevancemap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">last_conv_layer_name</span><span class="p">,</span> <span class="n">neuron_selection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># First, we create a model that maps the input image to the activations</span>
+    <span class="c1"># of the last conv layer as well as the output predictions</span>
+    <span class="n">grad_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">],</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="n">last_conv_layer_name</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">output</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Then, we compute the gradient of the top predicted class for our input image</span>
+    <span class="c1"># with respect to the activations of the last conv layer</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+        <span class="n">last_conv_layer_output</span><span class="p">,</span> <span class="n">preds</span> <span class="o">=</span> <span class="n">grad_model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">neuron_selection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">neuron_selection</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">class_channel</span> <span class="o">=</span> <span class="n">preds</span><span class="p">[:,</span> <span class="n">neuron_selection</span><span class="p">]</span>
+
+    <span class="c1"># This is the gradient of the output neuron (top predicted or chosen)</span>
+    <span class="c1"># with regard to the output feature map of the last conv layer</span>
+    <span class="n">grads</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">class_channel</span><span class="p">,</span> <span class="n">last_conv_layer_output</span><span class="p">)</span>
+
+    <span class="c1"># This is a vector where each entry is the mean intensity of the gradient</span>
+    <span class="c1"># over a specific feature map channel</span>
+    <span class="c1"># For 1D timeseries: grads shape is [batch, time, channels], so reduce over (0, 1)</span>
+    <span class="c1"># For 2D images: grads shape is [batch, height, width, channels], so reduce over (0, 1, 2)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">grads</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># 1D timeseries case</span>
+        <span class="n">pooled_grads</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># 2D image case (original)</span>
+        <span class="n">pooled_grads</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># We multiply each channel in the feature map array</span>
+    <span class="c1"># by &quot;how important this channel is&quot; with regard to the top predicted class</span>
+    <span class="c1"># then sum all the channels to obtain the relevancemap class activation</span>
+    <span class="n">last_conv_layer_output</span> <span class="o">=</span> <span class="n">last_conv_layer_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c1"># Ensure compatible shapes for matrix multiplication</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">last_conv_layer_output</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># 1D timeseries: [time, channels] @ [channels] -&gt; [time]</span>
+        <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">last_conv_layer_output</span> <span class="o">*</span> <span class="n">pooled_grads</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># 2D image case (original)</span>
+        <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">last_conv_layer_output</span> <span class="o">@</span> <span class="n">pooled_grads</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">relevancemap</span><span class="p">)</span>
+
+    <span class="c1"># Relu (filter positve values)</span>
+    <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">relevancemap</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># For visualization purpose, we will also normalize the relevancemap between 0 &amp; 1</span>
+    <span class="n">relevancemap</span> <span class="o">=</span> <span class="n">relevancemap</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">relevancemap</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">resize</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Resize to input spatial dimensions using TensorFlow operations</span>
+        <span class="kn">import</span> <span class="nn">cv2</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">relevancemap</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="c1"># Resize to match input spatial dimensions (H, W) -&gt; input shape is (B, H, W, C)</span>
+        <span class="n">h_resized</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">h_resized</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">relevancemap</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, SignXAI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Framework Interoperability &mdash; SignXAI 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ec77c5b5" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Advanced Usage" href="advanced_usage.html" />
+    <link rel="prev" title="Basic Usage" href="basic_usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SignXAI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Framework Interoperability</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-detection">Framework Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-agnostic-api">Framework-Agnostic API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#method-consistency-across-frameworks">Method Consistency Across Frameworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-differences">Implementation Differences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-specific-workflow">Framework-Specific Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow-specific-workflow">TensorFlow-Specific Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pytorch-specific-workflow">PyTorch-Specific Workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#converting-models-between-frameworks">Converting Models Between Frameworks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#onnx-based-conversion">ONNX-Based Conversion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#direct-conversion">Direct Conversion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#comparing-results-across-frameworks">Comparing Results Across Frameworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-agnostic-visualization">Framework-Agnostic Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-differences-in-lrp-implementation">Framework Differences in LRP Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tips-for-seamless-framework-integration">Tips for Seamless Framework Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-study-analyzing-the-same-model-across-frameworks">Case Study: Analyzing the Same Model Across Frameworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">TensorFlow Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytorch.html">PyTorch Implementation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/image_classification.html">Image Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/time_series.html">ECG Time Series</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tensorflow.html">TensorFlow Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pytorch.html">PyTorch Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/common.html">Common Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/methods_list.html">Explanation Methods List</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SignXAI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Framework Interoperability</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/signxai/signxai/blob/main/docs/guide/framework_interop.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="framework-interoperability">
+<h1>Framework Interoperability<a class="headerlink" href="#framework-interoperability" title="Link to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#introduction" id="id1">Introduction</a></p></li>
+<li><p><a class="reference internal" href="#framework-detection" id="id2">Framework Detection</a></p></li>
+<li><p><a class="reference internal" href="#framework-agnostic-api" id="id3">Framework-Agnostic API</a></p></li>
+<li><p><a class="reference internal" href="#method-consistency-across-frameworks" id="id4">Method Consistency Across Frameworks</a></p></li>
+<li><p><a class="reference internal" href="#implementation-differences" id="id5">Implementation Differences</a></p></li>
+<li><p><a class="reference internal" href="#framework-specific-workflow" id="id6">Framework-Specific Workflow</a></p>
+<ul>
+<li><p><a class="reference internal" href="#tensorflow-specific-workflow" id="id7">TensorFlow-Specific Workflow</a></p></li>
+<li><p><a class="reference internal" href="#pytorch-specific-workflow" id="id8">PyTorch-Specific Workflow</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#converting-models-between-frameworks" id="id9">Converting Models Between Frameworks</a></p>
+<ul>
+<li><p><a class="reference internal" href="#onnx-based-conversion" id="id10">ONNX-Based Conversion</a></p></li>
+<li><p><a class="reference internal" href="#direct-conversion" id="id11">Direct Conversion</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#comparing-results-across-frameworks" id="id12">Comparing Results Across Frameworks</a></p></li>
+<li><p><a class="reference internal" href="#framework-agnostic-visualization" id="id13">Framework-Agnostic Visualization</a></p></li>
+<li><p><a class="reference internal" href="#framework-differences-in-lrp-implementation" id="id14">Framework Differences in LRP Implementation</a></p></li>
+<li><p><a class="reference internal" href="#tips-for-seamless-framework-integration" id="id15">Tips for Seamless Framework Integration</a></p></li>
+<li><p><a class="reference internal" href="#case-study-analyzing-the-same-model-across-frameworks" id="id16">Case Study: Analyzing the Same Model Across Frameworks</a></p></li>
+<li><p><a class="reference internal" href="#conclusion" id="id17">Conclusion</a></p></li>
+</ul>
+</nav>
+<section id="introduction">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Introduction</a><a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>SignXAI offers a unique advantage by supporting both TensorFlow and PyTorch frameworks with a consistent API. This guide explains how to:</p>
+<ol class="arabic simple">
+<li><p>Use the framework-agnostic API</p></li>
+<li><p>Switch between frameworks</p></li>
+<li><p>Compare results across frameworks</p></li>
+<li><p>Convert models between frameworks</p></li>
+</ol>
+</section>
+<section id="framework-detection">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Framework Detection</a><a class="headerlink" href="#framework-detection" title="Link to this heading"></a></h2>
+<p>SignXAI automatically detects which framework is being used based on the model type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">signxai</span>
+
+<span class="c1"># Check which backends are available</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Available backends: </span><span class="si">{</span><span class="n">signxai</span><span class="o">.</span><span class="n">_AVAILABLE_BACKENDS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># To use with automatic framework detection</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">signxai</span><span class="o">.</span><span class="n">calculate_relevancemap</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gradient&quot;</span><span class="p">)</span>
+
+<span class="c1"># SignXAI will automatically determine if model is TensorFlow or PyTorch</span>
+<span class="c1"># and use the appropriate implementation</span>
+</pre></div>
+</div>
+</section>
+<section id="framework-agnostic-api">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Framework-Agnostic API</a><a class="headerlink" href="#framework-agnostic-api" title="Link to this heading"></a></h2>
+<p>The framework-agnostic API provides a consistent interface regardless of which framework you’re using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">signxai</span>
+
+<span class="c1"># Works with both TensorFlow and PyTorch models</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">signxai</span><span class="o">.</span><span class="n">calculate_relevancemap</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>          <span class="c1"># Either tf.keras.Model or torch.nn.Module</span>
+    <span class="n">input_tensor</span><span class="p">,</span>   <span class="c1"># Either numpy array, tf.Tensor, or torch.Tensor</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lrp_z&quot;</span>  <span class="c1"># Same method names across frameworks</span>
+<span class="p">)</span>
+
+<span class="c1"># Multiple inputs</span>
+<span class="n">explanations</span> <span class="o">=</span> <span class="n">signxai</span><span class="o">.</span><span class="n">calculate_relevancemaps</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">input1</span><span class="p">,</span> <span class="n">input2</span><span class="p">,</span> <span class="n">input3</span><span class="p">],</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gradient_x_input&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="method-consistency-across-frameworks">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Method Consistency Across Frameworks</a><a class="headerlink" href="#method-consistency-across-frameworks" title="Link to this heading"></a></h2>
+<p>SignXAI ensures that the same method produces comparable results across frameworks:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>TensorFlow</p></th>
+<th class="head"><p>PyTorch</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gradient</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gradient_x_input</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gradient_x_sign</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">guided_backprop</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">integrated_gradients</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smoothgrad</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">grad_cam</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lrp_z</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lrp_epsilon_{value}</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lrp_alpha_1_beta_0</span></code></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="implementation-differences">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Implementation Differences</a><a class="headerlink" href="#implementation-differences" title="Link to this heading"></a></h2>
+<p>While SignXAI strives for consistent results, there are some implementation differences to be aware of:</p>
+<ol class="arabic simple">
+<li><p><strong>Backend Libraries</strong></p>
+<ul class="simple">
+<li><p>TensorFlow: Uses iNNvestigate for LRP</p></li>
+<li><p>PyTorch: Uses Zennit for LRP</p></li>
+</ul>
+</li>
+<li><p><strong>API Parameter Naming</strong></p>
+<ul class="simple">
+<li><p>TensorFlow: Uses <code class="docutils literal notranslate"><span class="pre">neuron_selection</span></code> for target class</p></li>
+<li><p>PyTorch: Uses <code class="docutils literal notranslate"><span class="pre">target_class</span></code> for target class (though both are accepted)</p></li>
+</ul>
+</li>
+<li><p><strong>Custom LRP Rules</strong></p>
+<ul class="simple">
+<li><p>Layer-specific rules have slightly different implementation details</p></li>
+<li><p>The core methods provide consistent results, but custom configurations may differ</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="framework-specific-workflow">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Framework-Specific Workflow</a><a class="headerlink" href="#framework-specific-workflow" title="Link to this heading"></a></h2>
+<p>If you prefer to work directly with a specific framework’s implementation:</p>
+<section id="tensorflow-specific-workflow">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">TensorFlow-Specific Workflow</a><a class="headerlink" href="#tensorflow-specific-workflow" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras.applications.vgg16</span> <span class="kn">import</span> <span class="n">VGG16</span>
+<span class="kn">from</span> <span class="nn">signxai.tf_signxai</span> <span class="kn">import</span> <span class="n">calculate_relevancemap</span>
+<span class="kn">from</span> <span class="nn">signxai.utils.utils</span> <span class="kn">import</span> <span class="n">load_image</span><span class="p">,</span> <span class="n">normalize_heatmap</span>
+
+<span class="c1"># Load TensorFlow model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">VGG16</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;imagenet&#39;</span><span class="p">)</span>
+
+<span class="c1"># Remove softmax</span>
+<span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># Load and preprocess input</span>
+<span class="n">img</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="s1">&#39;example.jpg&#39;</span><span class="p">)</span>
+
+<span class="c1"># Calculate explanation</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">calculate_relevancemap</span><span class="p">(</span><span class="s1">&#39;lrp_z&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+
+<span class="c1"># Visualize</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">normalize_heatmap</span><span class="p">(</span><span class="n">explanation</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;seismic&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="pytorch-specific-workflow">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">PyTorch-Specific Workflow</a><a class="headerlink" href="#pytorch-specific-workflow" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torchvision.models</span> <span class="k">as</span> <span class="nn">models</span>
+<span class="kn">from</span> <span class="nn">signxai.torch_signxai</span> <span class="kn">import</span> <span class="n">calculate_relevancemap</span>
+<span class="kn">from</span> <span class="nn">signxai.torch_signxai.utils</span> <span class="kn">import</span> <span class="n">remove_softmax</span>
+
+<span class="c1"># Load PyTorch model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">vgg16</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<span class="c1"># Remove softmax</span>
+<span class="n">model_no_softmax</span> <span class="o">=</span> <span class="n">remove_softmax</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+<span class="c1"># Preprocess input</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">transforms</span>
+
+<span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)),</span>
+    <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+<span class="p">])</span>
+
+<span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;example.jpg&#39;</span><span class="p">)</span>
+<span class="n">input_tensor</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Add batch dimension</span>
+
+<span class="c1"># Calculate explanation</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">calculate_relevancemap</span><span class="p">(</span><span class="n">model_no_softmax</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lrp_epsilon&quot;</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Visualize</span>
+<span class="kn">from</span> <span class="nn">signxai.common.visualization</span> <span class="kn">import</span> <span class="n">normalize_relevance_map</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">normalize_relevance_map</span><span class="p">(</span><span class="n">explanation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;seismic&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="converting-models-between-frameworks">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">Converting Models Between Frameworks</a><a class="headerlink" href="#converting-models-between-frameworks" title="Link to this heading"></a></h2>
+<p>If you need to compare the exact same model across frameworks, SignXAI provides utilities for model conversion.</p>
+<section id="onnx-based-conversion">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">ONNX-Based Conversion</a><a class="headerlink" href="#onnx-based-conversion" title="Link to this heading"></a></h3>
+<p>ONNX (Open Neural Network Exchange) provides a standard format for model conversion:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># TensorFlow to PyTorch via ONNX</span>
+<span class="kn">from</span> <span class="nn">signxai.converters.onnx_to_torch</span> <span class="kn">import</span> <span class="n">convert_tf_to_torch_via_onnx</span>
+
+<span class="c1"># Convert TensorFlow model to PyTorch</span>
+<span class="n">pytorch_model</span> <span class="o">=</span> <span class="n">convert_tf_to_torch_via_onnx</span><span class="p">(</span><span class="n">tensorflow_model</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># Now you can use the same model with both frameworks</span>
+<span class="n">tf_explanation</span> <span class="o">=</span> <span class="n">signxai</span><span class="o">.</span><span class="n">tf_signxai</span><span class="o">.</span><span class="n">calculate_relevancemap</span><span class="p">(</span><span class="s1">&#39;lrp_z&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">tensorflow_model</span><span class="p">)</span>
+<span class="n">torch_explanation</span> <span class="o">=</span> <span class="n">signxai</span><span class="o">.</span><span class="n">torch_signxai</span><span class="o">.</span><span class="n">calculate_relevancemap</span><span class="p">(</span><span class="n">pytorch_model</span><span class="p">,</span> <span class="n">torch_x</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lrp_z&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="direct-conversion">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Direct Conversion</a><a class="headerlink" href="#direct-conversion" title="Link to this heading"></a></h3>
+<p>For some simpler models, direct conversion without ONNX is possible:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">signxai.converters.direct_tf_to_torch</span> <span class="kn">import</span> <span class="n">convert_tf_to_torch_direct</span>
+
+<span class="c1"># Direct conversion for compatible models</span>
+<span class="n">pytorch_model</span> <span class="o">=</span> <span class="n">convert_tf_to_torch_direct</span><span class="p">(</span><span class="n">tensorflow_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="comparing-results-across-frameworks">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Comparing Results Across Frameworks</a><a class="headerlink" href="#comparing-results-across-frameworks" title="Link to this heading"></a></h2>
+<p>To ensure consistency, you may want to compare explanation results from both frameworks:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">signxai.common.visualization</span> <span class="kn">import</span> <span class="n">visualize_comparison</span>
+
+<span class="c1"># Get explanations from both frameworks</span>
+<span class="n">tf_explanation</span> <span class="o">=</span> <span class="n">signxai</span><span class="o">.</span><span class="n">tf_signxai</span><span class="o">.</span><span class="n">calculate_relevancemap</span><span class="p">(</span><span class="s1">&#39;lrp_z&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">tensorflow_model</span><span class="p">)</span>
+<span class="n">torch_explanation</span> <span class="o">=</span> <span class="n">signxai</span><span class="o">.</span><span class="n">torch_signxai</span><span class="o">.</span><span class="n">calculate_relevancemap</span><span class="p">(</span><span class="n">pytorch_model</span><span class="p">,</span> <span class="n">torch_x</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lrp_z&quot;</span><span class="p">)</span>
+
+<span class="c1"># Convert to same format (numpy arrays)</span>
+<span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">torch_explanation</span><span class="p">):</span>
+    <span class="n">torch_explanation</span> <span class="o">=</span> <span class="n">torch_explanation</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="c1"># Compute similarity metrics</span>
+<span class="n">similarity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">tf_explanation</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">torch_explanation</span><span class="o">.</span><span class="n">flatten</span><span class="p">())[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Correlation between TensorFlow and PyTorch explanations: </span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Visualize differences</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">tf_explanation</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;seismic&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;TensorFlow&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">torch_explanation</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;seismic&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;PyTorch&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">tf_explanation</span> <span class="o">-</span> <span class="n">torch_explanation</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Absolute Difference&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="framework-agnostic-visualization">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">Framework-Agnostic Visualization</a><a class="headerlink" href="#framework-agnostic-visualization" title="Link to this heading"></a></h2>
+<p>SignXAI provides framework-agnostic visualization utilities:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">signxai.common.visualization</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">normalize_relevance_map</span><span class="p">,</span>
+    <span class="n">relevance_to_heatmap</span><span class="p">,</span>
+    <span class="n">overlay_heatmap</span><span class="p">,</span>
+    <span class="n">visualize_comparison</span>
+<span class="p">)</span>
+
+<span class="c1"># Works with explanations from either framework</span>
+<span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_relevance_map</span><span class="p">(</span><span class="n">explanation</span><span class="p">)</span>
+<span class="n">heatmap</span> <span class="o">=</span> <span class="n">relevance_to_heatmap</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+<span class="n">overlaid</span> <span class="o">=</span> <span class="n">overlay_heatmap</span><span class="p">(</span><span class="n">original_image</span><span class="p">,</span> <span class="n">heatmap</span><span class="p">)</span>
+
+<span class="c1"># Compare multiple methods</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">visualize_comparison</span><span class="p">(</span>
+    <span class="n">original_image</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">method1_result</span><span class="p">,</span> <span class="n">method2_result</span><span class="p">,</span> <span class="n">method3_result</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">&quot;Method 1&quot;</span><span class="p">,</span> <span class="s2">&quot;Method 2&quot;</span><span class="p">,</span> <span class="s2">&quot;Method 3&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="framework-differences-in-lrp-implementation">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Framework Differences in LRP Implementation</a><a class="headerlink" href="#framework-differences-in-lrp-implementation" title="Link to this heading"></a></h2>
+<p>Due to using different backend libraries (iNNvestigate vs. Zennit), there are some subtle differences in LRP implementations:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>TensorFlow (iNNvestigate)</p></th>
+<th class="head"><p>PyTorch (Zennit)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Input layer rules</p></td>
+<td><p>Z, SIGN, Bounded, WSquare, Flat</p></td>
+<td><p>Handled through composites</p></td>
+</tr>
+<tr class="row-odd"><td><p>Layer-specific rules</p></td>
+<td><p>Via manual configuration</p></td>
+<td><p>Via composite layer maps</p></td>
+</tr>
+<tr class="row-even"><td><p>Composite handling</p></td>
+<td><p>Sequential composites A &amp; B</p></td>
+<td><p>Flexible layer mapping</p></td>
+</tr>
+<tr class="row-odd"><td><p>Computation approach</p></td>
+<td><p>Graph-based</p></td>
+<td><p>Hook-based</p></td>
+</tr>
+</tbody>
+</table>
+<p>Despite these implementation differences, SignXAI ensures that the core algorithms produce comparable results.</p>
+</section>
+<section id="tips-for-seamless-framework-integration">
+<h2><a class="toc-backref" href="#id15" role="doc-backlink">Tips for Seamless Framework Integration</a><a class="headerlink" href="#tips-for-seamless-framework-integration" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Consistent Input Format</strong></p>
+<ul class="simple">
+<li><p>Use numpy arrays for inputs when possible</p></li>
+<li><p>Ensure input dimensions match framework expectations</p></li>
+</ul>
+</li>
+<li><p><strong>Model Preparation</strong></p>
+<ul class="simple">
+<li><p>Always remove the softmax layer</p></li>
+<li><p>Ensure model is in evaluation mode</p></li>
+</ul>
+</li>
+<li><p><strong>Parameter Mapping</strong></p>
+<ul class="simple">
+<li><p>Use common parameter names that work in both frameworks</p></li>
+<li><p>Be explicit about target class specification</p></li>
+</ul>
+</li>
+<li><p><strong>Result Handling</strong></p>
+<ul class="simple">
+<li><p>Convert results to numpy arrays for further processing</p></li>
+<li><p>Use framework-agnostic visualization functions</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="case-study-analyzing-the-same-model-across-frameworks">
+<h2><a class="toc-backref" href="#id16" role="doc-backlink">Case Study: Analyzing the Same Model Across Frameworks</a><a class="headerlink" href="#case-study-analyzing-the-same-model-across-frameworks" title="Link to this heading"></a></h2>
+<p>This example demonstrates analyzing the same model architecture (VGG16) in both frameworks:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torchvision.models</span> <span class="k">as</span> <span class="nn">torch_models</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras.applications.vgg16</span> <span class="kn">import</span> <span class="n">VGG16</span> <span class="k">as</span> <span class="n">tf_VGG16</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">signxai.tf_signxai</span> <span class="kn">import</span> <span class="n">calculate_relevancemap</span> <span class="k">as</span> <span class="n">tf_calculate_relevancemap</span>
+<span class="kn">from</span> <span class="nn">signxai.torch_signxai</span> <span class="kn">import</span> <span class="n">calculate_relevancemap</span> <span class="k">as</span> <span class="n">torch_calculate_relevancemap</span>
+<span class="kn">from</span> <span class="nn">signxai.utils.utils</span> <span class="kn">import</span> <span class="n">load_image</span>
+<span class="kn">from</span> <span class="nn">signxai.common.visualization</span> <span class="kn">import</span> <span class="n">normalize_relevance_map</span>
+
+<span class="c1"># Load example image</span>
+<span class="n">img</span><span class="p">,</span> <span class="n">x_np</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="s1">&#39;example.jpg&#39;</span><span class="p">)</span>
+
+<span class="c1"># Prepare TensorFlow model and input</span>
+<span class="n">tf_model</span> <span class="o">=</span> <span class="n">tf_VGG16</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s1">&#39;imagenet&#39;</span><span class="p">)</span>
+<span class="n">tf_model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Remove softmax</span>
+<span class="n">x_tf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_np</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Add batch dimension</span>
+
+<span class="c1"># Prepare PyTorch model and input</span>
+<span class="n">torch_model</span> <span class="o">=</span> <span class="n">torch_models</span><span class="o">.</span><span class="n">vgg16</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">torch_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="c1"># Convert numpy to torch format (C, H, W)</span>
+<span class="n">x_torch</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">x_np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Calculate explanations</span>
+<span class="n">tf_explanation</span> <span class="o">=</span> <span class="n">tf_calculate_relevancemap</span><span class="p">(</span><span class="s1">&#39;lrp_z&#39;</span><span class="p">,</span> <span class="n">x_tf</span><span class="p">,</span> <span class="n">tf_model</span><span class="p">)</span>
+<span class="n">torch_explanation</span> <span class="o">=</span> <span class="n">torch_calculate_relevancemap</span><span class="p">(</span><span class="n">torch_model</span><span class="p">,</span> <span class="n">x_torch</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lrp_z&quot;</span><span class="p">)</span>
+
+<span class="c1"># Convert to numpy arrays</span>
+<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">torch_explanation</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+    <span class="n">torch_explanation</span> <span class="o">=</span> <span class="n">torch_explanation</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="c1"># Visualize and compare</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Original Image&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">normalize_relevance_map</span><span class="p">(</span><span class="n">tf_explanation</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;seismic&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;TensorFlow Explanation&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">normalize_relevance_map</span><span class="p">(</span><span class="n">torch_explanation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;seismic&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;PyTorch Explanation&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Calculate similarity</span>
+<span class="n">tf_flat</span> <span class="o">=</span> <span class="n">tf_explanation</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">torch_flat</span> <span class="o">=</span> <span class="n">torch_explanation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">correlation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">tf_flat</span><span class="p">,</span> <span class="n">torch_flat</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Correlation between TensorFlow and PyTorch explanations: </span><span class="si">{</span><span class="n">correlation</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="conclusion">
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">Conclusion</a><a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p>SignXAI provides a powerful toolkit for explainable AI that works seamlessly across both TensorFlow and PyTorch. Whether you’re working exclusively with one framework or need to compare results across both, SignXAI offers a consistent experience with comparable results.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="basic_usage.html" class="btn btn-neutral float-left" title="Basic Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advanced_usage.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, SignXAI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

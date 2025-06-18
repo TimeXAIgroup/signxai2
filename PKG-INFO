@@ -1,0 +1,151 @@
+Metadata-Version: 2.4
+Name: signxai
+Version: 0.1.0
+Summary: SIGNed explanations: Unveiling relevant features by reducing bias
+Home-page: https://github.com/TimeXAI-group/signxai
+Author: Nils Gumpfer, Jana Fischer und Alexander Paul
+Author-email: nils.gumpfer@kite.thm.de
+Maintainer: Nils Gumpfer
+Maintainer-email: nils.gumpfer@kite.thm.de
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9,<3.13
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.19.0
+Requires-Dist: matplotlib>=3.7.0
+Requires-Dist: scipy>=1.10.0
+Requires-Dist: pillow>=8.0.0
+Requires-Dist: requests>=2.25.0
+Requires-Dist: setuptools~=68.2.2
+Requires-Dist: version-parser>=1.0.1
+Requires-Dist: jupyter>=1.0.0
+Requires-Dist: ipykernel>=6.0.0
+Requires-Dist: ipywidgets>=7.0.0
+Requires-Dist: notebook>=6.0.0
+Provides-Extra: tensorflow
+Provides-Extra: pytorch
+Provides-Extra: all
+Provides-Extra: dev
+Provides-Extra: full-dev
+
+# SIGNed explanations: Unveiling relevant features by reducing bias
+
+This repository and python package has been published alongside the following journal article:
+https://doi.org/10.1016/j.inffus.2023.101883
+
+If you use the code from this repository in your work, please cite:
+```bibtex
+ @article{Gumpfer2023SIGN,
+    title = {SIGNed explanations: Unveiling relevant features by reducing bias},
+    author = {Nils Gumpfer and Joshua Prim and Till Keller and Bernhard Seeger and Michael Guckert and Jennifer Hannig},
+    journal = {Information Fusion},
+    pages = {101883},
+    year = {2023},
+    issn = {1566-2535},
+    doi = {https://doi.org/10.1016/j.inffus.2023.101883},
+    url = {https://www.sciencedirect.com/science/article/pii/S1566253523001999}
+}
+<img src="https://ars.els-cdn.com/content/image/1-s2.0-S1566253523001999-ga1_lrg.jpg" title="Graphical Abstract" width="900px"/>
+Experiments
+To reproduce the experiments from our paper, please find a detailed description on https://github.com/nilsgumpfer/SIGN.
+Setup
+SignXAI supports Python versions 3.9 to 3.12 (Python 3.13+ is not supported due to TensorFlow compatibility issues).
+Recommended Installation (Conda)
+For the most reliable installation, we recommend using Conda with a step-by-step approach:
+bash# 1. Create a new conda environment with Python 3.10
+conda create -n signxai python=3.10 -y
+conda activate signxai
+
+# 2. Install Jupyter for notebook support
+conda install -y jupyter ipykernel
+python -m ipykernel install --user --name=signxai --display-name="Python (signxai)"
+
+# 3. Install dependencies step-by-step
+# Start with common dependencies
+pip install -r requirements/common.txt
+
+# 4. Install PyTorch dependencies
+pip install -r requirements/pytorch.txt
+
+# 5. Install TensorFlow dependencies
+pip install -r requirements/tensorflow.txt
+
+# 6. Install the package in development mode
+pip install -e .
+
+# 7. Verify installation
+python -c "import numpy, matplotlib, torch, tensorflow; print(f'NumPy: {numpy.__version__}, PyTorch: {torch.__version__}, TensorFlow: {tensorflow.__version__}')"
+Quick Installation (Pip)
+If you prefer pip installation, you can use the following options:
+bash# Make sure you're using Python 3.9-3.12
+python --version
+
+# Install with TensorFlow support
+pip install signxai[tensorflow]
+
+# Install with PyTorch support
+pip install signxai[pytorch]
+
+# Install with both frameworks
+pip install signxai[all]
+
+Important: The pip installation methods may not work correctly on all systems due to dependency conflicts. The step-by-step conda installation is recommended for the most reliable setup.
+
+Features
+
+Support for TensorFlow and PyTorch models
+Consistent API across frameworks
+Wide range of explanation methods:
+
+Gradient-based: Vanilla gradient, Integrated gradients, SmoothGrad
+Class activation maps: Grad-CAM
+Guided backpropagation
+Layer-wise Relevance Propagation (LRP)
+Sign-based thresholding for binary relevance maps
+
+
+
+Usage
+TensorFlow (VGG16)
+The below example illustrates the usage of the signxai package with TensorFlow:
+pythonimport numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.applications.vgg16 import VGG16
+from signxai.tf_signxai import calculate_relevancemap
+from signxai.utils.utils import (load_image, aggregate_and_normalize_relevancemap_rgb, download_image,
+                                 calculate_explanation_innvestigate)
+
+# Load model
+model = VGG16(weights='imagenet')
+
+#  Remove last layer's softmax activation (we need the raw values!)
+model.layers[-1].activation = None
+
+# Load example image
+path = 'example.jpg'
+download_image(path)
+img, x = load_image(path)
+
+# Calculate relevancemaps
+R1 = calculate_relevancemap('lrpz_epsilon_0_1_std_x', np.array(x), model)
+R2 = calculate_relevancemap('lrpsign_epsilon_0_1_std_x', np.array(x), model)
+
+# Equivalent relevance maps as for R1 and R2, but with direct access to innvestigate and parameters
+R3 = calculate_explanation_innvestigate(model, x, method='lrp.stdxepsilon', stdfactor=0.1, input_layer_rule='Z')
+R4 = calculate_explanation_innvestigate(model, x, method='lrp.stdxepsilon', stdfactor=0.1, input_layer_rule='SIGN')
+
+# Visualize heatmaps
+fig, axs = plt.subplots(ncols=3, nrows=2, figsize=(18, 12))
+axs[0][0].imshow(img)
+axs[1][0].imshow(img)
+axs[0][1].matshow(aggregate_and_normalize_relevancemap_rgb(R1), cmap='seismic', clim=(-1, 1))
+axs[0][2].matshow(aggregate_and_normalize_relevancemap_rgb(R2), cmap='seismic', clim=(-1, 1))
+axs[1][1].matshow(aggregate_and_normalize_relevancemap_rgb(R3), cmap='seismic', clim=(-1, 1))
+axs[1][2].matshow(aggregate_and_normalize_relevancemap_rgb(R4), cmap='seismic', clim=(-1, 1))
+
+plt.show()

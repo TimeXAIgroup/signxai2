@@ -1,0 +1,254 @@
+--- Model loaded from: JSON: /home/honormagicbook14/Projects/PyCharm/signxai-0.1.0/examples/data/models/tensorflow/ECG/LBBB/model.json, Weights: /home/honormagicbook14/Projects/PyCharm/signxai-0.1.0/examples/data/models/tensorflow/ECG/LBBB/weights.h5 ---
+--- Model Summary (model.summary()) ---
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ conv1d (Conv1D)             (None, 2000, 64)          2368      
+                                                                 
+ activation (Activation)     (None, 2000, 64)          0         
+                                                                 
+ max_pooling1d (MaxPooling1D  (None, 1000, 64)         0         
+ )                                                               
+                                                                 
+ conv1d_1 (Conv1D)           (None, 1000, 64)          12352     
+                                                                 
+ activation_1 (Activation)   (None, 1000, 64)          0         
+                                                                 
+ max_pooling1d_1 (MaxPooling  (None, 500, 64)          0         
+ 1D)                                                             
+                                                                 
+ dropout (Dropout)           (None, 500, 64)           0         
+                                                                 
+ conv1d_2 (Conv1D)           (None, 500, 64)           12352     
+                                                                 
+ activation_2 (Activation)   (None, 500, 64)           0         
+                                                                 
+ max_pooling1d_2 (MaxPooling  (None, 250, 64)          0         
+ 1D)                                                             
+                                                                 
+ dropout_1 (Dropout)         (None, 250, 64)           0         
+                                                                 
+ conv1d_3 (Conv1D)           (None, 250, 64)           12352     
+                                                                 
+ activation_3 (Activation)   (None, 250, 64)           0         
+                                                                 
+ max_pooling1d_3 (MaxPooling  (None, 125, 64)          0         
+ 1D)                                                             
+                                                                 
+ dropout_2 (Dropout)         (None, 125, 64)           0         
+                                                                 
+ conv1d_4 (Conv1D)           (None, 125, 64)           12352     
+                                                                 
+ activation_4 (Activation)   (None, 125, 64)           0         
+                                                                 
+ max_pooling1d_4 (MaxPooling  (None, 62, 64)           0         
+ 1D)                                                             
+                                                                 
+ dropout_3 (Dropout)         (None, 62, 64)            0         
+                                                                 
+ global_average_pooling1d (G  (None, 64)               0         
+ lobalAveragePooling1D)                                          
+                                                                 
+ dense (Dense)               (None, 64)                4160      
+                                                                 
+ activation_5 (Activation)   (None, 64)                0         
+                                                                 
+ dropout_4 (Dropout)         (None, 64)                0         
+                                                                 
+ dense_1 (Dense)             (None, 64)                4160      
+                                                                 
+ activation_6 (Activation)   (None, 64)                0         
+                                                                 
+ dropout_5 (Dropout)         (None, 64)                0         
+                                                                 
+ dense_2 (Dense)             (None, 64)                4160      
+                                                                 
+ activation_7 (Activation)   (None, 64)                0         
+                                                                 
+ dropout_6 (Dropout)         (None, 64)                0         
+                                                                 
+ dense_3 (Dense)             (None, 2)                 130       
+                                                                 
+ softmax (Softmax)           (None, 2)                 0         
+                                                                 
+=================================================================
+Total params: 64,386
+Trainable params: 64,386
+Non-trainable params: 0
+_________________________________________________________________
+
+==================================================
+
+--- Detailed Layer Information (model.layers) ---
+Layer 0: conv1d (Type: Conv1D)
+  Config: {'name': 'conv1d', 'trainable': True, 'dtype': 'float32', 'batch_input_shape': (None, 2000, 12), 'filters': 64, 'kernel_size': (3,), 'strides': (1,), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1,), 'groups': 1, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 2000, 12)
+  Output shape: (None, 2000, 64)
+  Conv1D - Filters: 64
+  Conv1D - Kernel Size: 3
+------------------------------
+Layer 1: activation (Type: Activation)
+  Config: {'name': 'activation', 'trainable': True, 'dtype': 'float32', 'activation': 'elu'}
+  Input shape: (None, 2000, 64)
+  Output shape: (None, 2000, 64)
+------------------------------
+Layer 2: max_pooling1d (Type: MaxPooling1D)
+  Config: {'name': 'max_pooling1d', 'trainable': True, 'dtype': 'float32', 'strides': (2,), 'pool_size': (2,), 'padding': 'valid', 'data_format': 'channels_last'}
+  Input shape: (None, 2000, 64)
+  Output shape: (None, 1000, 64)
+------------------------------
+Layer 3: conv1d_1 (Type: Conv1D)
+  Config: {'name': 'conv1d_1', 'trainable': True, 'dtype': 'float32', 'filters': 64, 'kernel_size': (3,), 'strides': (1,), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1,), 'groups': 1, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 1000, 64)
+  Output shape: (None, 1000, 64)
+  Conv1D - Filters: 64
+  Conv1D - Kernel Size: 3
+------------------------------
+Layer 4: activation_1 (Type: Activation)
+  Config: {'name': 'activation_1', 'trainable': True, 'dtype': 'float32', 'activation': 'elu'}
+  Input shape: (None, 1000, 64)
+  Output shape: (None, 1000, 64)
+------------------------------
+Layer 5: max_pooling1d_1 (Type: MaxPooling1D)
+  Config: {'name': 'max_pooling1d_1', 'trainable': True, 'dtype': 'float32', 'strides': (2,), 'pool_size': (2,), 'padding': 'valid', 'data_format': 'channels_last'}
+  Input shape: (None, 1000, 64)
+  Output shape: (None, 500, 64)
+------------------------------
+Layer 6: dropout (Type: Dropout)
+  Config: {'name': 'dropout', 'trainable': True, 'dtype': 'float32', 'rate': 0.1, 'noise_shape': None, 'seed': None}
+  Input shape: (None, 500, 64)
+  Output shape: (None, 500, 64)
+------------------------------
+Layer 7: conv1d_2 (Type: Conv1D)
+  Config: {'name': 'conv1d_2', 'trainable': True, 'dtype': 'float32', 'filters': 64, 'kernel_size': (3,), 'strides': (1,), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1,), 'groups': 1, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 500, 64)
+  Output shape: (None, 500, 64)
+  Conv1D - Filters: 64
+  Conv1D - Kernel Size: 3
+------------------------------
+Layer 8: activation_2 (Type: Activation)
+  Config: {'name': 'activation_2', 'trainable': True, 'dtype': 'float32', 'activation': 'elu'}
+  Input shape: (None, 500, 64)
+  Output shape: (None, 500, 64)
+------------------------------
+Layer 9: max_pooling1d_2 (Type: MaxPooling1D)
+  Config: {'name': 'max_pooling1d_2', 'trainable': True, 'dtype': 'float32', 'strides': (2,), 'pool_size': (2,), 'padding': 'valid', 'data_format': 'channels_last'}
+  Input shape: (None, 500, 64)
+  Output shape: (None, 250, 64)
+------------------------------
+Layer 10: dropout_1 (Type: Dropout)
+  Config: {'name': 'dropout_1', 'trainable': True, 'dtype': 'float32', 'rate': 0.1, 'noise_shape': None, 'seed': None}
+  Input shape: (None, 250, 64)
+  Output shape: (None, 250, 64)
+------------------------------
+Layer 11: conv1d_3 (Type: Conv1D)
+  Config: {'name': 'conv1d_3', 'trainable': True, 'dtype': 'float32', 'filters': 64, 'kernel_size': (3,), 'strides': (1,), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1,), 'groups': 1, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 250, 64)
+  Output shape: (None, 250, 64)
+  Conv1D - Filters: 64
+  Conv1D - Kernel Size: 3
+------------------------------
+Layer 12: activation_3 (Type: Activation)
+  Config: {'name': 'activation_3', 'trainable': True, 'dtype': 'float32', 'activation': 'elu'}
+  Input shape: (None, 250, 64)
+  Output shape: (None, 250, 64)
+------------------------------
+Layer 13: max_pooling1d_3 (Type: MaxPooling1D)
+  Config: {'name': 'max_pooling1d_3', 'trainable': True, 'dtype': 'float32', 'strides': (2,), 'pool_size': (2,), 'padding': 'valid', 'data_format': 'channels_last'}
+  Input shape: (None, 250, 64)
+  Output shape: (None, 125, 64)
+------------------------------
+Layer 14: dropout_2 (Type: Dropout)
+  Config: {'name': 'dropout_2', 'trainable': True, 'dtype': 'float32', 'rate': 0.1, 'noise_shape': None, 'seed': None}
+  Input shape: (None, 125, 64)
+  Output shape: (None, 125, 64)
+------------------------------
+Layer 15: conv1d_4 (Type: Conv1D)
+  Config: {'name': 'conv1d_4', 'trainable': True, 'dtype': 'float32', 'filters': 64, 'kernel_size': (3,), 'strides': (1,), 'padding': 'same', 'data_format': 'channels_last', 'dilation_rate': (1,), 'groups': 1, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 125, 64)
+  Output shape: (None, 125, 64)
+  Conv1D - Filters: 64
+  Conv1D - Kernel Size: 3
+------------------------------
+Layer 16: activation_4 (Type: Activation)
+  Config: {'name': 'activation_4', 'trainable': True, 'dtype': 'float32', 'activation': 'elu'}
+  Input shape: (None, 125, 64)
+  Output shape: (None, 125, 64)
+------------------------------
+Layer 17: max_pooling1d_4 (Type: MaxPooling1D)
+  Config: {'name': 'max_pooling1d_4', 'trainable': True, 'dtype': 'float32', 'strides': (2,), 'pool_size': (2,), 'padding': 'valid', 'data_format': 'channels_last'}
+  Input shape: (None, 125, 64)
+  Output shape: (None, 62, 64)
+------------------------------
+Layer 18: dropout_3 (Type: Dropout)
+  Config: {'name': 'dropout_3', 'trainable': True, 'dtype': 'float32', 'rate': 0.1, 'noise_shape': None, 'seed': None}
+  Input shape: (None, 62, 64)
+  Output shape: (None, 62, 64)
+------------------------------
+Layer 19: global_average_pooling1d (Type: GlobalAveragePooling1D)
+  Config: {'name': 'global_average_pooling1d', 'trainable': True, 'dtype': 'float32', 'data_format': 'channels_last', 'keepdims': False}
+  Input shape: (None, 62, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 20: dense (Type: Dense)
+  Config: {'name': 'dense', 'trainable': True, 'dtype': 'float32', 'units': 64, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 21: activation_5 (Type: Activation)
+  Config: {'name': 'activation_5', 'trainable': True, 'dtype': 'float32', 'activation': 'elu'}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 22: dropout_4 (Type: Dropout)
+  Config: {'name': 'dropout_4', 'trainable': True, 'dtype': 'float32', 'rate': 0.25, 'noise_shape': None, 'seed': None}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 23: dense_1 (Type: Dense)
+  Config: {'name': 'dense_1', 'trainable': True, 'dtype': 'float32', 'units': 64, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 24: activation_6 (Type: Activation)
+  Config: {'name': 'activation_6', 'trainable': True, 'dtype': 'float32', 'activation': 'elu'}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 25: dropout_5 (Type: Dropout)
+  Config: {'name': 'dropout_5', 'trainable': True, 'dtype': 'float32', 'rate': 0.25, 'noise_shape': None, 'seed': None}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 26: dense_2 (Type: Dense)
+  Config: {'name': 'dense_2', 'trainable': True, 'dtype': 'float32', 'units': 64, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 27: activation_7 (Type: Activation)
+  Config: {'name': 'activation_7', 'trainable': True, 'dtype': 'float32', 'activation': 'elu'}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 28: dropout_6 (Type: Dropout)
+  Config: {'name': 'dropout_6', 'trainable': True, 'dtype': 'float32', 'rate': 0.25, 'noise_shape': None, 'seed': None}
+  Input shape: (None, 64)
+  Output shape: (None, 64)
+------------------------------
+Layer 29: dense_3 (Type: Dense)
+  Config: {'name': 'dense_3', 'trainable': True, 'dtype': 'float32', 'units': 2, 'activation': 'linear', 'use_bias': True, 'kernel_initializer': {'class_name': 'HeUniform', 'config': {'seed': None}}, 'bias_initializer': {'class_name': 'Zeros', 'config': {}}, 'kernel_regularizer': None, 'bias_regularizer': None, 'activity_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}
+  Input shape: (None, 64)
+  Output shape: (None, 2)
+------------------------------
+Layer 30: softmax (Type: Softmax)
+  Config: {'name': 'softmax', 'trainable': True, 'dtype': 'float32', 'axis': -1}
+  Input shape: (None, 2)
+  Output shape: (None, 2)
+------------------------------
+
+==================================================
+
+--- Overall Model Input/Output ---
+Model Inputs: [<KerasTensor: shape=(None, 2000, 12) dtype=float32 (created by layer 'conv1d_input')>]
+Model Outputs: [<KerasTensor: shape=(None, 2) dtype=float32 (created by layer 'softmax')>]

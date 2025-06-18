@@ -1,0 +1,66 @@
+# MANIFEST.in for signxai2 package
+# Controls what files are included in the distribution
+
+# FIRST: Exclude development files and build artifacts (must come first!)
+global-exclude development_files/*
+prune development_files
+global-exclude development_files_backup/*
+prune development_files_backup
+exclude debug_*.py
+exclude test_*.py
+exclude analyze_*.py
+exclude calculate_*.py
+exclude comprehensive_*.py
+exclude final_*.py
+exclude verify_*.py
+exclude quick_*.py
+exclude simple_*.py
+exclude targeted_*.py
+exclude selective_*.py
+exclude estimate_*.py
+exclude improve_*.py
+exclude fixed_*.py
+exclude *.txt
+exclude *.png
+
+# Exclude build artifacts
+prune signxai.egg-info
+prune build
+prune dist
+prune __pycache__
+prune */__pycache__
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude .DS_Store
+
+# Include core package files
+include README.md
+include LICENSE  
+include CHANGELOG.md
+include pyproject.toml
+include setup.py
+include setup.cfg
+include MANIFEST.in
+
+# Include specific example scripts (as requested by user)
+include ecg_example_plot.py
+include ecg_example_xai.py  
+include run_signxai_tf_images.py
+include run_signxai_tf_timeseries.py
+include run_signxai_torch_images.py
+include run_signxai_torch_timeseries.py
+
+# Include requirements
+recursive-include requirements *.txt
+
+# Include source code
+recursive-include signxai *.py
+
+# Documentation and examples will be downloaded via prepare.sh
+# Excluding from distribution to reduce package size (PyPI 100MB limit)
+prune docs
+prune examples
+
+# Include utility scripts
+recursive-include utils *.py *.txt

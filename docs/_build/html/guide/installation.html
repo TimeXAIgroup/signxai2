@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; SignXAI 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ec77c5b5" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Quickstart" href="quickstart.html" />
+    <link rel="prev" title="SignXAI Documentation" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SignXAI
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#python-version-requirements">Python Version Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recommended-installation-method">Recommended Installation Method</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-create-a-fresh-conda-environment">Step 1: Create a Fresh Conda Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-install-jupyter-support-for-notebooks">Step 2: Install Jupyter Support (for Notebooks)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-install-dependencies-in-the-correct-order">Step 3: Install Dependencies in the Correct Order</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-install-signxai">Step 4: Install SignXAI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-5-verify-installation">Step 5: Verify Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-specific-installations">Framework-Specific Installations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tensorflow-only">TensorFlow Only</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pytorch-only">PyTorch Only</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#running-jupyter-notebooks">Running Jupyter Notebooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-issues-and-solutions">Common Issues and Solutions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-dependencies">Core Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#framework-dependencies">Framework Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-dependencies">Optional Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cuda-and-gpu-support">CUDA and GPU Support</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_usage.html">Basic Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="framework_interop.html">Framework Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">TensorFlow Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytorch.html">PyTorch Implementation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/image_classification.html">Image Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/time_series.html">ECG Time Series</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/tensorflow.html">TensorFlow Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pytorch.html">PyTorch Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/common.html">Common Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/methods_list.html">Explanation Methods List</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SignXAI</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/signxai/signxai/blob/main/docs/guide/installation.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p>This guide provides detailed instructions for installing SignXAI with proper dependencies to avoid compatibility issues.</p>
+<section id="python-version-requirements">
+<h2>Python Version Requirements<a class="headerlink" href="#python-version-requirements" title="Link to this heading"></a></h2>
+<p>SignXAI requires Python 3.9, 3.10, 3.11, or 3.12. Python 3.13 and newer versions are not supported due to TensorFlow compatibility limitations.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Using Python 3.13+ will lead to TensorFlow installation failures. Always check your Python version before installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+</div>
+</section>
+<section id="recommended-installation-method">
+<h2>Recommended Installation Method<a class="headerlink" href="#recommended-installation-method" title="Link to this heading"></a></h2>
+<p>The most reliable way to install SignXAI is using Conda with a step-by-step approach to manage dependencies properly.</p>
+<section id="step-1-create-a-fresh-conda-environment">
+<h3>Step 1: Create a Fresh Conda Environment<a class="headerlink" href="#step-1-create-a-fresh-conda-environment" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new conda environment with Python 3.10 (recommended)</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>signxai<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>signxai
+</pre></div>
+</div>
+</section>
+<section id="step-2-install-jupyter-support-for-notebooks">
+<h3>Step 2: Install Jupyter Support (for Notebooks)<a class="headerlink" href="#step-2-install-jupyter-support-for-notebooks" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Jupyter and register the kernel</span>
+conda<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>jupyter<span class="w"> </span>ipykernel
+python<span class="w"> </span>-m<span class="w"> </span>ipykernel<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>--name<span class="o">=</span>signxai<span class="w"> </span>--display-name<span class="o">=</span><span class="s2">&quot;Python (signxai)&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-install-dependencies-in-the-correct-order">
+<h3>Step 3: Install Dependencies in the Correct Order<a class="headerlink" href="#step-3-install-dependencies-in-the-correct-order" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to the SignXAI package directory (if you&#39;re installing from source)</span>
+<span class="nb">cd</span><span class="w"> </span>/path/to/signxai/
+
+<span class="c1"># Install common dependencies first</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/common.txt
+
+<span class="c1"># Install PyTorch dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/pytorch.txt
+
+<span class="c1"># Install TensorFlow dependencies last</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/tensorflow.txt
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The order of installation is important to avoid dependency conflicts.</p>
+</div>
+</section>
+<section id="step-4-install-signxai">
+<h3>Step 4: Install SignXAI<a class="headerlink" href="#step-4-install-signxai" title="Link to this heading"></a></h3>
+<p>For development mode (from source):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install in development mode</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>For regular installation from PyPI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># With TensorFlow support</span>
+pip<span class="w"> </span>install<span class="w"> </span>signxai<span class="o">[</span>tensorflow<span class="o">]</span>
+
+<span class="c1"># With PyTorch support</span>
+pip<span class="w"> </span>install<span class="w"> </span>signxai<span class="o">[</span>pytorch<span class="o">]</span>
+
+<span class="c1"># With both frameworks</span>
+pip<span class="w"> </span>install<span class="w"> </span>signxai<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-verify-installation">
+<h3>Step 5: Verify Installation<a class="headerlink" href="#step-5-verify-installation" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import numpy, matplotlib, torch, tensorflow, signxai; print(f&#39;NumPy: {numpy.__version__}, PyTorch: {torch.__version__}, TensorFlow: {tensorflow.__version__}, SignXAI: {signxai.__version__}&#39;)&quot;</span>
+</pre></div>
+</div>
+<p>This should output the version numbers for all the key packages.</p>
+</section>
+</section>
+<section id="framework-specific-installations">
+<h2>Framework-Specific Installations<a class="headerlink" href="#framework-specific-installations" title="Link to this heading"></a></h2>
+<p>If you only need one framework, you can install SignXAI with specific dependencies:</p>
+<section id="tensorflow-only">
+<h3>TensorFlow Only<a class="headerlink" href="#tensorflow-only" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create conda environment with Python 3.10</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>signxai-tf<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>signxai-tf
+
+<span class="c1"># Install dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/common.txt
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/tensorflow.txt
+
+<span class="c1"># Install SignXAI</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="pytorch-only">
+<h3>PyTorch Only<a class="headerlink" href="#pytorch-only" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create conda environment with Python 3.10</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>signxai-pt<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>signxai-pt
+
+<span class="c1"># Install dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/common.txt
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/pytorch.txt
+
+<span class="c1"># Install SignXAI</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+</section>
+<section id="running-jupyter-notebooks">
+<h2>Running Jupyter Notebooks<a class="headerlink" href="#running-jupyter-notebooks" title="Link to this heading"></a></h2>
+<p>After installation, you can run the example notebooks:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Activate your environment</span>
+conda<span class="w"> </span>activate<span class="w"> </span>signxai
+
+<span class="c1"># Start Jupyter notebook</span>
+jupyter<span class="w"> </span>notebook
+</pre></div>
+</div>
+<p>When opening a notebook, make sure to select the correct kernel:</p>
+<ol class="arabic simple">
+<li><p>Click on the “Kernel” menu</p></li>
+<li><p>Select “Change kernel”</p></li>
+<li><p>Choose “Python (signxai)” from the dropdown</p></li>
+</ol>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues-and-solutions">
+<h3>Common Issues and Solutions<a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading"></a></h3>
+<p><strong>Issue: TensorFlow installation fails</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ERROR:<span class="w"> </span>No<span class="w"> </span>matching<span class="w"> </span>distribution<span class="w"> </span>found<span class="w"> </span><span class="k">for</span><span class="w"> </span>tensorflow&lt;<span class="o">=</span><span class="m">2</span>.12.1,&gt;<span class="o">=</span><span class="m">2</span>.8.0
+</pre></div>
+</div>
+<p><strong>Solution</strong>: Check your Python version. TensorFlow 2.12.1 requires Python 3.9-3.12:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+<span class="c1"># If using 3.13+, create a new environment with 3.10</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>signxai<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-y
+</pre></div>
+</div>
+<p><strong>Issue: Package dependency conflicts</strong></p>
+<p><strong>Solution</strong>: Install dependencies in the correct order as specified above.</p>
+<p><strong>Issue: Cannot import signxai module</strong></p>
+<p><strong>Solution</strong>: Check that you’ve activated the correct conda environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check which environment is active</span>
+conda<span class="w"> </span>info<span class="w"> </span>--envs
+
+<span class="c1"># Activate the correct environment</span>
+conda<span class="w"> </span>activate<span class="w"> </span>signxai
+
+<span class="c1"># Verify installation</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import signxai; print(signxai.__version__)&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
+<section id="core-dependencies">
+<h3>Core Dependencies<a class="headerlink" href="#core-dependencies" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Python (&gt;=3.9, &lt;3.13)</p></li>
+<li><p>NumPy (&gt;=1.19.0)</p></li>
+<li><p>Matplotlib (&gt;=3.7.0)</p></li>
+<li><p>SciPy (&gt;=1.10.0)</p></li>
+<li><p>Pillow (&gt;=8.0.0)</p></li>
+<li><p>Requests (&gt;=2.25.0)</p></li>
+</ul>
+</section>
+<section id="framework-dependencies">
+<h3>Framework Dependencies<a class="headerlink" href="#framework-dependencies" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>TensorFlow:</dt><dd><ul class="simple">
+<li><p>TensorFlow (&gt;=2.8.0, &lt;=2.12.1)</p></li>
+</ul>
+</dd>
+<dt>PyTorch:</dt><dd><ul class="simple">
+<li><p>PyTorch (&gt;=1.10.0)</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="optional-dependencies">
+<h3>Optional Dependencies<a class="headerlink" href="#optional-dependencies" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Scikit-image (for visualization and comparison)</p></li>
+<li><p>Jupyter/IPython (for running example notebooks)</p></li>
+</ul>
+</section>
+<section id="cuda-and-gpu-support">
+<h3>CUDA and GPU Support<a class="headerlink" href="#cuda-and-gpu-support" title="Link to this heading"></a></h3>
+<p>SignXAI does not directly specify CUDA dependencies. For GPU support, ensure you have installed the GPU-compatible versions of TensorFlow and/or PyTorch according to their official documentation:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.tensorflow.org/install/gpu">TensorFlow GPU Support</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/get-started/locally/">PyTorch GPU Support</a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="SignXAI Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, SignXAI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
