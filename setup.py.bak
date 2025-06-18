@@ -33,7 +33,7 @@ else:
 
 setup(
     name="signxai2",
-    version="0.1.0",
+    version="0.3.0",
     author="Nils Gumpfer, Jana Fischer und Alexander Paul",
     author_email='nils.gumpfer@kite.thm.de',
     maintainer='Nils Gumpfer',
