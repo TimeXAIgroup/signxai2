@@ -22,16 +22,16 @@ common_requirements = read_requirements("common.txt")
 
 setup(
     name="signxai2",
-    version="0.3.0",
-    authors="Nils Gumpfer, Jana Fischer and Alexander Paul",
+    version="0.4.0",
+    author="TIME XAI Group",
     author_email="nils.gumpfer@kite.thm.de",
-    description="A comprehensive explainable AI library supporting both TensorFlow and PyTorch with unified API and advanced XAI methods including SIGN, LRP, and Grad-CAM",
+    description="A comprehensive explainable AI library supporting both TensorFlow and PyTorch with unified API and advanced XAI methods including SIGN, LRP, and Grad-CAM. Authored by Nils Gumpfer, Jana Fischer and Alexander Paul.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/TimeXAI-group/signxai2",
     project_urls={
         "Bug Tracker": "https://github.com/TimeXAI-group/signxai2/issues",
-        "Documentation": "https://signxai2.readthedocs.io/",
+        "Documentation": "https://timexai-group.github.io/signxai2/index.html",
         "Source": "https://github.com/TimeXAI-group/signxai2",
     },
     classifiers=[
