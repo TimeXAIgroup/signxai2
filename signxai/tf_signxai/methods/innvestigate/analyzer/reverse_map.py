@@ -41,10 +41,44 @@ class ReplacementLayer():
         self.r_init = r_init_constant
         self.f_init = f_init_constant
 
-        self.input_shape = layer.input_shape
+        # Handle input_shape compatibility for modern TensorFlow/Keras
+        if hasattr(layer, 'input_shape'):
+            self.input_shape = layer.input_shape
+        elif hasattr(layer, '_inbound_nodes') and layer._inbound_nodes:
+            # Modern Keras - get input shapes from inbound nodes
+            try:
+                input_shapes = [tensor.shape for tensor in layer._inbound_nodes[0].input_tensors]
+                self.input_shape = input_shapes[0] if len(input_shapes) == 1 else input_shapes
+            except (IndexError, AttributeError):
+                # Fallback to input_spec if available
+                if hasattr(layer, 'input_spec') and layer.input_spec:
+                    if hasattr(layer.input_spec, 'shape') and layer.input_spec.shape:
+                        self.input_shape = layer.input_spec.shape
+                    else:
+                        # Fallback shape
+                        self.input_shape = (None,)
+                else:
+                    self.input_shape = (None,)
+        else:
+            self.input_shape = (None,)
+        
         if not isinstance(self.input_shape, list):
             self.input_shape = [self.input_shape]
-        self.output_shape = layer.output_shape
+        
+        # Handle output_shape compatibility for modern TensorFlow/Keras
+        if hasattr(layer, 'output_shape'):
+            self.output_shape = layer.output_shape
+        elif hasattr(layer, '_inbound_nodes') and layer._inbound_nodes:
+            # Modern Keras - get output shapes from inbound nodes
+            try:
+                output_shapes = [tensor.shape for tensor in layer._inbound_nodes[0].output_tensors]
+                self.output_shape = output_shapes[0] if len(output_shapes) == 1 else output_shapes
+            except (IndexError, AttributeError):
+                # Fallback shape based on layer type
+                self.output_shape = (None,)
+        else:
+            self.output_shape = (None,)
+        
         if not isinstance(self.output_shape, list):
             self.output_shape = [self.output_shape]
 
@@ -572,7 +606,7 @@ class ReverseModel():
             return hm
 
         # output everything possible
-        if explained_layer_names is "all":
+        if explained_layer_names == "all":
             for layer in reverse_layers:
                 if layer.explanation is not None:
                     hm[layer.name] = layer.explanation.numpy()

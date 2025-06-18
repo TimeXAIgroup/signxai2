@@ -221,8 +221,17 @@ def update_symbolic_weights(layer, weight_mapping):
       as keys and values.
     """
 
-    trainable_weight_ids = [id(x) for x in layer._trainable_weights]
-    non_trainable_weight_ids = [id(x) for x in layer._non_trainable_weights]
+    # Handle weight attributes compatibility for modern TensorFlow/Keras
+    if hasattr(layer, '_trainable_weights'):
+        trainable_weights = layer._trainable_weights
+        non_trainable_weights = layer._non_trainable_weights
+    else:
+        # Modern Keras uses public attributes
+        trainable_weights = layer.trainable_weights
+        non_trainable_weights = layer.non_trainable_weights
+    
+    trainable_weight_ids = [id(x) for x in trainable_weights]
+    non_trainable_weight_ids = [id(x) for x in non_trainable_weights]
 
     for name, weight in six.iteritems(weight_mapping):
         current_weight = getattr(layer, name)
@@ -230,10 +239,20 @@ def update_symbolic_weights(layer, weight_mapping):
 
         if current_weight_id in trainable_weight_ids:
             idx = trainable_weight_ids.index(current_weight_id)
-            layer._trainable_weights[idx] = weight
+            if hasattr(layer, '_trainable_weights'):
+                layer._trainable_weights[idx] = weight
+            else:
+                # For modern Keras, we need to handle weight replacement differently
+                # Set the attribute directly and let Keras handle the internal tracking
+                pass  # The setattr below will handle this
         else:
             idx = non_trainable_weight_ids.index(current_weight_id)
-            layer._non_trainable_weights[idx] = weight
+            if hasattr(layer, '_non_trainable_weights'):
+                layer._non_trainable_weights[idx] = weight
+            else:
+                # For modern Keras, we need to handle weight replacement differently
+                # Set the attribute directly and let Keras handle the internal tracking
+                pass  # The setattr below will handle this
 
         setattr(layer, name, weight)
 
@@ -265,9 +284,34 @@ def get_layer_from_config(old_layer,
             weights = old_layer.get_weights()
 
     if len(weights) > 0:
-        input_shapes = old_layer.get_input_shape_at(0)
+        # Handle input shape compatibility for modern TensorFlow/Keras
+        if hasattr(old_layer, 'get_input_shape_at'):
+            input_shapes = old_layer.get_input_shape_at(0)
+        elif hasattr(old_layer, '_inbound_nodes') and old_layer._inbound_nodes:
+            # Modern Keras - get input shapes from inbound nodes
+            try:
+                input_shapes = old_layer._inbound_nodes[0].input_tensors[0].shape
+            except (IndexError, AttributeError):
+                # Fallback to input_spec if available
+                if hasattr(old_layer, 'input_spec') and old_layer.input_spec:
+                    if hasattr(old_layer.input_spec, 'shape') and old_layer.input_spec.shape:
+                        input_shapes = old_layer.input_spec.shape
+                    else:
+                        # Use a reasonable fallback based on common layer types
+                        input_shapes = (None, None)  # Will be resolved during build
+                else:
+                    input_shapes = (None, None)
+        else:
+            # Last resort fallback
+            input_shapes = (None, None)
+        
         # todo: inspect and set initializers to something fast for speedup
-        new_layer.build(input_shapes)
+        try:
+            new_layer.build(input_shapes)
+        except Exception as e:
+            # If build fails, try without explicit input shapes (let Keras figure it out)
+            print(f"Warning: Layer build failed with input_shapes {input_shapes}, attempting without: {e}")
+            # Don't build explicitly - let it build naturally when weights are set
 
         is_np_weight = [isinstance(x, np.ndarray) for x in weights]
         if all(is_np_weight):
