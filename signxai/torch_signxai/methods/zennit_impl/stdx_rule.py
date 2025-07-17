@@ -39,6 +39,7 @@ class StdxEpsilon(Epsilon):
     def gradient_mapper(self, input_tensor, output_gradient):
         """
         Custom gradient mapper that calculates epsilon based on input standard deviation.
+        Matches TensorFlow's StdxEpsilonRule implementation exactly.
         
         Args:
             input_tensor (torch.Tensor): Input tensor to the layer.
@@ -47,14 +48,25 @@ class StdxEpsilon(Epsilon):
         Returns:
             torch.Tensor: Modified gradient based on StdxEpsilon rule.
         """
-        # Calculate epsilon based on standard deviation of input
-        std_val = torch.std(input_tensor).item()
-        epsilon = max(std_val * self.stdfactor, 1e-12)
+        # Calculate epsilon based on standard deviation of THIS layer's input (exact TF match)
+        # Use the full tensor std, not just a single value
+        std_val = torch.std(input_tensor)
+        epsilon = std_val * self.stdfactor
         
-        # Use Zennit's stabilizer to apply epsilon properly
-        stabilized_input = Stabilizer.ensure(input_tensor, epsilon=epsilon)
+        # Ensure epsilon is a tensor with the same device as input
+        if not isinstance(epsilon, torch.Tensor):
+            epsilon = torch.tensor(epsilon, device=input_tensor.device, dtype=input_tensor.dtype)
         
-        # Apply the gradient computation with the dynamic epsilon
+        # Apply stabilization: input + sign(input) * epsilon
+        # This matches TensorFlow's approach more precisely
+        stabilized_input = input_tensor + torch.sign(input_tensor) * epsilon
+        
+        # Prevent division by zero with a small fallback
+        stabilized_input = torch.where(torch.abs(stabilized_input) < 1e-12, 
+                                     torch.sign(stabilized_input) * 1e-12, 
+                                     stabilized_input)
+        
+        # Apply the gradient computation with the stabilized input
         return output_gradient / stabilized_input
     
     def copy(self):

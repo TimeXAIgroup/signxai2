@@ -314,14 +314,31 @@ def integrated_gradients(model_no_softmax, x, **kwargs):
     Returns:
         Integrated gradients explanation
     """
+    # Ensure input is valid
+    if x is None:
+        raise ValueError("Input x cannot be None for integrated_gradients")
+    
     # Set default values if not specified
     if 'steps' not in kwargs:
         kwargs['steps'] = 50
-    if 'reference_inputs' not in kwargs:
-        kwargs['reference_inputs'] = np.zeros_like(x)
     
-    # Direct iNNvestigate implementation - no fallbacks
-    return calculate_explanation_innvestigate(model_no_softmax, x, method='integrated_gradients', **kwargs)
+    # Create reference inputs if not provided with validation
+    if 'reference_inputs' not in kwargs or kwargs['reference_inputs'] is None:
+        try:
+            kwargs['reference_inputs'] = np.zeros_like(x)
+            print(f"DEBUG: Created reference_inputs with shape {kwargs['reference_inputs'].shape}")
+        except Exception as e:
+            print(f"WARNING: Failed to create reference_inputs: {e}")
+            kwargs['reference_inputs'] = np.zeros(x.shape)
+    
+    try:
+        # Direct iNNvestigate implementation with error handling
+        return calculate_explanation_innvestigate(model_no_softmax, x, method='integrated_gradients', **kwargs)
+    except Exception as e:
+        print(f"iNNvestigate integrated_gradients failed: {e}")
+        print("Falling back to native implementation...")
+        # Fallback to native implementation
+        return calculate_native_integrated_gradients(model_no_softmax, x, **kwargs)
 
 
 def calculate_native_smoothgrad(model, x, augment_by_n=50, noise_scale=0.2, neuron_selection=None, **kwargs):

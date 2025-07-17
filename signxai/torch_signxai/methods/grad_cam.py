@@ -81,19 +81,41 @@ class GradCAM:
         # Backward pass
         output.backward(gradient=one_hot, retain_graph=True)
         
-        # Calculate weights
-        weights = torch.mean(self.gradients, dim=(2, 3), keepdim=True)
+        # Calculate weights - match TensorFlow's reduce_mean across (0,1,2) for 4D tensors
+        if self.gradients.dim() == 4:  # For images (B, C, H, W)
+            # TensorFlow: reduce_mean(grads, axis=(0, 1, 2)) for (B, H, W, C) format
+            # PyTorch equivalent: mean across (0, 2, 3) for (B, C, H, W) format
+            weights = torch.mean(self.gradients, dim=(0, 2, 3), keepdim=False)
+        else:  # For time series (B, C, T)
+            # TensorFlow: reduce_mean(grads, axis=(0, 1)) for (B, T, C) format  
+            # PyTorch equivalent: mean across (0, 2) for (B, C, T) format
+            weights = torch.mean(self.gradients, dim=(0, 2), keepdim=False)
         
-        # Weight activations by importance
-        cam = torch.sum(weights * self.activations, dim=1, keepdim=True)
+        # Extract first sample's activations (match TensorFlow's last_conv_output = last_conv_layer_output[0])
+        activations = self.activations[0]  # Remove batch dimension
         
-        # Apply ReLU and normalize
+        # Weight activations by importance - match TensorFlow's weighted_output calculation
+        # TensorFlow: last_conv_output * pooled_grads[..., tf.newaxis]
+        if activations.dim() == 3:  # (C, H, W)
+            weighted_output = activations * weights[:, None, None]  # Broadcast weights
+        else:  # (C, T)
+            weighted_output = activations * weights[:, None]
+        
+        # Sum across feature map channels - match TensorFlow's reduce_sum(weighted_output, axis=-1)
+        cam = torch.sum(weighted_output, dim=0, keepdim=False)  # Remove channel dimension
+        
+        # Apply ReLU and normalize - match TensorFlow's normalization
         cam = F.relu(cam)
-        cam = F.interpolate(cam, size=x.shape[2:], mode='bilinear', align_corners=False)
         
-        # Normalize
-        if torch.max(cam) > 0:
-            cam = cam / torch.max(cam)
+        # TensorFlow normalization: heatmap / (tf.reduce_max(heatmap) + tf.keras.backend.epsilon())
+        epsilon = 1e-7  # TensorFlow's default epsilon
+        cam = cam / (torch.max(cam) + epsilon)
+        
+        # Resize if requested (for images)
+        if cam.dim() == 2:  # Image case (H, W)
+            cam = cam.unsqueeze(0).unsqueeze(0)  # Add batch and channel dims for interpolation
+            cam = F.interpolate(cam, size=x.shape[2:], mode='bilinear', align_corners=False)
+            cam = cam.squeeze(0).squeeze(0)  # Remove added dimensions
         
         return cam
 

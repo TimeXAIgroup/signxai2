@@ -49,8 +49,32 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     # The following specific LRP methods will now use AdvancedLRPAnalyzer
     # by passing the 'variant' parameter.
     "lrp.epsilon": LRPAnalyzer,
+    "lrp_epsilon": AdvancedLRPAnalyzer,  # For epsilon methods called without dot
+    # Specific LRP epsilon variants
+    "lrp_epsilon_0_001": AdvancedLRPAnalyzer,
+    "lrp_epsilon_0_01": AdvancedLRPAnalyzer,
+    "lrp_epsilon_0_1": AdvancedLRPAnalyzer,
+    "lrp_epsilon_0_2": AdvancedLRPAnalyzer,
+    "lrp_epsilon_0_25": AdvancedLRPAnalyzer,
+    "lrp_epsilon_0_5": AdvancedLRPAnalyzer,
+    "lrp_epsilon_1": AdvancedLRPAnalyzer,
+    "lrp_epsilon_2": AdvancedLRPAnalyzer,
+    "lrp_epsilon_3": AdvancedLRPAnalyzer,
+    "lrp_epsilon_5": AdvancedLRPAnalyzer,
+    "lrp_epsilon_10": AdvancedLRPAnalyzer,
+    "lrp_epsilon_20": AdvancedLRPAnalyzer,
+    "lrp_epsilon_50": AdvancedLRPAnalyzer,
+    "lrp_epsilon_75": AdvancedLRPAnalyzer,
+    "lrp_epsilon_100": AdvancedLRPAnalyzer,
     "lrp.zplus": LRPAnalyzer,
     "lrp.alphabeta": LRPAnalyzer, # Use basic LRPAnalyzer for alpha-beta
+    "lrp_alpha_1_beta_0": "WrapperDelegation", # Specific alpha=1, beta=0 variant
+    "lrpsign_alpha_1_beta_0": "WrapperDelegation", # LRP Alpha1Beta0 with SIGN input layer rule
+    "lrpsign_epsilon_0_1": "WrapperDelegation", # LRP Epsilon with SIGN input layer rule
+    "lrp_alpha_2_beta_1": "WrapperDelegation", # Specific alpha=2, beta=1 variant
+    "lrp_alpha_2_beta_1_x_input": "WrapperDelegation", # Alpha2Beta1 times input
+    "lrp_alpha_2_beta_1_x_input_x_sign": "WrapperDelegation", # Alpha2Beta1 times input times sign
+    "lrp_alpha_2_beta_1_x_sign": "WrapperDelegation", # Alpha2Beta1 times sign
     "lrp.gamma": AdvancedLRPAnalyzer,
     "lrp.flat": LRPAnalyzer,
     "lrp.wsquare": AdvancedLRPAnalyzer,
@@ -63,19 +87,22 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     
     # === MISSING METHODS FROM PYTORCH FAILURES ===
     # FlatLRP variants - missing methods causing negative correlations
-    "flatlrp_epsilon_1": AdvancedLRPAnalyzer,
-    "flatlrp_epsilon_10": AdvancedLRPAnalyzer,
-    "flatlrp_epsilon_20": AdvancedLRPAnalyzer,
-    "flatlrp_epsilon_100": AdvancedLRPAnalyzer,
-    "flatlrp_alpha_1_beta_0": AdvancedLRPAnalyzer,
-    "flatlrp_sequential_composite_a": AdvancedLRPAnalyzer,
-    "flatlrp_sequential_composite_b": AdvancedLRPAnalyzer,
-    "flatlrp_z": AdvancedLRPAnalyzer,
+    "flatlrp_epsilon_1": "WrapperDelegation",
+    "flatlrp_epsilon_10": "WrapperDelegation",
+    "flatlrp_epsilon_20": "WrapperDelegation",
+    "flatlrp_epsilon_100": "WrapperDelegation",
+    "flatlrp_alpha_1_beta_0": "WrapperDelegation",
+    "flatlrp_epsilon_0_1": "WrapperDelegation",
+    "flatlrp_epsilon_0_01": "WrapperDelegation",
+    "flatlrp_epsilon_0_1_std_x": "WrapperDelegation",
+    "flatlrp_sequential_composite_a": "WrapperDelegation",
+    "flatlrp_sequential_composite_b": "WrapperDelegation",
+    "flatlrp_z": "WrapperDelegation",
     
-    # FlatLRP variants with std_x
-    "flatlrp_epsilon_0_1_std_x": LRPStdxEpsilonAnalyzer,
-    "flatlrp_epsilon_0_25_std_x": LRPStdxEpsilonAnalyzer,
-    "flatlrp_epsilon_0_5_std_x": LRPStdxEpsilonAnalyzer,
+    # FlatLRP variants with std_x - REMOVED: conflicts with WrapperDelegation on line 73
+    # "flatlrp_epsilon_0_1_std_x": LRPStdxEpsilonAnalyzer,
+    "flatlrp_epsilon_0_25_std_x": "WrapperDelegation",
+    "flatlrp_epsilon_0_5_std_x": "WrapperDelegation",
     
     # GradCAM variants
     "grad_cam_VGG16ILSVRC": GradCAMAnalyzer,
@@ -107,6 +134,7 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     "lrpsign_epsilon_0_25_std_x_mu_neg_0_5": LRPStdxEpsilonAnalyzer,
     "lrpsign_epsilon_0_5": AdvancedLRPAnalyzer,
     "lrpsign_epsilon_0_5_std_x": LRPStdxEpsilonAnalyzer,
+    "lrpsign_epsilon_1": "WrapperDelegation",
     "lrpsign_epsilon_10": AdvancedLRPAnalyzer,
     "lrpsign_epsilon_100": AdvancedLRPAnalyzer,
     "lrpsign_epsilon_100_mu_0": AdvancedLRPAnalyzer,
@@ -114,22 +142,27 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     "lrpsign_epsilon_20": AdvancedLRPAnalyzer,
     "lrpsign_epsilon_2_std_x": LRPStdxEpsilonAnalyzer,
     "lrpsign_epsilon_3_std_x": LRPStdxEpsilonAnalyzer,
+    "lrpsign_epsilon_5": AdvancedLRPAnalyzer,
     "lrpsign_epsilon_50": AdvancedLRPAnalyzer,
     "lrpsign_epsilon_75": AdvancedLRPAnalyzer,
     
+    # LRPSign Z variant
+    "lrpsign_z": "WrapperDelegation",
+    
+    # LRPSign sequential composite variants
+    "lrpsign_sequential_composite_a": "WrapperDelegation",
+    
     # LRPZ variants
+    "lrpz_alpha_1_beta_0": "WrapperDelegation",
+    "lrpz_epsilon_0_1": AdvancedLRPAnalyzer,
     "lrpz_epsilon_0_1_std_x": LRPStdxEpsilonAnalyzer,
     "lrpz_epsilon_0_25_std_x": LRPStdxEpsilonAnalyzer,
     "lrpz_epsilon_0_5": AdvancedLRPAnalyzer,
     "lrpz_epsilon_0_5_std_x": LRPStdxEpsilonAnalyzer,
-    "lrpz_epsilon_10": AdvancedLRPAnalyzer,
-    "lrpz_epsilon_100": AdvancedLRPAnalyzer,
+    "lrpz_epsilon_1": AdvancedLRPAnalyzer,
     "lrpz_epsilon_1_std_x": LRPStdxEpsilonAnalyzer,
-    "lrpz_epsilon_20": AdvancedLRPAnalyzer,
     "lrpz_epsilon_2_std_x": LRPStdxEpsilonAnalyzer,
     "lrpz_epsilon_3_std_x": LRPStdxEpsilonAnalyzer,
-    "lrpz_epsilon_50": AdvancedLRPAnalyzer,
-    "lrpz_epsilon_75": AdvancedLRPAnalyzer,
     
     # SmoothGrad variants (missing x_sign base methods)
     "smoothgrad_x_sign": SmoothGradAnalyzer,
@@ -273,17 +306,40 @@ def calculate_relevancemap(
     if '_x_sign' in method_lower and 'apply_sign' not in kwargs:
         extracted_params['apply_sign'] = True
     
-    # Handle std_x variants
-    if '_std_x' in method_lower and 'use_stdx' not in kwargs:
-        extracted_params['use_stdx'] = True
+    # Handle std_x variants and extract stdfactor from method name
+    if '_std_x' in method_lower:
+        if 'use_stdx' not in kwargs:
+            extracted_params['use_stdx'] = True
+        
+        # Extract stdfactor from method name like lrp_epsilon_0_1_std_x -> stdfactor=0.1
+        if 'stdfactor' not in kwargs:
+            # Look for pattern like epsilon_X_Y_std_x where X_Y represents decimal like 0.1
+            import re
+            stdfactor_match = re.search(r'_epsilon_(\d+)_(\d+)_std_x', method_lower)
+            if stdfactor_match:
+                whole_part = int(stdfactor_match.group(1))
+                decimal_part = int(stdfactor_match.group(2))
+                # Convert to decimal: 0_1 -> 0.1, 0_25 -> 0.25, etc.
+                stdfactor_value = float(f"{whole_part}.{decimal_part}")
+                extracted_params['stdfactor'] = stdfactor_value
+                print(f"🔧 Extracted stdfactor={stdfactor_value} from method name {method_lower}")
+            else:
+                # Fallback to TensorFlow default
+                extracted_params['stdfactor'] = 0.25
     
     # Determine base method and variant for LRP methods
     if method_lower.startswith(('lrpsign', 'lrpz', 'flatlrp', 'zblrp')):
         base_method = method_lower.split('_')[0]
         if base_method == 'lrpsign' and 'variant' not in kwargs:
             extracted_params['variant'] = 'lrpsign'
+            # For lrpsign methods, set SIGN as the input layer rule
+            if 'input_layer_rule' not in kwargs:
+                extracted_params['input_layer_rule'] = 'SIGN'
         elif base_method == 'lrpz' and 'variant' not in kwargs:
             extracted_params['variant'] = 'lrpz'
+            # For lrpz methods, set Z as the input layer rule
+            if 'input_layer_rule' not in kwargs:
+                extracted_params['input_layer_rule'] = 'Z'
         elif base_method == 'flatlrp' and 'variant' not in kwargs:
             extracted_params['variant'] = 'flatlrp'
         elif base_method == 'zblrp' and 'variant' not in kwargs:
@@ -321,6 +377,163 @@ def calculate_relevancemap(
 
     actual_target_class = target_class if target_class is not None else neuron_selection
     analyzer_class = SUPPORTED_ZENNIT_METHODS[method_lower]
+    
+    
+    # Handle special wrapper delegation for methods that work in wrapper but not in Zennit
+    if analyzer_class == "WrapperDelegation":
+        print(f"🔧 Using wrapper delegation for {method} (proven working implementation)")
+        
+        if method_lower == "flatlrp_alpha_1_beta_0":
+            from ..wrappers import flatlrp_alpha_1_beta_0
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_alpha_1_beta_0(model, input_np)
+        elif method_lower == "flatlrp_epsilon_0_1":
+            from ..wrappers import flatlrp_epsilon_0_1
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_0_1(model, input_np)
+        elif method_lower == "flatlrp_epsilon_0_01":
+            from ..wrappers import flatlrp_epsilon_0_01
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_0_01(model, input_np)
+        elif method_lower == "flatlrp_epsilon_0_1_std_x":
+            from ..wrappers import flatlrp_epsilon_0_1_std_x
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_0_1_std_x(model, input_np)
+        elif method_lower == "flatlrp_epsilon_0_5_std_x":
+            from ..wrappers import flatlrp_epsilon_0_5_std_x
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_0_5_std_x(model, input_np)
+        elif method_lower == "flatlrp_epsilon_0_25_std_x":
+            from ..wrappers import flatlrp_epsilon_0_25_std_x
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_0_25_std_x(model, input_np)
+        elif method_lower == "flatlrp_epsilon_1":
+            from ..wrappers import flatlrp_epsilon_1
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_1(model, input_np)
+        elif method_lower == "flatlrp_epsilon_10":
+            from ..wrappers import flatlrp_epsilon_10
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_10(model, input_np)
+        elif method_lower == "flatlrp_epsilon_20":
+            from ..wrappers import flatlrp_epsilon_20
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_20(model, input_np)
+        elif method_lower == "flatlrp_epsilon_100":
+            from ..wrappers import flatlrp_epsilon_100
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_epsilon_100(model, input_np)
+        elif method_lower == "flatlrp_sequential_composite_a":
+            from ..wrappers import flatlrp_sequential_composite_a
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_sequential_composite_a(model, input_np)
+        elif method_lower == "flatlrp_sequential_composite_b":
+            from ..wrappers import flatlrp_sequential_composite_b
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_sequential_composite_b(model, input_np)
+        elif method_lower == "flatlrp_z":
+            from ..wrappers import flatlrp_z
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return flatlrp_z(model, input_np)
+        elif method_lower == "lrp_alpha_1_beta_0":
+            from ..wrappers import lrp_alpha_1_beta_0
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrp_alpha_1_beta_0(model, input_np)
+        elif method_lower == "lrpsign_alpha_1_beta_0":
+            from ..wrappers import lrpsign_alpha_1_beta_0
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrpsign_alpha_1_beta_0(model, input_np, target_class=actual_target_class)
+        elif method_lower == "lrpsign_epsilon_0_1":
+            from ..wrappers import lrpsign_epsilon_0_1
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrpsign_epsilon_0_1(model, input_np, target_class=actual_target_class)
+        elif method_lower == "lrpsign_epsilon_1":
+            from ..wrappers import lrpsign_epsilon_1
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrpsign_epsilon_1(model, input_np, target_class=actual_target_class)
+        elif method_lower == "lrpsign_epsilon_1_std_x":
+            from ..wrappers import lrpsign_epsilon_1_std_x
+            # Call the working wrapper implementation directly with tensor
+            return lrpsign_epsilon_1_std_x(model, input_tensor, target_class=actual_target_class)
+        elif method_lower == "lrp_alpha_2_beta_1":
+            from ..wrappers import lrp_alpha_2_beta_1
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrp_alpha_2_beta_1(model, input_np)
+        elif method_lower == "lrp_alpha_2_beta_1_x_input":
+            from ..wrappers import lrp_alpha_2_beta_1_x_input
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrp_alpha_2_beta_1_x_input(model, input_np)
+        elif method_lower == "lrp_alpha_2_beta_1_x_input_x_sign":
+            from ..wrappers import lrp_alpha_2_beta_1_x_input_x_sign
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrp_alpha_2_beta_1_x_input_x_sign(model, input_np)
+        elif method_lower == "lrp_alpha_2_beta_1_x_sign":
+            from ..wrappers import lrp_alpha_2_beta_1_x_sign
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrp_alpha_2_beta_1_x_sign(model, input_np)
+        elif method_lower == "lrpsign_sequential_composite_a":
+            from ..wrappers import lrpsign_sequential_composite_a
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrpsign_sequential_composite_a(model, input_np, target_class=actual_target_class)
+        elif method_lower == "lrpsign_z":
+            from ..wrappers import lrpsign_z
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrpsign_z(model, input_np, target_class=actual_target_class)
+        elif method_lower == "lrpz_alpha_1_beta_0":
+            from ..wrappers import lrpz_alpha_1_beta_0
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return lrpz_alpha_1_beta_0(model, input_np, target_class=actual_target_class)
+        else:
+            raise ValueError(f"Wrapper delegation not implemented for {method}")
+    
 
     analyzer_constructor_kwargs = {}
     analyze_method_kwargs = kwargs.copy()
@@ -336,6 +549,8 @@ def calculate_relevancemap(
         # Determine variant for AdvancedLRPAnalyzer based on method_lower or kwargs
         if 'variant' not in analyze_method_kwargs: # if variant not explicitly passed in kwargs
             if method_lower == "lrp.epsilon": analyzer_constructor_kwargs['variant'] = 'epsilon'
+            elif method_lower == "lrp_epsilon": analyzer_constructor_kwargs['variant'] = 'epsilon'  # For underscore version
+            elif method_lower.startswith("lrp_epsilon_"): analyzer_constructor_kwargs['variant'] = 'epsilon'  # For numbered epsilon variants
             elif method_lower == "lrp.zplus": analyzer_constructor_kwargs['variant'] = 'zplus'
             elif method_lower == "lrp.alphabeta": analyzer_constructor_kwargs['variant'] = 'alpha1beta0' # Default
             elif method_lower == "lrp.gamma": analyzer_constructor_kwargs['variant'] = 'gamma'
@@ -344,6 +559,14 @@ def calculate_relevancemap(
             elif method_lower == "lrp.wsquare": analyzer_constructor_kwargs['variant'] = 'wsquare'
             elif method_lower == "lrp_wsquare" or method_lower == "lrp_w_square": analyzer_constructor_kwargs['variant'] = 'wsquare'  # Fix for underscore versions
             elif method_lower == "lrp.zbox": analyzer_constructor_kwargs['variant'] = 'zbox'
+            elif method_lower == "flatlrp_alpha_1_beta_0":
+                # CRITICAL FIX: Use exact same approach as working wrapper
+                # Call our wrapper function directly to ensure identical behavior
+                print("🔧 Zennit: Using wrapper delegation for flatlrp_alpha_1_beta_0 (PROVEN FIX)")
+                
+                # We'll handle this specially in the calculate_relevancemap function
+                # Mark this for wrapper delegation
+                analyzer_constructor_kwargs['use_wrapper_delegation'] = True
             # Check for extracted variant from method name patterns (lrpsign, lrpz, etc.)
             elif 'variant' in kwargs:
                 analyzer_constructor_kwargs['variant'] = kwargs['variant']
@@ -351,7 +574,8 @@ def calculate_relevancemap(
 
         # Pop all known AdvancedLRPAnalyzer constructor args from analyze_method_kwargs
         # These include 'variant' and any params for the rules like 'epsilon', 'alpha', 'beta', etc.
-        for p_name in ['variant', 'epsilon', 'alpha', 'beta', 'gamma', 'low', 'high', 'layer_rules']:
+        for p_name in ['variant', 'epsilon', 'alpha', 'beta', 'gamma', 'low', 'high', 'layer_rules', 
+                       'first_rule', 'middle_rule', 'last_rule', 'use_wrapper_delegation']:
             if p_name in analyze_method_kwargs:
                 analyzer_constructor_kwargs[p_name] = analyze_method_kwargs.pop(p_name)
                 
@@ -369,6 +593,10 @@ def calculate_relevancemap(
             analyzer_constructor_kwargs['rule_name'] = 'zplus'
         elif method_lower == "lrp.alphabeta":
             analyzer_constructor_kwargs['rule_name'] = 'alpha_beta'
+        elif method_lower == "lrp_alpha_1_beta_0":
+            analyzer_constructor_kwargs['rule_name'] = 'alpha_beta'
+            analyzer_constructor_kwargs['alpha'] = 1.0
+            analyzer_constructor_kwargs['beta'] = 0.0
         elif method_lower == "lrp.flat":
             analyzer_constructor_kwargs['rule_name'] = 'flat'
         else:
@@ -436,9 +664,23 @@ def calculate_relevancemap(
                 
     elif analyzer_class == LRPStdxEpsilonAnalyzer:
         # Pop known LRPStdxEpsilonAnalyzer constructor args
-        for p_name in ['variant', 'epsilon', 'alpha', 'beta', 'gamma', 'low', 'high', 'use_stdx', 'mu', 'stdfactor']:
+        for p_name in ['variant', 'epsilon', 'alpha', 'beta', 'gamma', 'low', 'high', 'use_stdx', 'mu', 'stdfactor', 'input_layer_rule']:
             if p_name in analyze_method_kwargs:
                 analyzer_constructor_kwargs[p_name] = analyze_method_kwargs.pop(p_name)
+
+    # Check for wrapper delegation (for methods we know work in wrapper but not in Zennit)
+    if analyzer_constructor_kwargs.get('use_wrapper_delegation', False):
+        print("🔧 Delegating to wrapper function for proven working implementation")
+        # Import the working wrapper function
+        from ..wrappers import flatlrp_alpha_1_beta_0
+        
+        # Convert tensor to numpy for wrapper
+        input_np = input_tensor.detach().cpu().numpy()
+        
+        # Call the working wrapper implementation
+        relevance_map = flatlrp_alpha_1_beta_0(model, input_np)
+        
+        return relevance_map
 
     # Instantiate the analyzer
     analyzer = analyzer_class(model, **analyzer_constructor_kwargs)

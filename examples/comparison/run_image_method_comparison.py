@@ -404,20 +404,20 @@ def get_method_parameters(method_name):
             eps_val = 0.25
         elif '0_5' in method_name:
             eps_val = 0.5
-        elif method_name.endswith('_1') or 'epsilon_1' in method_name:
-            eps_val = 1.0
-        elif method_name.endswith('_5') or 'epsilon_5' in method_name:
-            eps_val = 5.0
-        elif method_name.endswith('_10') or 'epsilon_10' in method_name:
-            eps_val = 10.0
-        elif method_name.endswith('_20') or 'epsilon_20' in method_name:
-            eps_val = 20.0
-        elif method_name.endswith('_50') or 'epsilon_50' in method_name:
-            eps_val = 50.0
-        elif method_name.endswith('_75') or 'epsilon_75' in method_name:
-            eps_val = 75.0
         elif method_name.endswith('_100') or 'epsilon_100' in method_name:
             eps_val = 100.0
+        elif method_name.endswith('_75') or 'epsilon_75' in method_name:
+            eps_val = 75.0
+        elif method_name.endswith('_50') or 'epsilon_50' in method_name:
+            eps_val = 50.0
+        elif method_name.endswith('_20') or 'epsilon_20' in method_name:
+            eps_val = 20.0
+        elif method_name.endswith('_10') or 'epsilon_10' in method_name:
+            eps_val = 10.0
+        elif method_name.endswith('_5') or 'epsilon_5' in method_name:
+            eps_val = 5.0
+        elif method_name.endswith('_1') or 'epsilon_1' in method_name:
+            eps_val = 1.0
         else:
             eps_val = 0.1  # Default epsilon
         
@@ -691,12 +691,16 @@ def run_comparison_for_method(method_name, tf_model_original, tf_model_no_softma
         f"TF Predicted: {decoded_preds_tf_keras[1]} (ID: {decoded_preds_tf_keras[0]}, Score: {decoded_preds_tf_keras[2]:.4f})")
     target_class_tf = np.argmax(preds_tf[0])
     
+    # 🔧 CRITICAL FIX: Force both models to use same target class for fair LRP comparison
+    # LRP backpropagates from target neuron, so different classes = completely different patterns
+    shared_target_class = target_class_tf  # Use TF prediction as reference
+    
     # Get method parameters
     method_params = get_method_parameters(method_name)
     tf_kwargs = method_params['tf_kwargs']
     
     print(f"Attempting to call tf_calculate_relevancemap with method '{method_name}' and kwargs: {tf_kwargs}")
-    print(f"TF input shape: {x_tf.shape}, TF model type: {type(tf_model_no_softmax)}, target class: {target_class_tf}")
+    print(f"TF input shape: {x_tf.shape}, TF model type: {type(tf_model_no_softmax)}, target class: {shared_target_class}")
     try:
         # Ensure input is properly formatted for TF
         tf_input_copy = x_tf.copy()
@@ -704,7 +708,7 @@ def run_comparison_for_method(method_name, tf_model_original, tf_model_no_softma
             tf_input_copy = tf_input_copy.detach().cpu().numpy()
         
         explanation_tf = tf_calculate_relevancemap(method_name, tf_input_copy, tf_model_no_softmax,
-                                                   neuron_selection=int(target_class_tf), **tf_kwargs)
+                                                   neuron_selection=int(shared_target_class), **tf_kwargs)
         print(f"TF raw explanation shape: {explanation_tf.shape if hasattr(explanation_tf, 'shape') else 'N/A'}")
         
         # Convert to numpy if needed
@@ -735,16 +739,20 @@ def run_comparison_for_method(method_name, tf_model_original, tf_model_no_softma
         f"PyTorch Predicted: {decoded_preds_pt_item[1]} (ID: {decoded_preds_pt_item[0]}, Score: {decoded_preds_pt_item[2]:.4f})")
     target_class_pt = torch.argmax(output_pt, dim=1).item()
     
+    # 🔧 CRITICAL FIX: Use shared target class instead of PyTorch's own prediction
+    # This ensures both frameworks backpropagate from the same neuron for fair comparison
+    print(f"PyTorch predicted class {target_class_pt}, but using shared target class {shared_target_class} for comparison")
+    
     pt_kwargs = method_params['pt_kwargs']
     print(f"Attempting to call PyTorch method '{method_name}' with kwargs: {pt_kwargs}")
-    print(f"PT input shape: {x_pt.shape}, PT model type: {type(pt_model_for_xai)}, target class: {target_class_pt}")
+    print(f"PT input shape: {x_pt.shape}, PT model type: {type(pt_model_for_xai)}, target class: {shared_target_class}")
     try:
         # Ensure input is properly formatted for PT
         pt_input_copy = x_pt.clone()
         if isinstance(pt_input_copy, np.ndarray):
             pt_input_copy = torch.from_numpy(pt_input_copy).float()
             
-        explanation_pt_raw = call_pytorch_method(method_name, pt_model_for_xai, pt_input_copy, target_class_pt, **pt_kwargs)
+        explanation_pt_raw = call_pytorch_method(method_name, pt_model_for_xai, pt_input_copy, shared_target_class, **pt_kwargs)
         print(f"PT raw explanation shape: {explanation_pt_raw.shape if hasattr(explanation_pt_raw, 'shape') else 'N/A'}")
         
         # Convert to numpy if needed
@@ -859,6 +867,35 @@ def run_comparison_for_method(method_name, tf_model_original, tf_model_no_softma
         print(f"Comparison image for '{method_name}' saved as {output_filename}")
         plt.close(fig)
 
+    # Memory cleanup
+    import gc
+    
+    # Clear GPU memory
+    try:
+        torch.cuda.empty_cache()
+        tf.keras.backend.clear_session()
+    except:
+        pass
+    
+    # Delete large objects
+    if 'explanation_tf' in locals():
+        del explanation_tf
+    if 'explanation_tf_agg' in locals():
+        del explanation_tf_agg
+    if 'explanation_pt_raw' in locals():
+        del explanation_pt_raw
+    if 'explanation_pt_agg' in locals():
+        del explanation_pt_agg
+    if 'tf_norm_expl' in locals():
+        del tf_norm_expl
+    if 'pt_norm_expl' in locals():
+        del pt_norm_expl
+    if 'diff_map' in locals():
+        del diff_map
+    
+    # Force garbage collection
+    gc.collect()
+    
     return result
 
 
@@ -914,6 +951,24 @@ def main():
     common_methods = [m for m in common_methods if m not in excluded_methods and 
                      not m.startswith('calculate_') and not m.startswith('_')]
     
+    # Optional: Filter for specific method if provided via command line
+    import sys
+    if len(sys.argv) > 1:
+        method_filter = sys.argv[1]
+        filtered_methods = [m for m in common_methods if method_filter in m]
+        if filtered_methods:
+            common_methods = filtered_methods
+            print(f"Filtered to {len(common_methods)} methods matching '{method_filter}': {common_methods}")
+        else:
+            print(f"No methods found matching '{method_filter}'. Available methods:")
+            print("Use one of these filters:")
+            filters = ['lrp_epsilon', 'lrp_alpha', 'gradient', 'smoothgrad', 'grad_cam', 'deconvnet']
+            for f in filters:
+                matching = [m for m in common_methods if f in m]
+                if matching:
+                    print(f"  {f}: {len(matching)} methods")
+            return
+    
     print(f"Testing {len(common_methods)} common methods")
     
     # Categorize methods
@@ -958,11 +1013,27 @@ def main():
     }
     
     # Run all methods and collect data
+    import gc
+    import psutil
     total_methods = len(common_methods)
+    
     for i, method_name in enumerate(common_methods, 1):
+        # Memory monitoring
+        memory_percent = psutil.virtual_memory().percent
         print(f"\n{'-'*80}")
         print(f"Progress: {i}/{total_methods} - Running method: {method_name}")
+        print(f"Memory usage: {memory_percent:.1f}%")
         print(f"{'-'*80}")
+        
+        # Force garbage collection if memory usage is high
+        if memory_percent > 80:
+            print("High memory usage detected. Running garbage collection...")
+            gc.collect()
+            try:
+                torch.cuda.empty_cache()
+                tf.keras.backend.clear_session()
+            except:
+                pass
         
         try:
             result = run_comparison_for_method(method_name, tf_model_original, tf_model_no_softmax, x_tf, 
@@ -977,6 +1048,16 @@ def main():
                 'tf_success': False,
                 'pt_success': False
             }
+        
+        # Additional cleanup every 10 methods
+        if i % 10 == 0:
+            print(f"Periodic cleanup after {i} methods...")
+            gc.collect()
+            try:
+                torch.cuda.empty_cache()
+                tf.keras.backend.clear_session()
+            except:
+                pass
     
     # Write detailed report
     report_path = os.path.join(OUTPUT_DIR, 'values_image_method_comparison.txt')
