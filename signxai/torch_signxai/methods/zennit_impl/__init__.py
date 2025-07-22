@@ -92,6 +92,7 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     "flatlrp_epsilon_20": "WrapperDelegation",
     "flatlrp_epsilon_100": "WrapperDelegation",
     "flatlrp_alpha_1_beta_0": "WrapperDelegation",
+    "w2lrp_alpha_1_beta_0": "WrapperDelegation",
     "flatlrp_epsilon_0_1": "WrapperDelegation",
     "flatlrp_epsilon_0_01": "WrapperDelegation",
     "flatlrp_epsilon_0_1_std_x": "WrapperDelegation",
@@ -175,9 +176,9 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     "smoothgrad_x_sign_mu_neg_0_5": SmoothGradAnalyzer,
     
     # VarGrad variants (missing x_sign base methods)
-    "vargrad_x_sign": VarGradAnalyzer,
-    "vargrad_x_input": VarGradAnalyzer,
-    "vargrad_x_input_x_sign": VarGradAnalyzer,
+    "vargrad_x_sign": "tf_exact_vargrad_x_sign",
+    "vargrad_x_input": "tf_exact_vargrad_x_input",
+    "vargrad_x_input_x_sign": "tf_exact_vargrad_x_input_x_sign",
     
     # DeconvNet variants with mu parameters (missing)
     "deconvnet_x_sign_mu_0_5": DeconvNetAnalyzer,
@@ -198,6 +199,7 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     "lrp_w_square_x_input_x_sign": AdvancedLRPAnalyzer,
     
     # W2LRP variants
+    "w2lrp_epsilon_0_1": AdvancedLRPAnalyzer,
     "w2lrp_epsilon_0_1_std_x": LRPStdxEpsilonAnalyzer,
     "w2lrp_epsilon_0_25_std_x": LRPStdxEpsilonAnalyzer,
     "w2lrp_epsilon_0_5_std_x": LRPStdxEpsilonAnalyzer,
@@ -389,6 +391,12 @@ def calculate_relevancemap(
             input_np = input_tensor.detach().cpu().numpy()
             # Call the working wrapper implementation
             return flatlrp_alpha_1_beta_0(model, input_np)
+        elif method_lower == "w2lrp_alpha_1_beta_0":
+            from ..wrappers import w2lrp_alpha_1_beta_0
+            # Convert tensor to numpy for wrapper
+            input_np = input_tensor.detach().cpu().numpy()
+            # Call the working wrapper implementation
+            return w2lrp_alpha_1_beta_0(model, input_np, **kwargs)
         elif method_lower == "flatlrp_epsilon_0_1":
             from ..wrappers import flatlrp_epsilon_0_1
             # Convert tensor to numpy for wrapper
@@ -534,6 +542,36 @@ def calculate_relevancemap(
         else:
             raise ValueError(f"Wrapper delegation not implemented for {method}")
     
+    # Handle TF-exact implementations
+    if analyzer_class == "tf_exact_vargrad_x_input":
+        print(f"🔧 Using TF-exact VarGrad x Input implementation for {method}")
+        from .tf_exact_vargrad_x_input_hook import create_tf_exact_vargrad_x_input_analyzer
+        
+        # Create analyzer with kwargs
+        analyzer = create_tf_exact_vargrad_x_input_analyzer(model, **kwargs)
+        
+        # Call analyze method
+        return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
+    
+    elif analyzer_class == "tf_exact_vargrad_x_input_x_sign":
+        print(f"🔧 Using TF-exact VarGrad x Input x Sign implementation for {method}")
+        from .tf_exact_vargrad_x_input_x_sign_hook import create_tf_exact_vargrad_x_input_x_sign_analyzer
+        
+        # Create analyzer with kwargs
+        analyzer = create_tf_exact_vargrad_x_input_x_sign_analyzer(model, **kwargs)
+        
+        # Call analyze method
+        return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
+    
+    elif analyzer_class == "tf_exact_vargrad_x_sign":
+        print(f"🔧 Using TF-exact VarGrad x Sign implementation for {method}")
+        from .tf_exact_vargrad_x_sign_hook import create_tf_exact_vargrad_x_sign_analyzer
+        
+        # Create analyzer with kwargs
+        analyzer = create_tf_exact_vargrad_x_sign_analyzer(model, **kwargs)
+        
+        # Call analyze method
+        return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
 
     analyzer_constructor_kwargs = {}
     analyze_method_kwargs = kwargs.copy()

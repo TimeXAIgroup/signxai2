@@ -40,8 +40,15 @@ TARGET_SIZE = (224, 224)
 IMAGENET_CLASSES_PATH = None
 
 
+# from signxai.torch_signxai.methods.w2lrp_wrapper import w2lrp_epsilon_0_1
+import importlib
+
 def call_pytorch_method(method_name, model, input_tensor, target_class, **kwargs):
     """Call PyTorch method with improved error handling and method routing."""
+    if method_name == 'w2lrp_epsilon_0_1':
+        import signxai.torch_signxai.methods.w2lrp_wrapper as w2lrp_wrapper_module
+        importlib.reload(w2lrp_wrapper_module)
+        return w2lrp_wrapper_module.w2lrp_epsilon_0_1(model, input_tensor, **kwargs)
     print(f"Calling PyTorch method: {method_name}")
     print(f"Input tensor shape: {input_tensor.shape}, target class: {target_class}")
     print(f"Method kwargs: {kwargs}")
