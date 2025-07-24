@@ -481,25 +481,16 @@ def create_corrected_alphabeta_composite(alpha: float = 2.0, beta: float = 1.0):
 
 def create_corrected_w2lrp_composite_a():
     """Create W2LRP sequential composite A: WSquare -> Alpha1Beta0 -> Epsilon"""
-    # Use corrected hooks for all layers
-    wsquare_hook = CorrectedWSquareHook()
-    alphabeta_hook = CorrectedAlphaBetaHook(alpha=1.0, beta=0.0)  # A: alpha=1, beta=0
-    epsilon_hook = CorrectedEpsilonHook(epsilon=0.1)
-    
-    def module_map(ctx, name, module):
-        if isinstance(module, (Convolution, Linear)):
-            # Simple layer classification based on name
-            if "features.0" in name or name == "0":  # First layer
-                return wsquare_hook
-            elif "classifier" in name or "fc" in name:  # Last layer(s)
-                return epsilon_hook
-            else:  # Middle layers
-                return alphabeta_hook
-        elif isinstance(module, (BatchNorm, Activation, AvgPool)):
-            return None
-        return None
-    
-    return Composite(module_map=module_map)
+    from .innvestigate_compatible_hooks import create_innvestigate_sequential_composite
+
+    return create_innvestigate_sequential_composite(
+        first_rule="wsquare",
+        middle_rule="alphabeta",
+        last_rule="epsilon",
+        alpha=1.0,
+        beta=0.0,
+        epsilon=0.1
+    )
 
 
 def create_corrected_w2lrp_composite_b():

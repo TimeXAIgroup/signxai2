@@ -179,3 +179,80 @@ def create_tf_exact_lrpz_stdx_epsilon_composite(stdfactor: float = 0.1):
         return None
     
     return Composite(module_map=module_map)
+
+
+def create_tf_exact_w2lrp_stdx_epsilon_composite(stdfactor: float = 0.1):
+    """
+    Create a composite for TF-exact W2LRP + StdxEpsilon analysis.
+    
+    This exactly replicates TensorFlow iNNvestigate's behavior for methods like
+    w2lrp_epsilon_0_1_std_x which use:
+    - WSquare rule for the first layer (input layer) 
+    - StdxEpsilon rule for all other layers
+    
+    Args:
+        stdfactor: Standard deviation factor for epsilon calculation (default: 0.1)
+        
+    Returns:
+        Composite that applies WSquare rule to first layer and StdxEpsilon to others
+    """
+    from zennit.core import Composite
+    from zennit.types import Convolution, Linear
+    from zennit.rules import WSquare
+    
+    # Track if we've applied the first layer rule
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                print(f"🔧 TF-Exact W2LRP+StdxEpsilon: Applying WSquare rule to first layer: {name}")
+                # Create separate instance for WSquare rule
+                return WSquare()
+            else:
+                print(f"🔧 TF-Exact W2LRP+StdxEpsilon: Applying StdxEpsilon(stdfactor={stdfactor}) to layer: {name}")
+                # Create separate instance for each layer to avoid sharing state
+                return TFExactStdxEpsilonHook(stdfactor=stdfactor)
+        return None
+    
+    return Composite(module_map=module_map)
+
+
+def create_tf_exact_w2lrp_epsilon_composite(epsilon: float = 0.1):
+    """
+    Create a composite for TF-exact W2LRP + Epsilon analysis.
+    
+    This exactly replicates TensorFlow iNNvestigate's behavior for methods like
+    w2lrp_epsilon_0_1 which use:
+    - WSquare rule for the first layer (input layer) 
+    - Epsilon rule for all other layers
+    
+    Args:
+        epsilon: Epsilon value for stabilization (default: 0.1)
+        
+    Returns:
+        Composite that applies WSquare rule to first layer and Epsilon to others
+    """
+    from zennit.core import Composite
+    from zennit.types import Convolution, Linear
+    from zennit.rules import WSquare
+    from .tf_exact_epsilon_hook import TFExactEpsilonHook
+    
+    # Track if we've applied the first layer rule
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                print(f"🔧 TF-Exact W2LRP+Epsilon: Applying WSquare rule to first layer: {name}")
+                # Create separate instance for WSquare rule
+                return WSquare()
+            else:
+                print(f"🔧 TF-Exact W2LRP+Epsilon: Applying Epsilon(ε={epsilon}) to layer: {name}")
+                # Create separate instance for each layer to avoid sharing state
+                return TFExactEpsilonHook(epsilon=epsilon)
+        return None
+    
+    return Composite(module_map=module_map)

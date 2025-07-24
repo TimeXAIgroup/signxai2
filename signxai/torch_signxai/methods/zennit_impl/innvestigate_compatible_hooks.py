@@ -168,7 +168,13 @@ class InnvestigateWSquareHook(Hook):
     
     def backward(self, module: nn.Module, grad_input: tuple, grad_output: tuple) -> tuple:
         """
-        Implement iNNvestigate's WSquareRule backward pass logic.
+        Implement iNNvestigate's WSquareRule backward pass logic exactly.
+        
+        TensorFlow implementation:
+        1. Ys = layer_wo_act_b(ins) - forward with squared weights and actual input
+        2. Zs = layer_wo_act_b(ones) - forward with squared weights and ones
+        3. tmp = SafeDivide(reversed_outs, Zs)
+        4. ret = gradient(Ys, ins, output_gradients=tmp)
         """
         if grad_output[0] is None:
             return grad_input
@@ -178,31 +184,60 @@ class InnvestigateWSquareHook(Hook):
         if self.zs is None:
             return grad_input
         
-        # Apply SafeDivide operation (matches iNNvestigate)
-        zs_stabilized = self.stabilizer(self.zs)
-        ratio = relevance / zs_stabilized
-        
-        # Redistribute relevances using squared weights
+        # CRITICAL: We need to compute Zs with ones, not with input!
+        # Recompute Zs using ones
         if isinstance(module, (nn.Conv2d, nn.Conv1d)):
             squared_weight = module.weight ** 2
+            ones = torch.ones_like(self.input)
             
             if isinstance(module, nn.Conv2d):
+                zs_with_ones = torch.nn.functional.conv2d(
+                    ones, squared_weight, None,
+                    module.stride, module.padding, module.dilation, module.groups
+                )
+            else:  # Conv1d
+                zs_with_ones = torch.nn.functional.conv1d(
+                    ones, squared_weight, None,
+                    module.stride, module.padding, module.dilation, module.groups
+                )
+                
+        elif isinstance(module, nn.Linear):
+            squared_weight = module.weight ** 2
+            ones = torch.ones_like(self.input)
+            zs_with_ones = torch.nn.functional.linear(ones, squared_weight, None)
+        else:
+            return grad_input
+        
+        # SafeDivide operation: relevance / Zs
+        # Use small epsilon to avoid division by zero
+        eps = 1e-12
+        safe_zs = torch.where(torch.abs(zs_with_ones) < eps, 
+                             torch.sign(zs_with_ones) * eps, 
+                             zs_with_ones)
+        tmp = relevance / safe_zs
+        
+        # Clamp to prevent numerical instability
+        tmp = torch.clamp(tmp, min=-1e6, max=1e6)
+        
+        # Compute gradient of Ys w.r.t. input with tmp as output gradient
+        # This is: gradient(Ys, ins, output_gradients=tmp)
+        # Since Ys was computed with squared weights, we use them for the backward pass
+        if isinstance(module, (nn.Conv2d, nn.Conv1d)):
+            if isinstance(module, nn.Conv2d):
                 grad_input_modified = torch.nn.functional.conv_transpose2d(
-                    ratio, squared_weight, None,
+                    tmp, squared_weight, None,
                     module.stride, module.padding,
                     output_padding=0, groups=module.groups, dilation=module.dilation
                 )
             else:  # Conv1d
                 grad_input_modified = torch.nn.functional.conv_transpose1d(
-                    ratio, squared_weight, None,
+                    tmp, squared_weight, None,
                     module.stride, module.padding,
                     output_padding=0, groups=module.groups, dilation=module.dilation
                 )
+                
         elif isinstance(module, nn.Linear):
-            squared_weight = module.weight ** 2
-            grad_input_modified = torch.mm(ratio, squared_weight)
-        else:
-            grad_input_modified = grad_input[0]
+            grad_input_modified = torch.mm(tmp, squared_weight)
         
         return (grad_input_modified,) + grad_input[1:]
 
@@ -795,9 +830,9 @@ def create_innvestigate_sequential_composite(first_rule: str = "zbox", middle_ru
     def module_map(ctx, name, module):
         if isinstance(module, (Convolution, Linear)):
             # Apply rules based on layer position/name
-            if first_layer_name and first_layer_name in name:
+            if first_layer_name and name == first_layer_name:
                 return first_hook
-            elif last_layer_name and last_layer_name in name:
+            elif last_layer_name and name == last_layer_name:
                 return last_hook
             else:
                 # Default to middle rule for most layers

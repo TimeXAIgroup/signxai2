@@ -164,6 +164,9 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     "lrpz_epsilon_1_std_x": LRPStdxEpsilonAnalyzer,
     "lrpz_epsilon_2_std_x": LRPStdxEpsilonAnalyzer,
     "lrpz_epsilon_3_std_x": LRPStdxEpsilonAnalyzer,
+    "lrpz_epsilon_10": AdvancedLRPAnalyzer,
+    "lrpz_epsilon_20": AdvancedLRPAnalyzer,
+    "lrpz_epsilon_75": AdvancedLRPAnalyzer,
     
     # SmoothGrad variants (missing x_sign base methods)
     "smoothgrad_x_sign": SmoothGradAnalyzer,
@@ -181,6 +184,7 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     "vargrad_x_input_x_sign": "tf_exact_vargrad_x_input_x_sign",
     
     # DeconvNet variants with mu parameters (missing)
+    "deconvnet_x_sign": DeconvNetAnalyzer,
     "deconvnet_x_sign_mu_0_5": DeconvNetAnalyzer,
     "deconvnet_x_input": DeconvNetAnalyzer,
     "deconvnet_x_input_x_sign": DeconvNetAnalyzer,

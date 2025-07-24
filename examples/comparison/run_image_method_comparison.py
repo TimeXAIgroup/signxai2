@@ -49,6 +49,18 @@ def call_pytorch_method(method_name, model, input_tensor, target_class, **kwargs
         import signxai.torch_signxai.methods.w2lrp_wrapper as w2lrp_wrapper_module
         importlib.reload(w2lrp_wrapper_module)
         return w2lrp_wrapper_module.w2lrp_epsilon_0_1(model, input_tensor, **kwargs)
+    elif method_name == 'w2lrp_sequential_composite_b':
+        import signxai.torch_signxai.methods.w2lrp_wrapper as w2lrp_wrapper_module
+        importlib.reload(w2lrp_wrapper_module)
+        return w2lrp_wrapper_module.w2lrp_sequential_composite_b(model, input_tensor, **kwargs)
+    elif method_name == 'w2lrp_sequential_composite_a':
+        import signxai.torch_signxai.methods.w2lrp_wrapper as w2lrp_wrapper_module
+        importlib.reload(w2lrp_wrapper_module)
+        return w2lrp_wrapper_module.w2lrp_sequential_composite_a(model, input_tensor, **kwargs)
+    elif method_name == 'w2lrp_z':
+        import signxai.torch_signxai.methods.w2lrp_wrapper as w2lrp_wrapper_module
+        importlib.reload(w2lrp_wrapper_module)
+        return w2lrp_wrapper_module.w2lrp_z(model, input_tensor, **kwargs)
     print(f"Calling PyTorch method: {method_name}")
     print(f"Input tensor shape: {input_tensor.shape}, target class: {target_class}")
     print(f"Method kwargs: {kwargs}")
@@ -687,7 +699,7 @@ def aggregate_explanation(explanation_map, framework_name="Framework"):
 
 def run_comparison_for_method(method_name, tf_model_original, tf_model_no_softmax, x_tf,
                               pt_model_original, pt_model_for_xai, x_pt,
-                              pil_img_for_display, save_plots=True):
+                              pil_img_for_display, save_plots=True, failures_file=None):
     print(f"\n--- Running for Method: {method_name.upper()} ---")
 
     # TensorFlow Part
@@ -731,6 +743,14 @@ def run_comparison_for_method(method_name, tf_model_original, tf_model_no_softma
     except Exception as e:
         print(f"Error during TensorFlow '{method_name}' explanation: {e}")
         import traceback
+        error_msg = traceback.format_exc()
+        if failures_file:
+            with open(failures_file, 'a') as f:
+                f.write(f"\nMethod: {method_name} (TensorFlow)\n")
+                f.write(f"Error: {str(e)}\n")
+                f.write("Full Traceback:\n")
+                f.write(error_msg)
+                f.write("-" * 40 + "\n")
         traceback.print_exc()
         explanation_tf_agg = np.zeros(TARGET_SIZE)
         tf_success = False
@@ -773,6 +793,14 @@ def run_comparison_for_method(method_name, tf_model_original, tf_model_no_softma
     except Exception as e:
         print(f"Error during PyTorch '{method_name}' explanation: {e}")
         import traceback
+        error_msg = traceback.format_exc()
+        if failures_file:
+            with open(failures_file, 'a') as f:
+                f.write(f"\nMethod: {method_name} (PyTorch)\n")
+                f.write(f"Error: {str(e)}\n")
+                f.write("Full Traceback:\n")
+                f.write(error_msg)
+                f.write("-" * 40 + "\n")
         traceback.print_exc()
         explanation_pt_agg = np.zeros(TARGET_SIZE)
         pt_success = False
@@ -907,6 +935,33 @@ def run_comparison_for_method(method_name, tf_model_original, tf_model_no_softma
 
 
 def main():
+    # Parse command line arguments
+    import argparse
+    parser = argparse.ArgumentParser(description='Run SignXAI method comparison between TensorFlow and PyTorch')
+    parser.add_argument('--max-methods', type=int, default=None,
+                        help='Maximum number of methods to test (default: all)')
+    parser.add_argument('--skip-methods', type=int, default=0,
+                        help='Number of methods to skip from the beginning (default: 0)')
+    parser.add_argument('--method-filter', type=str, default=None,
+                        help='Filter methods by name pattern (e.g., "lrp_epsilon", "gradient")')
+    args = parser.parse_args()
+    
+    # Initialize failures file
+    failures_file = os.path.join(OUTPUT_DIR, 'failures.txt')
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+    
+    # Clear failures file at start
+    import datetime
+    with open(failures_file, 'w') as f:
+        f.write("Method Failures Log\n")
+        f.write("=" * 80 + "\n")
+        f.write(f"Run started at: {datetime.datetime.now()}\n")
+        f.write(f"Max methods: {args.max_methods or 'All'}\n")
+        f.write(f"Skip methods: {args.skip_methods}\n")
+        f.write(f"Method filter: {args.method_filter or 'None'}\n")
+        f.write("=" * 80 + "\n\n")
+    
     if not os.path.exists(IMAGE_PATH):
         print(f"Error: Image not found at {IMAGE_PATH}")
         try:
@@ -958,16 +1013,14 @@ def main():
     common_methods = [m for m in common_methods if m not in excluded_methods and 
                      not m.startswith('calculate_') and not m.startswith('_')]
     
-    # Optional: Filter for specific method if provided via command line
-    import sys
-    if len(sys.argv) > 1:
-        method_filter = sys.argv[1]
-        filtered_methods = [m for m in common_methods if method_filter in m]
+    # Apply method filter if provided
+    if args.method_filter:
+        filtered_methods = [m for m in common_methods if args.method_filter in m]
         if filtered_methods:
             common_methods = filtered_methods
-            print(f"Filtered to {len(common_methods)} methods matching '{method_filter}': {common_methods}")
+            print(f"Filtered to {len(common_methods)} methods matching '{args.method_filter}': {common_methods[:10]}...")
         else:
-            print(f"No methods found matching '{method_filter}'. Available methods:")
+            print(f"No methods found matching '{args.method_filter}'. Available methods:")
             print("Use one of these filters:")
             filters = ['lrp_epsilon', 'lrp_alpha', 'gradient', 'smoothgrad', 'grad_cam', 'deconvnet']
             for f in filters:
@@ -976,7 +1029,17 @@ def main():
                     print(f"  {f}: {len(matching)} methods")
             return
     
-    print(f"Testing {len(common_methods)} common methods")
+    # Apply skip and max limits
+    original_count = len(common_methods)
+    if args.skip_methods > 0:
+        common_methods = common_methods[args.skip_methods:]
+        print(f"Skipping first {args.skip_methods} methods")
+    
+    if args.max_methods is not None and args.max_methods > 0:
+        common_methods = common_methods[:args.max_methods]
+        print(f"Limiting to {args.max_methods} methods")
+    
+    print(f"Testing {len(common_methods)} methods (out of {original_count} total common methods)")
     
     # Categorize methods
     categories = categorize_methods(common_methods)
