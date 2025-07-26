@@ -47,7 +47,9 @@ def input_tensor():
 def test_guided_backprop_initialization(model):
     """Test Guided Backprop initialization."""
     guided = GuidedBackprop(model)
-    assert len(guided._hooks) > 0, "Should have hooks for ReLU layers"
+    assert hasattr(guided, 'model'), "Should have original model"
+    assert hasattr(guided, 'guided_model'), "Should have guided model with replaced ReLUs"
+    assert guided.model is model, "Should store reference to original model"
 
 
 def test_guided_backprop_attribution(model, input_tensor):
@@ -100,16 +102,22 @@ def test_deconvnet_attribution(model, input_tensor):
 
 
 def test_hook_cleanup(model):
-    """Test that hooks are properly cleaned up."""
+    """Test that guided models are properly created."""
     guided = GuidedBackprop(model)
-    initial_hooks = len(guided._hooks)
-
+    # Check that guided model has GuidedBackpropReLU modules
+    has_guided_relu = False
+    for module in guided.guided_model.modules():
+        if module.__class__.__name__ == "GuidedBackpropReLUModule":
+            has_guided_relu = True
+            break
+    assert has_guided_relu, "Guided model should have GuidedBackpropReLU modules"
+    
     # Delete the object
     del guided
 
-    # Create a new one
+    # Create a new one - it should create its own guided model
     new_guided = GuidedBackprop(model)
-    assert len(new_guided._hooks) == initial_hooks, "Should have same number of hooks"
+    assert hasattr(new_guided, 'guided_model'), "New instance should have guided model"
 
 
 def test_guided_backprop_gradients(model, input_tensor):

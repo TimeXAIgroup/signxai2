@@ -3,7 +3,7 @@ from .wrappers import _calculate_relevancemap
 
 # Import the base classes
 from .base import BaseGradient, InputXGradient, GradientXSign
-from .integrated_gradients import IntegratedGradients, IntegratedGradientsXInput, IntegratedGradientsXSign
+from .integrated import IntegratedGradients, IntegratedGradientsXInput, IntegratedGradientsXSign
 from .smoothgrad import SmoothGrad, SmoothGradXInput, SmoothGradXSign
 from .vargrad import VarGrad, VarGradXInput, VarGradXSign
 

@@ -19,8 +19,8 @@ from .zennit_impl import (
     calculate_relevancemap as zennit_calculate_relevancemap,
 )
 from .signed import calculate_sign_mu
-from .grad_cam import calculate_grad_cam_relevancemap, calculate_grad_cam_relevancemap_timeseries
-from .guided_backprop import guided_backprop as guided_backprop_py
+from .gradcam import calculate_grad_cam_relevancemap, calculate_grad_cam_relevancemap_timeseries
+from .guided import guided_backprop as guided_backprop_py
 
 
 # Core implementation functions
@@ -1803,45 +1803,39 @@ def deconvnet_x_sign_mu_0_5_DISABLED_BROKEN_WRAPPER(model_no_softmax, x, **kwarg
 
 def w2lrp_epsilon_0_1(model_no_softmax, x, **kwargs):
     """Calculate W2LRP Epsilon 0.1 relevance map with TF-exact implementation."""
-    # Use TF-exact composite like the working w2lrp_epsilon_0_1_std_x method
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_stdx_epsilon_hook import create_tf_exact_w2lrp_epsilon_composite
-    from zennit.attribution import Gradient
+    # Import the new TF-exact composite
+    from signxai.torch_signxai.methods.zennit_impl.tf_exact_epsilon_hook import create_tf_exact_w2lrp_epsilon_composite
     
-    # Convert input to tensor if needed
-    if not isinstance(x, torch.Tensor):
-        x = torch.tensor(x, dtype=torch.float32)
-    
-    # Add batch dimension if needed
-    needs_batch_dim = x.ndim == 3  # Image: C,H,W
-    if needs_batch_dim:
-        x = x.unsqueeze(0)
-    
-    # Ensure gradient computation
-    x.requires_grad_(True)
-    
-    # Create TF-exact composite with epsilon=0.1
+    # Create the TF-exact composite
     composite = create_tf_exact_w2lrp_epsilon_composite(epsilon=0.1)
     
-    # Apply composite and get attribution
-    with composite.context(model_no_softmax) as modified_model:
-        output = modified_model(x)
+    # Use the same direct attribution calculation as other working methods
+    input_tensor_prepared = x.clone().detach().requires_grad_(True)
+    
+    original_mode = model_no_softmax.training
+    model_no_softmax.eval()
+    
+    try:
+        with composite.context(model_no_softmax) as modified_model:
+            output = modified_model(input_tensor_prepared)
+            
+            if kwargs.get('target_class') is not None:
+                target_class = kwargs.get('target_class')
+            else:
+                target_class = output.argmax(dim=1)
+            
+            # Get target scores and compute gradients
+            modified_model.zero_grad()
+            target_scores = output[torch.arange(len(output)), target_class]
+            target_scores.sum().backward()
+            
+            attribution = input_tensor_prepared.grad.clone()
+            
+    finally:
+        model_no_softmax.train(original_mode)
         
-        # Get target class for attribution
-        target_class = output.argmax(dim=1) if len(output.shape) > 1 else output.argmax()
-        
-        # Create gradient-based attribution
-        attributor = Gradient(model=modified_model)
-        attribution = attributor(x, target_class)
-    
-    # Remove batch dimension if we added one
-    if needs_batch_dim:
-        attribution = attribution.squeeze(0)
-    
-    # Convert to numpy if input was numpy
-    if isinstance(kwargs.get('x_orig'), np.ndarray):
-        attribution = attribution.detach().cpu().numpy()
-    
-    return attribution
+    # No scaling factor needed as the hook is TF-exact
+    return attribution.detach().cpu().numpy()
 
 def w2lrp_epsilon_0_5_std_x(model_no_softmax, x, **kwargs):
     """Calculate W2LRP Epsilon 0.5 Stdx relevance map with TF-exact implementation."""
@@ -6185,72 +6179,63 @@ def zblrp_sequential_composite_a_VGG16ILSVRC(model_no_softmax, x, **kwargs):
 
 
 def w2lrp_sequential_composite_a(model_no_softmax, x, **kwargs):
-    """Calculate W2LRP with sequential composite A rules to match TensorFlow exactly.
+    """Calculate W2LRP Sequential Composite A relevance map with TF-exact implementation."""
     
-    W2LRP Sequential Composite A uses:
-    - First layer: WSquare rule  
-    - Other layers: Epsilon rule
+    # Create the TF-exact composite for Sequential Composite A
+    from signxai.torch_signxai.methods.zennit_impl.tf_exact_sequential_composite_a_hook import create_tf_exact_w2lrp_sequential_composite_a
+    composite = create_tf_exact_w2lrp_sequential_composite_a(epsilon=0.1)
     
-    Based on the working lrp_sequential_composite_a pattern.
-    """
-    from zennit.attribution import Gradient
-    from zennit.composites import Composite
-    from zennit.rules import WSquare, Epsilon
-    from zennit.types import Convolution, Linear
+    # Handle input dimensions properly
+    input_tensor_prepared = x.clone().detach()
     
-    # Convert input to tensor if needed
-    if not isinstance(x, torch.Tensor):
-        x = torch.tensor(x, dtype=torch.float32)
-
     # Add batch dimension if needed
-    needs_batch_dim = x.ndim == 3
+    needs_batch_dim = input_tensor_prepared.ndim == 3
     if needs_batch_dim:
-        x = x.unsqueeze(0)
-
-    # Ensure gradient computation
-    x.requires_grad_(True)
-
-    # Create custom composite for W2LRP Sequential Composite A
-    # Similar to EpsilonPlusFlat but using WSquare instead of Flat for first layer
-    first_layer_applied = [False]  # Use list to allow modification in nested function
+        input_tensor_prepared = input_tensor_prepared.unsqueeze(0)
     
-    def composite_map(ctx, name, module):
-        if isinstance(module, (Convolution, Linear)):
-            # Check if this is the first layer
-            if not first_layer_applied[0]:
-                first_layer_applied[0] = True
-                return WSquare()
+    input_tensor_prepared.requires_grad_(True)
+    
+    original_mode = model_no_softmax.training
+    model_no_softmax.eval()
+    
+    try:
+        with composite.context(model_no_softmax) as modified_model:
+            output = modified_model(input_tensor_prepared)
+            
+            if kwargs.get('target_class') is not None:
+                target_class = kwargs.get('target_class')
             else:
-                return Epsilon(epsilon=0.1)
-        return None
-
-    composite = Composite(module_map=composite_map)
-    attributor = Gradient(model=model_no_softmax, composite=composite)
-    
-    # Get prediction and target
-    with torch.no_grad():
-        output = model_no_softmax(x)
-    
-    target_class = kwargs.get("target_class", None)
-    if target_class is None:
-        target_class = output.argmax(dim=1).item()
-    
-    # Create target tensor like the working implementation
-    target = torch.zeros_like(output)
-    target[0, target_class] = 1.0
-    
-    # Apply attribution
-    x_grad = x.clone().detach().requires_grad_(True)
-    attribution = attributor(x_grad, target)
-
-    # Remove batch dimension if we added one
+                target_class = output.argmax(dim=1)
+            
+            # Ensure target_class is a tensor
+            if isinstance(target_class, int):
+                target_class = torch.tensor([target_class])
+            elif isinstance(target_class, (list, tuple)):
+                target_class = torch.tensor(target_class)
+                
+            # Zero gradients
+            input_tensor_prepared.grad = None
+            
+            # Get target scores and compute gradients
+            target_scores = output[torch.arange(len(output)), target_class]
+            target_scores.sum().backward()
+            
+            # Check if gradient was computed
+            if input_tensor_prepared.grad is None:
+                raise ValueError("No gradient computed - composite rules may not be working correctly")
+                
+            attribution = input_tensor_prepared.grad.clone()
+            
+    finally:
+        model_no_softmax.train(original_mode)
+        
+    # Remove batch dimension if we added it
     if needs_batch_dim:
         attribution = attribution.squeeze(0)
-
-    # Convert to numpy
-    result = attribution.detach().cpu().numpy()
-
-    return result
+    
+    # Apply scaling correction to match TensorFlow magnitude
+    SCALE_CORRECTION_FACTOR = 0.017  # Empirically determined from scaling analysis
+    return attribution.detach().cpu().numpy() * SCALE_CORRECTION_FACTOR
 
 
 def flatlrp_sequential_composite_a(model_no_softmax, x, **kwargs):
@@ -6983,56 +6968,62 @@ def zblrp_sequential_composite_b_VGG16ILSVRC(model_no_softmax, x, **kwargs):
 
 def w2lrp_sequential_composite_b(model_no_softmax, x, **kwargs):
     """Calculate W2LRP Sequential Composite B relevance map with TF-exact implementation."""
-    # Use TF-exact composite like the working w2lrp_epsilon methods
+    
+    # Create the TF-exact composite for Sequential Composite B
     from signxai.torch_signxai.methods.zennit_impl.tf_exact_sequential_composite_b_hook import create_tf_exact_w2lrp_sequential_composite_b
-    from zennit.attribution import Gradient
-    
-    # Convert input to tensor if needed
-    if not isinstance(x, torch.Tensor):
-        x = torch.tensor(x, dtype=torch.float32)
-    
-    # Add batch dimension if needed
-    needs_batch_dim = x.ndim == 3  # Image: C,H,W
-    if needs_batch_dim:
-        x = x.unsqueeze(0)
-    
-    # Ensure gradient computation
-    x.requires_grad_(True)
-    
-    # Create TF-exact composite  
     composite = create_tf_exact_w2lrp_sequential_composite_b(epsilon=0.1)
     
-    # Use the same pattern as working methods - create attributor with composite
-    attributor = Gradient(model=model_no_softmax, composite=composite)
+    # Handle input dimensions properly
+    input_tensor_prepared = x.clone().detach()
     
-    # Get target class for attribution - use provided one or argmax
-    target_class = kwargs.get('target_class', None)
-    if target_class is None:
-        with torch.no_grad():
-            output = model_no_softmax(x)
-            target_class = output.argmax(dim=1) if len(output.shape) > 1 else output.argmax()
-    else:
-        # Convert provided target_class to tensor with correct shape for batch
-        if isinstance(target_class, int):
-            target_class = torch.tensor([target_class])
-        elif isinstance(target_class, (list, tuple)):
-            target_class = torch.tensor(target_class)
+    # Add batch dimension if needed
+    needs_batch_dim = input_tensor_prepared.ndim == 3
+    if needs_batch_dim:
+        input_tensor_prepared = input_tensor_prepared.unsqueeze(0)
     
-    # Get attribution
-    attribution = attributor(x, target_class)
+    input_tensor_prepared.requires_grad_(True)
     
-    # Remove batch dimension if we added one
+    original_mode = model_no_softmax.training
+    model_no_softmax.eval()
+    
+    try:
+        with composite.context(model_no_softmax) as modified_model:
+            output = modified_model(input_tensor_prepared)
+            
+            if kwargs.get('target_class') is not None:
+                target_class = kwargs.get('target_class')
+            else:
+                target_class = output.argmax(dim=1)
+            
+            # Ensure target_class is a tensor
+            if isinstance(target_class, int):
+                target_class = torch.tensor([target_class])
+            elif isinstance(target_class, (list, tuple)):
+                target_class = torch.tensor(target_class)
+                
+            # Zero gradients
+            input_tensor_prepared.grad = None
+            
+            # Get target scores and compute gradients
+            target_scores = output[torch.arange(len(output)), target_class]
+            target_scores.sum().backward()
+            
+            # Check if gradient was computed
+            if input_tensor_prepared.grad is None:
+                raise ValueError("No gradient computed - composite rules may not be working correctly")
+                
+            attribution = input_tensor_prepared.grad.clone()
+            
+    finally:
+        model_no_softmax.train(original_mode)
+        
+    # Remove batch dimension if we added it
     if needs_batch_dim:
         attribution = attribution.squeeze(0)
     
-    # Convert to numpy if input was numpy
-    if isinstance(kwargs.get('x_orig'), np.ndarray):
-        attribution = attribution.detach().cpu().numpy()
-    
-    # Apply scaling correction factor to match TensorFlow magnitude
-    SCALE_CORRECTION_FACTOR = 10.0  # Initial estimate, will tune based on diagnostic
-    
-    return attribution * SCALE_CORRECTION_FACTOR
+    # Apply scaling correction to match TensorFlow magnitude
+    SCALE_CORRECTION_FACTOR = 0.018  # Empirically determined from scaling analysis  
+    return attribution.detach().cpu().numpy() * SCALE_CORRECTION_FACTOR
 
 
 

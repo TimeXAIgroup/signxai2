@@ -1,4 +1,4 @@
-"""PyTorch implementation of Grad-CAM."""
+"""Unified PyTorch implementation of Grad-CAM combining the best features from both implementations."""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,81 +7,194 @@ from typing import Union, Optional, Tuple, List
 
 
 class GradCAM:
-    """Grad-CAM (Gradient-weighted Class Activation Mapping) implementation for PyTorch.
+    """Unified Grad-CAM implementation for PyTorch models.
     
-    Implements the method described in "Grad-CAM: Visual Explanations from Deep Networks 
-    via Gradient-based Localization" (https://arxiv.org/abs/1610.02391).
+    Combines the automatic layer detection from gradcam.py with the 
+    TensorFlow-compatible behavior from grad_cam.py.
+    
+    Grad-CAM uses the gradients of a target concept flowing into the final
+    convolutional layer to produce a coarse localization map highlighting
+    important regions in the image for prediction.
     """
     
     def __init__(self, model, target_layer=None):
-        """Initialize Grad-CAM with a model and target layer.
+        """Initialize GradCAM.
         
         Args:
             model: PyTorch model
-            target_layer: Layer to use for Grad-CAM (usually the last convolutional layer)
-                         If None, will try to automatically find the last convolutional layer
+            target_layer: Target layer for Grad-CAM. If None, will try to 
+                         automatically find the last convolutional layer.
         """
         self.model = model
+        self.target_layer = target_layer
+        self.gradients = None
+        self.activations = None
+        self.hooks = []
         
         # If target_layer is not provided, try to find the last convolutional layer
-        if target_layer is None:
+        if self.target_layer is None:
             self.target_layer = self._find_target_layer(model)
-        else:
-            self.target_layer = target_layer
             
         # Check if target_layer was found or provided
         if self.target_layer is None:
             raise ValueError("Could not automatically identify a target convolutional layer. "
                             "Please specify one explicitly.")
         
-        # Register hooks to get activation and gradient
-        self.activations = None
-        self.gradients = None
-        self.hooks = []
-        
+        # Register hooks
+        self._register_hooks()
+    
     def _find_target_layer(self, model):
-        """Find the last convolutional layer in the model."""
+        """Find the last convolutional layer in the model.
+        
+        This method searches for Conv2d (images) and Conv1d (time series) layers.
+        """
         target_layer = None
         
-        # Try to find the last convolutional layer
-        for name, module in reversed(list(model.named_modules())):
-            if isinstance(module, (nn.Conv2d, nn.Conv1d)):
-                target_layer = module
-                print(f"Found convolutional layer: {name}")
-                break
-                
-        return target_layer
+        # Special handling for known architectures
+        if hasattr(model, 'layer4'):
+            # ResNet-like models
+            return model.layer4[-1].conv2
+        elif hasattr(model, 'features'):
+            # VGG-like models
+            for i in range(len(model.features) - 1, -1, -1):
+                if isinstance(model.features[i], (nn.Conv2d, nn.Conv1d)):
+                    return model.features[i]
+        
+        # Generic search for the last conv layer
+        last_conv = None
+        
+        def search_conv(module):
+            nonlocal last_conv
+            for m in module.children():
+                if len(list(m.children())) > 0:
+                    # Recurse into submodules
+                    search_conv(m)
+                elif isinstance(m, (nn.Conv2d, nn.Conv1d)):
+                    last_conv = m
+        
+        search_conv(model)
+        return last_conv
     
     def _register_hooks(self):
-        """Register hooks for activation and gradient capture."""
+        """Register forward and backward hooks."""
         # Clear any existing hooks
         for hook in self.hooks:
             hook.remove()
         self.hooks = []
         
-        # Forward hook to capture activations
         def forward_hook(module, input, output):
             self.activations = output.detach()
-            
-        # Backward hook to capture gradients
-        def backward_hook(module, grad_in, grad_out):
-            self.gradients = grad_out[0].detach()
+        
+        def backward_hook(module, grad_input, grad_output):
+            self.gradients = grad_output[0].detach()
         
         # Register hooks
         forward_handle = self.target_layer.register_forward_hook(forward_hook)
         
-        # Use register_full_backward_hook for newer PyTorch, or register_backward_hook for older
+        # Use register_full_backward_hook for newer PyTorch, fallback for older versions
         try:
             backward_handle = self.target_layer.register_full_backward_hook(backward_hook)
         except AttributeError:
-            # Fallback for older PyTorch versions
             backward_handle = self.target_layer.register_backward_hook(backward_hook)
             
-        # Store handles to remove later
         self.hooks.extend([forward_handle, backward_handle])
+    
+    def forward(self, x, target_class=None):
+        """Generate Grad-CAM attribution map using the TensorFlow-compatible approach.
         
+        Args:
+            x: Input tensor
+            target_class: Target class index (None for argmax)
+            
+        Returns:
+            Grad-CAM attribution map
+        """
+        # Set model to eval mode
+        original_mode = self.model.training
+        self.model.eval()
+        
+        # Clone input to avoid modifying the original
+        x = x.clone().detach().requires_grad_(True)
+        
+        # Reset stored activations and gradients
+        self.activations = None
+        self.gradients = None
+        
+        # Forward pass
+        self.model.zero_grad()
+        output = self.model(x)
+        
+        # Select target class
+        if target_class is None:
+            target_class = output.argmax(dim=1)
+        elif isinstance(target_class, int):
+            target_class = torch.tensor([target_class], device=output.device)
+        elif isinstance(target_class, (list, tuple)):
+            target_class = torch.tensor(target_class, device=output.device)
+        
+        # Create one-hot encoding
+        if output.dim() == 2:  # Batch output
+            one_hot = torch.zeros_like(output)
+            if target_class.dim() == 0:  # Single value
+                target_class = target_class.unsqueeze(0)
+            one_hot.scatter_(1, target_class.unsqueeze(1), 1.0)
+        else:  # Single output
+            one_hot = torch.zeros_like(output)
+            if target_class.dim() > 0:
+                target_class = target_class[0]
+            one_hot[target_class] = 1.0
+        
+        # Backward pass
+        output.backward(gradient=one_hot, retain_graph=True)
+        
+        # Ensure we have activations and gradients
+        if self.activations is None or self.gradients is None:
+            raise ValueError("Could not capture activations or gradients. "
+                            "Check that the target layer is correct.")
+        
+        # Calculate weights - match TensorFlow's reduce_mean behavior
+        if self.gradients.dim() == 4:  # For images (B, C, H, W)
+            weights = torch.mean(self.gradients, dim=(0, 2, 3), keepdim=False)
+        else:  # For time series (B, C, T)
+            weights = torch.mean(self.gradients, dim=(0, 2), keepdim=False)
+        
+        # Extract first sample's activations (match TensorFlow behavior)
+        activations = self.activations[0]  # Remove batch dimension
+        
+        # Weight activations by importance
+        if activations.dim() == 3:  # (C, H, W)
+            weighted_output = activations * weights[:, None, None]
+        else:  # (C, T)
+            weighted_output = activations * weights[:, None]
+        
+        # Sum across feature map channels
+        cam = torch.sum(weighted_output, dim=0, keepdim=False)
+        
+        # Apply ReLU and normalize
+        cam = F.relu(cam)
+        
+        # TensorFlow-style normalization
+        epsilon = 1e-7
+        cam = cam / (torch.max(cam) + epsilon)
+        
+        # Resize if needed (for images)
+        if cam.dim() == 2 and x.dim() == 4:  # Image case
+            cam = cam.unsqueeze(0).unsqueeze(0)
+            cam = F.interpolate(cam, size=x.shape[2:], mode='bilinear', align_corners=False)
+            cam = cam.squeeze(0).squeeze(0)
+        
+        # Clean up hooks
+        for hook in self.hooks:
+            hook.remove()
+        self.hooks = []
+        
+        # Restore model mode
+        self.model.train(original_mode)
+        
+        return cam
+    
     def attribute(self, inputs, target=None, resize_to_input=True):
-        """Generate Grad-CAM heatmap.
+        """Generate Grad-CAM heatmap (compatible with gradcam.py interface).
         
         Args:
             inputs: Input tensor
@@ -91,181 +204,87 @@ class GradCAM:
         Returns:
             Grad-CAM heatmap (same size as input if resize_to_input=True)
         """
-        # Set model to eval mode
-        original_mode = self.model.training
-        self.model.eval()
-        
         # Handle tensor conversion
         if not isinstance(inputs, torch.Tensor):
             inputs = torch.tensor(inputs, dtype=torch.float32)
             
-        # Clone input to avoid modifying the original
-        inputs = inputs.clone().detach().requires_grad_(True)
+        # Use the forward method
+        cam = self.forward(inputs, target_class=target)
         
-        # Reset stored activations and gradients
-        self.activations = None
-        self.gradients = None
+        # Handle batch dimension for compatibility
+        if inputs.dim() == 4 and cam.dim() == 2:  # Batch input, single CAM
+            cam = cam.unsqueeze(0).unsqueeze(0)  # Add batch and channel dims
+            if inputs.shape[0] > 1:
+                # Repeat for batch size
+                cam = cam.repeat(inputs.shape[0], 1, 1, 1)
         
-        # Register hooks for this forward/backward pass
-        self._register_hooks()
-        
-        try:
-            # Forward pass
-            self.model.zero_grad()
-            outputs = self.model(inputs)
-            
-            # Determine target class
-            if target is None:
-                # Use argmax of the output
-                target_indices = outputs.argmax(dim=1)
-            elif isinstance(target, int):
-                # Use the same target for all examples in the batch
-                target_indices = torch.full((inputs.shape[0],), target, 
-                                          dtype=torch.long, device=inputs.device)
-            elif isinstance(target, torch.Tensor):
-                if target.numel() == 1:
-                    # Single scalar tensor target
-                    target_indices = torch.full((inputs.shape[0],), target.item(), 
-                                              dtype=torch.long, device=inputs.device)
-                else:
-                    # Tensor with multiple targets (one per batch item)
-                    target_indices = target
-            else:
-                raise ValueError(f"Unsupported target type: {type(target)}")
-                
-            # Create one-hot encoding for target class(es)
-            one_hot = torch.zeros_like(outputs)
-            for i, idx in enumerate(target_indices):
-                one_hot[i, idx] = 1.0
-                
-            # Backward pass to get gradients
-            outputs.backward(gradient=one_hot)
-            
-            # Ensure we have activations and gradients
-            if self.activations is None or self.gradients is None:
-                raise ValueError("Could not capture activations or gradients. "
-                                "Check that the target layer is correct.")
-                
-            # Global average pooling of gradients
-            weights = self.gradients.mean(dim=(2, 3), keepdim=True)
-            
-            # Weight the activations by the gradients
-            cam = (weights * self.activations).sum(dim=1, keepdim=True)
-            
-            # Apply ReLU to keep only positive influences
-            cam = F.relu(cam)
-            
-            # Normalize CAM to 0-1 range per example
-            batch_size = cam.shape[0]
-            cams_normalized = []
-            for i in range(batch_size):
-                cam_i = cam[i]
-                min_val = cam_i.min()
-                max_val = cam_i.max()
-                
-                if max_val > min_val:
-                    # Normalize to 0-1
-                    cam_i = (cam_i - min_val) / (max_val - min_val)
-                else:
-                    # If constant value, set to 0.5 (neutral)
-                    cam_i = torch.ones_like(cam_i) * 0.5
-                    
-                cams_normalized.append(cam_i)
-                
-            cam = torch.cat(cams_normalized, dim=0).unsqueeze(1)
-            
-            # Resize CAM to match input size if requested
-            if resize_to_input and inputs.dim() == 4:  # For images
-                # Get input spatial dimensions
-                input_h, input_w = inputs.shape[2], inputs.shape[3]
-                
-                # Resize CAM to match input size
-                cam = F.interpolate(cam, size=(input_h, input_w), mode='bilinear', align_corners=False)
-                
-            # Remove hooks
-            for hook in self.hooks:
-                hook.remove()
-            self.hooks = []
-                
-            # Restore model mode
-            self.model.train(original_mode)
-            
-            return cam
-            
-        except Exception as e:
-            # Clean up hooks even if an error occurs
-            for hook in self.hooks:
-                hook.remove()
-            self.hooks = []
-            
-            # Restore model mode
-            self.model.train(original_mode)
-            
-            # Re-raise the exception
-            raise e
+        return cam
 
 
 def calculate_grad_cam_relevancemap(model, input_tensor, target_layer=None, target_class=None):
-    """Calculate Grad-CAM relevance map.
+    """Calculate Grad-CAM relevance map for images.
+    
+    This function provides a convenient interface compatible with grad_cam.py.
     
     Args:
         model: PyTorch model
         input_tensor: Input tensor
-        target_layer: Target layer for Grad-CAM (usually the last convolutional layer)
+        target_layer: Target layer for Grad-CAM (None to auto-detect)
         target_class: Target class index (None for argmax)
         
     Returns:
-        Grad-CAM heatmap (same size as input)
+        Grad-CAM relevance map as numpy array
     """
+    # Initialize Grad-CAM
     grad_cam = GradCAM(model, target_layer)
-    cam = grad_cam.attribute(input_tensor, target=target_class)
     
-    # Convert to numpy array
+    # Generate attribution map
+    with torch.enable_grad():
+        cam = grad_cam.forward(input_tensor, target_class)
+    
+    # Convert to numpy and handle dimensions
     if isinstance(cam, torch.Tensor):
         cam = cam.detach().cpu().numpy()
         
-    # Remove batch dimension if single example
-    if cam.shape[0] == 1:
-        cam = cam[0]
-        
-    # Remove channel dimension if present
-    if cam.ndim == 3 and cam.shape[0] == 1:
-        cam = cam[0]
-        
+    # Handle batch dimension if present
+    if hasattr(input_tensor, 'dim') and input_tensor.dim() == 4:  # Batch
+        # Return with batch dimension
+        if cam.ndim == 2:  # Single CAM without batch
+            cam = np.expand_dims(cam, axis=0)
+    else:  # Single input
+        # Remove any extra dimensions
+        cam = np.squeeze(cam)
+    
     return cam
 
 
 def calculate_grad_cam_relevancemap_timeseries(model, input_tensor, target_layer=None, target_class=None):
     """Calculate Grad-CAM relevance map for time series data.
     
+    This function provides compatibility with grad_cam.py's timeseries function.
+    
     Args:
         model: PyTorch model
-        input_tensor: Input tensor (batch, channels, time_steps)
-        target_layer: Target layer for Grad-CAM (usually the last convolutional layer)
+        input_tensor: Input tensor (B, C, T)
+        target_layer: Target layer for Grad-CAM (None to auto-detect)
         target_class: Target class index (None for argmax)
         
     Returns:
-        Grad-CAM heatmap (batch, time_steps)
+        Grad-CAM relevance map as numpy array
     """
-    # Special handling for time series data (1D)
-    grad_cam = GradCAM(model, target_layer)
-    cam = grad_cam.attribute(input_tensor, target=target_class)
+    # Find the last conv1d layer if not specified
+    if target_layer is None:
+        for module in reversed(list(model.modules())):
+            if isinstance(module, nn.Conv1d):
+                target_layer = module
+                break
     
-    # Convert to numpy array
-    if isinstance(cam, torch.Tensor):
-        cam = cam.detach().cpu().numpy()
-        
-    # Remove batch dimension if single example
-    if cam.shape[0] == 1:
-        cam = cam[0]
-        
-    # Handle dimensionality to make it compatible with 1D time series output
-    if cam.ndim == 3:  # (batch, channel, time)
-        # Average across channels if multiple channels
-        if cam.shape[1] > 1:
-            cam = np.mean(cam, axis=1)
-        else:
-            # Squeeze out the channel dimension if only one channel
-            cam = np.squeeze(cam, axis=1)
-            
-    return cam
+    if target_layer is None:
+        raise ValueError("Could not find Conv1d layer for time series Grad-CAM")
+    
+    # Use the unified implementation
+    return calculate_grad_cam_relevancemap(model, input_tensor, target_layer, target_class)
+
+
+# Aliases for backward compatibility
+find_target_layer = lambda model: GradCAM(model)._find_target_layer(model)
