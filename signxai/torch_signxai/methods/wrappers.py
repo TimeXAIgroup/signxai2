@@ -463,7 +463,7 @@ def _calculate_relevancemap(model, input_tensor, method="gradients", **kwargs):
                         epsilon = float(epsilon_str)
                     
                     # Use TF-exact LRP Sign implementation
-                    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+                    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
                     from signxai.torch_signxai.methods.signed import calculate_sign_mu
                     from zennit.attribution import Gradient
                     
@@ -840,7 +840,7 @@ def gradient_x_sign_mu_0_5(model_no_softmax, x, **kwargs):
 def lrpsign_epsilon_5(model_no_softmax, x, **kwargs):
     """Calculate LRP Sign epsilon 5 relevance map with TF-exact implementation."""
     # Force use of TF-exact lrpsign epsilon implementation with proper scaling
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     from signxai.torch_signxai.methods.signed import calculate_sign_mu
     from zennit.attribution import Gradient
 
@@ -905,7 +905,7 @@ def lrpsign_epsilon_5(model_no_softmax, x, **kwargs):
 def lrpsign_epsilon_10(model_no_softmax, x, **kwargs):
     """Calculate LRP Sign epsilon 10 relevance map with TF-exact implementation."""
     # Force use of TF-exact lrpsign epsilon implementation with proper scaling
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     from signxai.torch_signxai.methods.signed import calculate_sign_mu
     from zennit.attribution import Gradient
 
@@ -970,7 +970,7 @@ def lrpsign_epsilon_10(model_no_softmax, x, **kwargs):
 def lrpsign_epsilon_20(model_no_softmax, x, **kwargs):
     """Calculate LRP Sign epsilon 20 relevance map with TF-exact implementation."""
     # Force use of TF-exact lrpsign epsilon implementation with proper scaling
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     from signxai.torch_signxai.methods.signed import calculate_sign_mu
     from zennit.attribution import Gradient
 
@@ -1050,7 +1050,7 @@ def lrpsign_epsilon_100_mu_0(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=100.0 and SIGNmu input layer rule (mu=0.0 = pure SIGN rule)
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_mu_hook import create_tf_exact_lrpsign_epsilon_mu_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import TFExactLRPSignEpsilonMuHook, _CompositeContext, create_tf_exact_lrpsign_epsilon_mu_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -1108,28 +1108,6 @@ def lrpsign_epsilon_100_mu_0(model_no_softmax, x, **kwargs):
     return result
 
 
-def lrpsign_epsilon_100_mu_0_5(model_no_softmax, x, **kwargs):
-    """Calculate LRP with epsilon=100.0 and SIGNmu input layer rule with mu=0.5 using standard LRP implementation.
-    
-    Args:
-        model_no_softmax: PyTorch model with softmax removed
-        x: Input tensor
-        **kwargs: Additional arguments
-        
-    Returns:
-        LRP relevance map with epsilon=100.0 and SIGNmu input layer rule (mu=0.5)
-    """
-    # Use standard Zennit implementation and apply scaling
-    from signxai.torch_signxai.methods.zennit_impl import calculate_relevancemap
-    
-    # Call the standard lrpsign_epsilon_100 method which should already exist
-    result = calculate_relevancemap(model_no_softmax, x, "lrpsign_epsilon_100", **kwargs)
-    
-    # Apply scaling factor to match TensorFlow magnitude
-    # Based on observation that TF produces much smaller values than PyTorch
-    result = result * 0.0
-    
-    return result
 
 
 def lrpsign_epsilon_100_mu_neg_0_5(model_no_softmax, x, **kwargs):
@@ -1144,7 +1122,7 @@ def lrpsign_epsilon_100_mu_neg_0_5(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=100.0 and SIGNmu input layer rule (mu=-0.5)
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_mu_hook import create_tf_exact_lrpsign_epsilon_mu_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import TFExactLRPSignEpsilonMuHook, _CompositeContext, create_tf_exact_lrpsign_epsilon_mu_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -2988,7 +2966,7 @@ def lrpsign_epsilon_0_001(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=0.001 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -3055,7 +3033,7 @@ def lrpsign_epsilon_0_01(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=0.01 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -3327,7 +3305,7 @@ def lrpsign_epsilon_0_1(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=0.1 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -4142,7 +4120,7 @@ def lrpsign_epsilon_1(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=1.0 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -4215,7 +4193,7 @@ def lrpsign_epsilon_5(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=5.0 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -4291,7 +4269,7 @@ def lrpsign_epsilon_0_2(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=0.2 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -4540,7 +4518,7 @@ def lrpsign_epsilon_0_1_std_x(model_no_softmax, x, **kwargs):
         LRP relevance map with std(x) epsilon and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_std_x_hook import create_tf_exact_lrpsign_epsilon_std_x_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_std_x_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -4821,7 +4799,7 @@ def lrpsign_epsilon_0_25_std_x(model_no_softmax, x, **kwargs):
         LRP relevance map with std(x)*0.25 epsilon and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_std_x_hook import create_tf_exact_lrpsign_epsilon_std_x_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_std_x_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -4997,7 +4975,7 @@ def lrpsign_epsilon_0_25_std_x_mu_0(model_no_softmax, x, **kwargs):
         LRP relevance map with std(x)*0.25 epsilon and SIGNmu input layer rule
     """
     # Use improved TF-exact implementation for better precision
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_std_x_mu_hook_improved import create_tf_exact_lrpsign_epsilon_std_x_mu_improved_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import TFExactLRPSignEpsilonStdXMuImprovedHook, _CompositeContext
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -5064,7 +5042,7 @@ def lrpsign_epsilon_0_25_std_x_mu_0_5(model_no_softmax, x, **kwargs):
         LRP relevance map with std(x)*0.25 epsilon and SIGNmu input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_std_x_mu_hook import create_tf_exact_lrpsign_epsilon_std_x_mu_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import TFExactLRPSignEpsilonStdXMuHook, _CompositeContext
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -5131,7 +5109,7 @@ def lrpsign_epsilon_0_25_std_x_mu_neg_0_5(model_no_softmax, x, **kwargs):
         LRP relevance map with std(x)*0.25 epsilon and SIGNmu input layer rule
     """
     # Use improved TF-exact implementation for better precision
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_std_x_mu_hook_improved import create_tf_exact_lrpsign_epsilon_std_x_mu_improved_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import TFExactLRPSignEpsilonStdXMuImprovedHook, _CompositeContext
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -5198,7 +5176,7 @@ def lrpsign_epsilon_0_5_std_x(model_no_softmax, x, **kwargs):
         LRP relevance map with std(x)*0.5 epsilon and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_std_x_hook import create_tf_exact_lrpsign_epsilon_std_x_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_std_x_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -5419,7 +5397,7 @@ def lrpsign_epsilon_100_mu_0(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=100.0 and SIGNmu input layer rule (mu=0.0 = pure SIGN rule)
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_mu_hook import create_tf_exact_lrpsign_epsilon_mu_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import TFExactLRPSignEpsilonMuHook, _CompositeContext, create_tf_exact_lrpsign_epsilon_mu_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -5489,7 +5467,7 @@ def lrpsign_epsilon_100_mu_0_5(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=100.0 and SIGNmu input layer rule (mu=0.5)
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_mu_hook import create_tf_exact_lrpsign_epsilon_mu_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import TFExactLRPSignEpsilonMuHook, _CompositeContext, create_tf_exact_lrpsign_epsilon_mu_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -5944,7 +5922,7 @@ def lrpsign_sequential_composite_a(model_no_softmax, x, **kwargs):
     Returns:
         LRP relevance map with sequential composite A rules and SIGN input layer rule
     """
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_sequential_composite_a_hook import create_tf_exact_lrpsign_sequential_composite_a_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_sequential_composite_a_composite
     from zennit.attribution import Gradient
     
     # Convert input to tensor if needed
@@ -8271,7 +8249,7 @@ def lrpsign_epsilon_0_5(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=0.5 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -8337,7 +8315,7 @@ def lrpsign_epsilon_10(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=10.0 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -8405,7 +8383,7 @@ def lrpsign_epsilon_20(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=20.0 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -8475,7 +8453,7 @@ def lrpsign_epsilon_50(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=50.0 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -8545,7 +8523,7 @@ def lrpsign_epsilon_75(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=75.0 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -8615,7 +8593,7 @@ def lrpsign_epsilon_100(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=100.0 and SIGN input layer rule
     """
     # Use TF-exact implementation for exact matching
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpsign_epsilon_hook import create_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -8685,7 +8663,7 @@ def lrpsign_epsilon_20_improved(model_no_softmax, x, **kwargs):
         LRP relevance map with epsilon=20.0 and SIGN input layer rule (improved precision)
     """
     # Use improved TF-exact implementation
-    from signxai.torch_signxai.methods.zennit_impl.improved_tf_exact_lrpsign_epsilon_hook import create_improved_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     # Convert input to tensor if needed
     if not isinstance(x, torch.Tensor):
@@ -8738,7 +8716,7 @@ def lrpsign_epsilon_20_improved(model_no_softmax, x, **kwargs):
 
 def lrpsign_epsilon_100_improved(model_no_softmax, x, **kwargs):
     """Calculate LRP with epsilon=100.0 and SIGN input layer rule using improved TF-exact implementation."""
-    from signxai.torch_signxai.methods.zennit_impl.improved_tf_exact_lrpsign_epsilon_hook import create_improved_tf_exact_lrpsign_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpsign_epsilon_composite
     
     if not isinstance(x, torch.Tensor):
         x = torch.tensor(x, dtype=torch.float32)
