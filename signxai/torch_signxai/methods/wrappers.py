@@ -3469,7 +3469,7 @@ def lrpz_epsilon_0_1(model_no_softmax, x, **kwargs):
     Returns:
         LRP relevance map with epsilon=0.1 and Z input layer rule
     """
-    from signxai.torch_signxai.methods.zennit_impl.tf_exact_lrpz_epsilon_composite import create_tf_exact_lrpz_epsilon_composite
+    from signxai.torch_signxai.methods.zennit_impl.hooks import create_tf_exact_lrpz_epsilon_composite_v2 as create_tf_exact_lrpz_epsilon_composite
     from zennit.attribution import Gradient
     
     # Convert input to tensor if needed
@@ -5993,7 +5993,7 @@ def lrpz_sequential_composite_a(model_no_softmax, x, **kwargs):
     - Sequential Composite A: Different rules for different layer types
     - Input layer rule: Z (basic LRP-0)
     """
-    from .zennit_impl.tf_exact_lrpz_sequential_composite_a_hook import create_tf_exact_lrpz_sequential_composite_a_composite
+    from .zennit_impl.hooks import create_tf_exact_lrpz_sequential_composite_a_composite
     from zennit.attribution import Gradient
     import torch
     
@@ -6795,7 +6795,7 @@ def lrpz_sequential_composite_b(model_no_softmax, x, **kwargs):
     - Conv layers: AlphaBeta(2,1) - key difference from Composite A
     - Dense layers: Epsilon rule
     """
-    from .zennit_impl.tf_exact_lrpz_sequential_composite_b_hook import create_tf_exact_lrpz_sequential_composite_b_composite
+    from .zennit_impl.hooks import create_tf_exact_lrpz_sequential_composite_b_composite
     from zennit.attribution import Gradient
     import torch
     
