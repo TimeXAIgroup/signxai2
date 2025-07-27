@@ -106,7 +106,7 @@ class AdvancedLRPAnalyzer(AnalyzerBase):
     def _create_epsilon_composite(self) -> Composite:
         epsilon = self.kwargs.get("epsilon", 1e-6)
         # Use exact TensorFlow implementation for perfect TF-PT matching
-        from .tf_exact_epsilon_hook import create_tf_exact_epsilon_composite
+        from .hooks import create_tf_exact_epsilon_composite
         return create_tf_exact_epsilon_composite(epsilon=epsilon)
     
     def _create_zplus_composite(self) -> Composite:
@@ -258,7 +258,7 @@ class AdvancedLRPAnalyzer(AnalyzerBase):
         
         # Use the same epsilon composite as regular LRP epsilon, but with Z input layer rule
         # This follows the deconvnet_x_input pattern of using the proven working implementation
-        from .tf_exact_epsilon_hook import create_tf_exact_epsilon_composite
+        from .hooks import create_tf_exact_epsilon_composite
         return create_tf_exact_epsilon_composite(epsilon=epsilon)
     
     def _create_flatlrp_composite(self) -> Composite:
@@ -311,7 +311,7 @@ class AdvancedLRPAnalyzer(AnalyzerBase):
             # W2LRP Sequential Composite B: WSquare -> Alpha2Beta1 -> Epsilon  
             print(f"   ✅ Using TF-exact W2LRP Sequential Composite B")
             # Use our working TF-exact implementation instead of the broken corrected hooks
-            from .tf_exact_sequential_composite_b_hook import create_tf_exact_w2lrp_sequential_composite_b
+            from .hooks import create_tf_exact_w2lrp_sequential_composite_b
             return create_tf_exact_w2lrp_sequential_composite_b(epsilon=0.1)
         elif epsilon is not None:
             # W2LRP with Epsilon: WSquare for first layer, Epsilon for others
@@ -800,15 +800,15 @@ class LRPStdxEpsilonAnalyzer(AnalyzerBase):
         
         if input_layer_rule == "Z":
             # Use Z rule for input layer + StdxEpsilon for others
-            from .tf_exact_stdx_epsilon_hook import create_tf_exact_lrpz_stdx_epsilon_composite
+            from .hooks import create_tf_exact_lrpz_stdx_epsilon_composite
             self.composite = create_tf_exact_lrpz_stdx_epsilon_composite(stdfactor=self.stdfactor)
         elif input_layer_rule == "WSquare":
             # Use WSquare rule for input layer + StdxEpsilon for others
-            from .tf_exact_stdx_epsilon_hook import create_tf_exact_w2lrp_stdx_epsilon_composite
+            from .hooks import create_tf_exact_w2lrp_stdx_epsilon_composite
             self.composite = create_tf_exact_w2lrp_stdx_epsilon_composite(stdfactor=self.stdfactor)
         else:
             # Use the original TF-exact hook but force it to work
-            from .tf_exact_stdx_epsilon_hook import create_tf_exact_stdx_epsilon_composite
+            from .hooks import create_tf_exact_stdx_epsilon_composite
             self.composite = create_tf_exact_stdx_epsilon_composite(stdfactor=self.stdfactor)
     
     def _create_proper_stdx_composite(self) -> Composite:

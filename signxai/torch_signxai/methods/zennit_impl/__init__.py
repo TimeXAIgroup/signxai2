@@ -549,7 +549,7 @@ def calculate_relevancemap(
     # Handle TF-exact implementations
     if analyzer_class == "tf_exact_vargrad_x_input":
         print(f"🔧 Using TF-exact VarGrad x Input implementation for {method}")
-        from .tf_exact_vargrad_x_input_hook import create_tf_exact_vargrad_x_input_analyzer
+        from .hooks import create_tf_exact_vargrad_x_input_analyzer
         
         # Create analyzer with kwargs
         analyzer = create_tf_exact_vargrad_x_input_analyzer(model, **kwargs)
@@ -559,7 +559,7 @@ def calculate_relevancemap(
     
     elif analyzer_class == "tf_exact_vargrad_x_input_x_sign":
         print(f"🔧 Using TF-exact VarGrad x Input x Sign implementation for {method}")
-        from .tf_exact_vargrad_x_input_x_sign_hook import create_tf_exact_vargrad_x_input_x_sign_analyzer
+        from .hooks import create_tf_exact_vargrad_x_input_x_sign_analyzer
         
         # Create analyzer with kwargs
         analyzer = create_tf_exact_vargrad_x_input_x_sign_analyzer(model, **kwargs)
@@ -569,7 +569,7 @@ def calculate_relevancemap(
     
     elif analyzer_class == "tf_exact_vargrad_x_sign":
         print(f"🔧 Using TF-exact VarGrad x Sign implementation for {method}")
-        from .tf_exact_vargrad_x_sign_hook import create_tf_exact_vargrad_x_sign_analyzer
+        from .hooks import create_tf_exact_vargrad_x_sign_analyzer
         
         # Create analyzer with kwargs
         analyzer = create_tf_exact_vargrad_x_sign_analyzer(model, **kwargs)

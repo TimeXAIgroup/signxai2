@@ -1297,8 +1297,9 @@ def create_tf_exact_lrpsign_sequential_composite_a_composite(epsilon: float = 0.
     Returns:
         Composite that applies TF-exact LRPSign Sequential Composite A rules
     """
-    from .tf_exact_sign_hook import TFExactSignHook, TFExactAlpha1Beta0Hook
-    from .tf_exact_epsilon_hook import TFExactEpsilonHook
+    # Use the hooks that are already defined in this file
+    # TFExactSignHook and TFExactAlpha1Beta0Hook are defined above
+    # TFExactEpsilonHook is also defined above
     
     # Track if we've applied the first layer rule
     first_layer_applied = [False]
@@ -1964,6 +1965,1094 @@ def create_tf_exact_lrpz_sequential_composite_b_composite(model, epsilon=0.1, sc
 
 
 # ============================================================================
+# W2LRP Sequential Composite A Hook
+# ============================================================================
+
+def create_tf_exact_w2lrp_sequential_composite_a(epsilon: float = 1e-1):
+    """
+    Create a TF-exact composite that matches TensorFlow iNNvestigate's 
+    W²LRP Sequential Composite A.
+    
+    W²LRP Sequential Composite A applies:
+    - WSquare to first layer
+    - Alpha1Beta0 to convolutional layers  
+    - Epsilon to dense (linear) layers
+    """
+    from zennit.rules import AlphaBeta, Epsilon, WSquare
+    
+    # Define rules using standard Zennit rules
+    wsquare_rule = WSquare()
+    epsilon_rule = Epsilon(epsilon=epsilon)
+    alpha1beta0_rule = AlphaBeta(alpha=1.0, beta=0.0)
+    
+    # Track if we've seen the first layer
+    first_layer_seen = [False]
+    
+    def module_map(ctx, name, module):
+        # Use PyTorch concrete types for proper layer detection
+        if isinstance(module, (nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear)):
+            # Apply WSquare to the first layer we encounter
+            if not first_layer_seen[0]:
+                first_layer_seen[0] = True
+                print(f"🔧 TF-Exact W²LRP Sequential Composite A: Applying WSquare rule to first layer: {name}")
+                return wsquare_rule
+            
+            # Apply rules based on actual PyTorch layer type for non-first layers
+            if isinstance(module, nn.Linear):
+                # Dense/Linear layers get epsilon rule
+                print(f"🔧 TF-Exact W²LRP Sequential Composite A: Applying Epsilon(ε={epsilon}) rule to Linear layer: {name}")
+                return epsilon_rule
+            elif isinstance(module, (nn.Conv1d, nn.Conv2d, nn.Conv3d)):
+                # Conv layers get Alpha1Beta0 rule  
+                print(f"🔧 TF-Exact W²LRP Sequential Composite A: Applying Alpha1Beta0 rule to Convolution layer: {name}")
+                return alpha1beta0_rule
+        
+        # For other layers (activations, etc.), use default behavior
+        return None
+    
+    return Composite(module_map=module_map)
+
+
+# ============================================================================
+# W2LRP Sequential Composite B Hook
+# ============================================================================
+
+def create_tf_exact_w2lrp_sequential_composite_b(epsilon: float = 1e-1):
+    """
+    Create a TF-exact composite that matches TensorFlow iNNvestigate's 
+    W²LRP Sequential Composite B.
+    
+    W²LRP Sequential Composite B applies:
+    - WSquare to first layer
+    - Alpha2Beta1 to convolutional layers  
+    - Epsilon to dense (linear) layers
+    """
+    from zennit.rules import AlphaBeta, Epsilon, WSquare
+    
+    # Define rules using standard Zennit rules
+    wsquare_rule = WSquare()
+    epsilon_rule = Epsilon(epsilon=epsilon)
+    alpha2beta1_rule = AlphaBeta(alpha=2.0, beta=1.0)
+    
+    # Track if we've seen the first layer
+    first_layer_seen = [False]
+    
+    def module_map(ctx, name, module):
+        # Use PyTorch concrete types for proper layer detection
+        if isinstance(module, (nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear)):
+            # Apply WSquare to the first layer we encounter
+            if not first_layer_seen[0]:
+                first_layer_seen[0] = True
+                print(f"🔧 TF-Exact W²LRP Sequential Composite B: Applying WSquare rule to first layer: {name}")
+                return wsquare_rule
+            
+            # Apply rules based on actual PyTorch layer type for non-first layers
+            if isinstance(module, nn.Linear):
+                # Dense/Linear layers get epsilon rule
+                print(f"🔧 TF-Exact W²LRP Sequential Composite B: Applying Epsilon(ε={epsilon}) rule to Linear layer: {name}")
+                return epsilon_rule
+            elif isinstance(module, (nn.Conv1d, nn.Conv2d, nn.Conv3d)):
+                # Conv layers get Alpha2Beta1 rule  
+                print(f"🔧 TF-Exact W²LRP Sequential Composite B: Applying Alpha2Beta1 rule to Convolution layer: {name}")
+                return alpha2beta1_rule
+        
+        # For other layers (activations, etc.), use default behavior
+        return None
+    
+    return Composite(module_map=module_map)
+
+
+# ============================================================================
+# TF-Exact Sign Hook
+# ============================================================================
+
+class TFExactSignHook(Hook):
+    """
+    Hook that exactly replicates TensorFlow iNNvestigate's SignRule implementation.
+    
+    TF SignRule implementation:
+    1. Sign computation: np.nan_to_num(ins / np.abs(ins), nan=1.0)
+    2. Multiply sign with incoming relevance
+    
+    This is applied at the input layer in Sequential Composite A.
+    """
+    
+    def __init__(self):
+        super().__init__()
+    
+    def forward(self, module: nn.Module, input: torch.Tensor, output: torch.Tensor) -> torch.Tensor:
+        """Store input for backward pass."""
+        self.input = input[0] if isinstance(input, tuple) else input
+        return output
+    
+    def backward(self, module: nn.Module, grad_input: tuple, grad_output: tuple) -> tuple:
+        """
+        Exact TensorFlow SignRule implementation.
+        
+        SIGN rule follows the same pattern as Epsilon rule but without epsilon stabilization.
+        The sign is applied to the input contribution at the end.
+        """
+        if grad_output[0] is None:
+            return grad_input
+            
+        relevance = grad_output[0]
+        
+        # Step 1: Compute Zs = layer_wo_act(ins) - forward pass
+        if isinstance(module, (nn.Conv2d, nn.Conv1d)):
+            if isinstance(module, nn.Conv2d):
+                zs = torch.nn.functional.conv2d(
+                    self.input, module.weight, module.bias,
+                    module.stride, module.padding, module.dilation, module.groups
+                )
+            else:  # Conv1d
+                zs = torch.nn.functional.conv1d(
+                    self.input, module.weight, module.bias,
+                    module.stride, module.padding, module.dilation, module.groups
+                )
+        elif isinstance(module, nn.Linear):
+            zs = torch.nn.functional.linear(self.input, module.weight, module.bias)
+        else:
+            return grad_input
+        
+        # Step 2: For SIGN rule, no epsilon stabilization - just safe divide
+        safe_epsilon = 1e-12
+        safe_zs = torch.where(
+            torch.abs(zs) < safe_epsilon,
+            torch.sign(zs) * safe_epsilon,
+            zs
+        )
+        
+        # Step 3: Divide relevance by activations
+        tmp = relevance / safe_zs
+        
+        # Step 4: Compute gradient-like operation (same as epsilon rule)
+        if isinstance(module, (nn.Conv2d, nn.Conv1d)):
+            if isinstance(module, nn.Conv2d):
+                gradient_result = torch.nn.functional.conv_transpose2d(
+                    tmp, module.weight, None,
+                    module.stride, module.padding,
+                    output_padding=0, groups=module.groups, dilation=module.dilation
+                )
+            else:  # Conv1d
+                gradient_result = torch.nn.functional.conv_transpose1d(
+                    tmp, module.weight, None,
+                    module.stride, module.padding,
+                    output_padding=0, groups=module.groups, dilation=module.dilation
+                )
+        elif isinstance(module, nn.Linear):
+            if tmp.dim() == 2 and module.weight.dim() == 2:
+                gradient_result = torch.mm(tmp, module.weight)
+            else:
+                gradient_result = torch.nn.functional.linear(tmp, module.weight.t())
+        else:
+            gradient_result = tmp
+        
+        # Step 5: Apply SIGN rule exactly like TensorFlow
+        # TF: signs = np.nan_to_num(ins / np.abs(ins), nan=1.0)
+        # TF: ret = keras_layers.Multiply()([signs, tmp2])
+        
+        # Compute signs exactly like TensorFlow
+        abs_input = torch.abs(self.input)
+        signs = torch.where(
+            abs_input < 1e-12,  # Handle division by zero
+            torch.ones_like(self.input),  # TF's nan=1.0 behavior: zeros become +1
+            self.input / abs_input  # Normal sign computation: +1 or -1
+        )
+        
+        # TensorFlow multiplies signs by the gradient result (tmp2)
+        # In our case, gradient_result is equivalent to tmp2
+        result_relevance = signs * gradient_result
+        
+        # Handle any remaining numerical issues
+        result_relevance = torch.nan_to_num(result_relevance, nan=0.0, posinf=0.0, neginf=0.0)
+        
+        return (result_relevance,)
+
+
+class TFExactAlpha1Beta0Hook(Hook):
+    """
+    Hook that exactly replicates TensorFlow iNNvestigate's Alpha1Beta0Rule implementation.
+    Used for convolutional layers in Sequential Composite A.
+    """
+    
+    def __init__(self):
+        super().__init__()
+    
+    def forward(self, module: nn.Module, input: torch.Tensor, output: torch.Tensor) -> torch.Tensor:
+        """Store input for backward pass."""
+        self.input = input[0] if isinstance(input, tuple) else input
+        return output
+    
+    def backward(self, module: nn.Module, grad_input: tuple, grad_output: tuple) -> tuple:
+        """
+        Exact TensorFlow Alpha1Beta0Rule implementation.
+        
+        Alpha=1, Beta=0 means we only consider positive weights.
+        """
+        if grad_output[0] is None:
+            return grad_input
+            
+        relevance = grad_output[0]
+        input_tensor = self.input
+        
+        if input_tensor is None:
+            return grad_input
+        
+        # Clone to avoid inplace operations
+        input_tensor = input_tensor.clone()
+        relevance = relevance.clone()
+        
+        if isinstance(module, nn.Conv2d):
+            # Exact TF Alpha1Beta0: separate weights and inputs into positive/negative parts
+            weight_pos = torch.clamp(module.weight, min=0)  # Positive weights
+            weight_neg = torch.clamp(module.weight, max=0)  # Negative weights
+            
+            input_pos = torch.clamp(input_tensor, min=0)    # Positive inputs
+            input_neg = torch.clamp(input_tensor, max=0)    # Negative inputs
+            
+            # Compute the four preactivation terms
+            # z_pos_pos: positive weights with positive inputs
+            z_pos_pos = nn.functional.conv2d(
+                input_pos, weight_pos, None,  # No bias for individual terms
+                module.stride, module.padding, module.dilation, module.groups
+            )
+            
+            # z_neg_neg: negative weights with negative inputs
+            z_neg_neg = nn.functional.conv2d(
+                input_neg, weight_neg, None,  # No bias for individual terms
+                module.stride, module.padding, module.dilation, module.groups
+            )
+            
+            # For Alpha1Beta0: only consider z_pos_pos + z_neg_neg (beta=0 removes cross terms)
+            z_total = z_pos_pos + z_neg_neg
+            
+            # Add bias to the total
+            if module.bias is not None:
+                z_total = z_total + module.bias[None, :, None, None]
+            
+            # Safe division
+            z_safe = torch.where(
+                torch.abs(z_total) < 1e-9,
+                torch.sign(z_total) * 1e-9,
+                z_total
+            )
+            
+            # Compute relevance ratio
+            relevance_ratio = relevance / z_safe
+            
+            # Backward pass: gradient w.r.t. inputs for each term
+            grad_pos_pos = nn.functional.conv_transpose2d(
+                relevance_ratio, weight_pos, None,
+                module.stride, module.padding, 0, module.groups, module.dilation
+            )
+            
+            grad_neg_neg = nn.functional.conv_transpose2d(
+                relevance_ratio, weight_neg, None,
+                module.stride, module.padding, 0, module.groups, module.dilation
+            )
+            
+            # Apply to respective input parts and combine
+            result_relevance = input_pos * grad_pos_pos + input_neg * grad_neg_neg
+            
+        elif isinstance(module, nn.Linear):
+            # For linear layers, fall back to simple epsilon rule
+            z = nn.functional.linear(input_tensor, module.weight, module.bias)
+            epsilon = 0.1
+            z_safe = z + torch.where(z >= 0, epsilon, -epsilon)
+            z_safe = torch.where(
+                torch.abs(z_safe) < 1e-9,
+                torch.sign(z_safe) * 1e-9,
+                z_safe
+            )
+            relevance_ratio = relevance / z_safe
+            
+            if relevance_ratio.dim() == 2 and module.weight.dim() == 2:
+                result_relevance = torch.mm(relevance_ratio, module.weight)
+            else:
+                result_relevance = nn.functional.linear(relevance_ratio, module.weight.t())
+            
+            result_relevance = input_tensor * result_relevance
+        else:
+            result_relevance = relevance
+        
+        # Handle numerical issues
+        result_relevance = torch.nan_to_num(result_relevance, nan=0.0, posinf=0.0, neginf=0.0)
+        
+        return (result_relevance,)
+
+
+# ============================================================================
+# TF-Exact StdX Epsilon Hook
+# ============================================================================
+
+class TFExactStdxEpsilonHook(Hook):
+    """
+    Hook that exactly replicates TensorFlow iNNvestigate's StdxEpsilonRule implementation.
+    
+    Key TensorFlow behavior:
+    1. eps = np.std(ins) * self._stdfactor  (computed per layer from layer input)
+    2. prepare_div = Zs + (cast(greater_equal(Zs, 0), float) * 2 - 1) * eps
+    3. Same gradient computation as EpsilonRule
+    
+    Default stdfactor in TF: 0.25
+    """
+    
+    def __init__(self, stdfactor: float = 0.25):
+        super().__init__()
+        self.stdfactor = stdfactor
+    
+    def copy(self):
+        """Return a copy of this hook with the same stdfactor parameter."""
+        return self.__class__(stdfactor=self.stdfactor)
+    
+    def forward(self, module: nn.Module, input: torch.Tensor, output: torch.Tensor) -> torch.Tensor:
+        """Store input for backward pass."""
+        self.input = input[0] if isinstance(input, tuple) else input
+        return output
+    
+    def backward(self, module: nn.Module, grad_input: tuple, grad_output: tuple) -> tuple:
+        """
+        Exact TensorFlow StdxEpsilonRule implementation.
+        
+        TF code equivalent:
+        eps = np.std(ins) * self._stdfactor
+        prepare_div = keras_layers.Lambda(lambda x: x + (K.cast(K.greater_equal(x, 0), K.floatx()) * 2 - 1) * eps)
+        tmp = ilayers.SafeDivide()([reversed_outs, prepare_div(Zs)])
+        tmp2 = tape.gradient(Zs, ins, output_gradients=tmp)
+        ret = keras_layers.Multiply()([ins, tmp2])
+        """
+        if grad_output[0] is None:
+            return grad_input
+            
+        relevance = grad_output[0]
+        
+        # Step 1: Calculate eps = np.std(ins) * self._stdfactor (per-layer, from layer input)
+        # TF uses np.std(ins) where ins is the current layer's input in (B, H, W, C) format
+        # Convert PyTorch (B, C, H, W) format to TensorFlow (B, H, W, C) format for std calculation
+        if self.input.ndim == 4:  # Image: (B, C, H, W)
+            # Convert to TF format (B, H, W, C) for std calculation to match TensorFlow exactly
+            tf_format_input = self.input.permute(0, 2, 3, 1).detach().cpu().numpy()
+            eps = float(np.std(tf_format_input)) * self.stdfactor
+        else:  # Other formats (e.g., 1D or fully connected)
+            eps = torch.std(self.input).item() * self.stdfactor
+        
+        # Step 2: Compute Zs = layer_wo_act(ins) - forward pass without bias for Conv/Linear
+        if isinstance(module, (nn.Conv2d, nn.Conv1d)):
+            if isinstance(module, nn.Conv2d):
+                # Forward pass to get activations (Zs in TF)
+                zs = torch.nn.functional.conv2d(
+                    self.input, module.weight, module.bias,  # Include bias like TF
+                    module.stride, module.padding, module.dilation, module.groups
+                )
+            else:  # Conv1d
+                zs = torch.nn.functional.conv1d(
+                    self.input, module.weight, module.bias,  # Include bias like TF
+                    module.stride, module.padding, module.dilation, module.groups
+                )
+                
+        elif isinstance(module, nn.Linear):
+            zs = torch.nn.functional.linear(self.input, module.weight, module.bias)  # Include bias like TF
+        else:
+            return grad_input
+        
+        # Step 3: Apply TensorFlow's exact stdx epsilon stabilization
+        # TF: (K.cast(K.greater_equal(x, 0), K.floatx()) * 2 - 1) * eps
+        tf_sign = (zs >= 0).float() * 2.0 - 1.0  # +1 for >=0, -1 for <0 (TF uses >= for 0)
+        prepare_div = zs + tf_sign * eps
+        
+        # Step 4: SafeDivide - handle division by zero like TF
+        safe_epsilon = 1e-12
+        safe_prepare_div = torch.where(
+            torch.abs(prepare_div) < safe_epsilon,
+            torch.sign(prepare_div) * safe_epsilon,
+            prepare_div
+        )
+        
+        # Step 5: Divide relevance by stabilized activations
+        tmp = relevance / safe_prepare_div
+        
+        # Step 6: Compute gradient-like operation (same as epsilon rule)
+        if isinstance(module, (nn.Conv2d, nn.Conv1d)):
+            if isinstance(module, nn.Conv2d):
+                # The gradient of conv2d w.r.t. input is conv_transpose2d with the same weights
+                gradient_result = torch.nn.functional.conv_transpose2d(
+                    tmp, module.weight, None,  # No bias in gradient
+                    module.stride, module.padding,
+                    output_padding=0, groups=module.groups, dilation=module.dilation
+                )
+            else:  # Conv1d
+                gradient_result = torch.nn.functional.conv_transpose1d(
+                    tmp, module.weight, None,  # No bias in gradient
+                    module.stride, module.padding,
+                    output_padding=0, groups=module.groups, dilation=module.dilation
+                )
+                
+        elif isinstance(module, nn.Linear):
+            # For linear layer: gradient w.r.t. input is weight.T @ output_gradient
+            # tmp has shape [batch_size, output_features], weight has shape [output_features, input_features]
+            # Need to get [batch_size, input_features]
+            gradient_result = torch.mm(tmp, module.weight)
+        
+        # Step 7: Final multiply by input (like TF)
+        # TF: keras_layers.Multiply()([ins, tmp2])
+        final_result = self.input * gradient_result
+        
+        return (final_result,) + grad_input[1:]
+
+
+def create_tf_exact_stdx_epsilon_composite(stdfactor: float = 0.25):
+    """Create a composite using TFExactStdxEpsilonHook that exactly matches TensorFlow."""
+    from zennit.types import Convolution, Linear, BatchNorm, Activation, AvgPool
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            # Create a separate hook instance for each layer to avoid sharing state
+            return TFExactStdxEpsilonHook(stdfactor=stdfactor)
+        elif isinstance(module, (BatchNorm, Activation, AvgPool)):
+            return None
+        return None
+    
+    return Composite(module_map=module_map)
+
+
+def create_tf_exact_lrpz_stdx_epsilon_composite(stdfactor: float = 0.1):
+    """
+    Create a composite for TF-exact LRP Z + StdxEpsilon analysis.
+    
+    This exactly replicates TensorFlow iNNvestigate's behavior for methods like
+    lrpz_epsilon_0_1_std_x which use:
+    - Z rule for the first layer (input layer) 
+    - StdxEpsilon rule for all other layers
+    
+    Args:
+        stdfactor: Standard deviation factor for epsilon calculation (default: 0.1)
+        
+    Returns:
+        Composite that applies TF-exact Z rule to first layer and StdxEpsilon to others
+    """
+    from zennit.types import Convolution, Linear
+    
+    # Track if we've applied the first layer rule
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                print(f"🔧 TF-Exact LRPZ+StdxEpsilon: Applying Z rule (Epsilon ε=0) to first layer: {name}")
+                # Create separate instance for Z rule (Epsilon with ε=0)
+                return TFExactEpsilonHook(epsilon=0.0)
+            else:
+                print(f"🔧 TF-Exact LRPZ+StdxEpsilon: Applying StdxEpsilon(stdfactor={stdfactor}) to layer: {name}")
+                # Create separate instance for each layer to avoid sharing state
+                return TFExactStdxEpsilonHook(stdfactor=stdfactor)
+        return None
+    
+    return Composite(module_map=module_map)
+
+
+def create_tf_exact_w2lrp_stdx_epsilon_composite(stdfactor: float = 0.1):
+    """
+    Create a composite for TF-exact W2LRP + StdxEpsilon analysis.
+    
+    This exactly replicates TensorFlow iNNvestigate's behavior for methods like
+    w2lrp_epsilon_0_1_std_x which use:
+    - WSquare rule for the first layer (input layer) 
+    - StdxEpsilon rule for all other layers
+    
+    Args:
+        stdfactor: Standard deviation factor for epsilon calculation (default: 0.1)
+        
+    Returns:
+        Composite that applies WSquare rule to first layer and StdxEpsilon to others
+    """
+    from zennit.types import Convolution, Linear
+    from zennit.rules import WSquare
+    
+    # Track if we've applied the first layer rule
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                print(f"🔧 TF-Exact W2LRP+StdxEpsilon: Applying WSquare rule to first layer: {name}")
+                # Create separate instance for WSquare rule
+                return WSquare()
+            else:
+                print(f"🔧 TF-Exact W2LRP+StdxEpsilon: Applying StdxEpsilon(stdfactor={stdfactor}) to layer: {name}")
+                # Create separate instance for each layer to avoid sharing state
+                return TFExactStdxEpsilonHook(stdfactor=stdfactor)
+        return None
+    
+    return Composite(module_map=module_map)
+
+
+def create_tf_exact_w2lrp_epsilon_composite(epsilon: float = 0.1):
+    """
+    Create a composite for TF-exact W2LRP + Epsilon analysis.
+    
+    This exactly replicates TensorFlow iNNvestigate's behavior for methods like
+    w2lrp_epsilon_0_1 which use:
+    - WSquare rule for the first layer (input layer) 
+    - Epsilon rule for all other layers
+    
+    Args:
+        epsilon: Epsilon value for stabilization (default: 0.1)
+        
+    Returns:
+        Composite that applies WSquare rule to first layer and Epsilon to others
+    """
+    from zennit.types import Convolution, Linear
+    from zennit.rules import WSquare
+    
+    # Track if we've applied the first layer rule
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                print(f"🔧 TF-Exact W2LRP+Epsilon: Applying WSquare rule to first layer: {name}")
+                # Create separate instance for WSquare rule
+                return WSquare()
+            else:
+                print(f"🔧 TF-Exact W2LRP+Epsilon: Applying Epsilon(ε={epsilon}) to layer: {name}")
+                # Create separate instance for each layer to avoid sharing state
+                return TFExactEpsilonHook(epsilon=epsilon)
+        return None
+    
+    return Composite(module_map=module_map)
+
+
+# ============================================================================
+# TF-Exact VarGrad Analyzer
+# ============================================================================
+
+class TFExactVarGradAnalyzer:
+    """TF-exact VarGrad analyzer that matches TensorFlow iNNvestigate implementation exactly."""
+    
+    def __init__(self, model: nn.Module, noise_scale: float = 0.2, augment_by_n: int = 50):
+        """Initialize TF-exact VarGrad analyzer.
+        
+        Args:
+            model: PyTorch model
+            noise_scale: Standard deviation of noise to add (TF default: 0.2)
+            augment_by_n: Number of noisy samples to generate (TF default: 50)
+        """
+        self.model = model
+        self.noise_scale = noise_scale
+        self.augment_by_n = augment_by_n
+    
+    def analyze(self, input_tensor: torch.Tensor, target_class: Optional[Union[int, torch.Tensor]] = None, **kwargs) -> np.ndarray:
+        """Analyze input using TF-exact VarGrad algorithm.
+        
+        Args:
+            input_tensor: Input tensor to analyze
+            target_class: Target class index
+            **kwargs: Additional arguments (ignored)
+            
+        Returns:
+            VarGrad attribution as numpy array
+        """
+        # Override parameters from kwargs if provided
+        # Handle both TF parameter names and PT comparison script parameter names
+        noise_scale = kwargs.get('noise_scale', kwargs.get('noise_level', self.noise_scale))
+        augment_by_n = kwargs.get('augment_by_n', kwargs.get('num_samples', self.augment_by_n))
+        
+        # Ensure model is in eval mode
+        original_mode = self.model.training
+        self.model.eval()
+        
+        # Convert input to tensor if needed
+        if not isinstance(input_tensor, torch.Tensor):
+            input_tensor = torch.tensor(input_tensor, dtype=torch.float32)
+            
+        # Add batch dimension if needed
+        needs_batch_dim = input_tensor.ndim == 3
+        if needs_batch_dim:
+            input_tensor = input_tensor.unsqueeze(0)
+        
+        # Get target class if not provided
+        if target_class is None:
+            with torch.no_grad():
+                output = self.model(input_tensor)
+                target_class = output.argmax(dim=1).item()
+        elif isinstance(target_class, torch.Tensor):
+            target_class = target_class.item()
+        
+        # Create multiple noisy samples and compute gradients
+        all_gradients = []
+        
+        for _ in range(augment_by_n):
+            # Create noisy input exactly as TensorFlow does:
+            # TF: noise = np.random.normal(0, self._noise_scale, np.shape(x))
+            # where noise_scale = 0.2 by default and is absolute (not relative to input range)
+            noise = torch.normal(mean=0.0, std=noise_scale, size=input_tensor.shape, device=input_tensor.device, dtype=input_tensor.dtype)
+            noisy_input = input_tensor + noise
+            noisy_input = noisy_input.clone().detach().requires_grad_(True)
+            
+            # Compute gradient for this noisy sample
+            self.model.zero_grad()
+            output = self.model(noisy_input)
+            
+            # Create target tensor for backpropagation
+            if isinstance(target_class, int):
+                target_tensor = torch.zeros_like(output)
+                target_tensor[0, target_class] = 1.0
+            else:
+                target_tensor = target_class
+            
+            # Compute gradient
+            output.backward(gradient=target_tensor)
+            
+            if noisy_input.grad is not None:
+                all_gradients.append(noisy_input.grad.clone().detach())
+            else:
+                print("Warning: VarGrad - gradient is None for one sample")
+                all_gradients.append(torch.zeros_like(noisy_input))
+        
+        # Restore original training mode
+        self.model.train(original_mode)
+        
+        if not all_gradients:
+            print("Warning: VarGrad - no gradients collected, returning zeros")
+            result = torch.zeros_like(input_tensor)
+            if needs_batch_dim:
+                result = result.squeeze(0)
+            return result.cpu().numpy()
+        
+        # Stack gradients: shape (num_samples, batch, channels, height, width)
+        grad_stack = torch.stack(all_gradients, dim=0)
+        
+        # Compute variance exactly as TensorFlow VariationalAugmentReduceBase does:
+        # Code from TF: 
+        # gk = X[key]  # shape: (num_samples, ...)
+        # mn_gk = np.mean(gk, axis=0)  # mean across samples
+        # inner = (gk - mn_gk) ** 2   # squared differences
+        # means[key] = np.mean(inner, axis=0)  # mean of squared differences
+        
+        # 1. Compute mean across samples (axis=0 in TF)
+        mean_grad = torch.mean(grad_stack, dim=0)  # Remove samples dimension
+        
+        # 2. Compute squared differences from mean
+        variance_terms = (grad_stack - mean_grad.unsqueeze(0)) ** 2
+        
+        # 3. Take mean of squared differences across samples (axis=0 in TF)
+        variance_grad = torch.mean(variance_terms, dim=0)
+        
+        # Remove batch dimension if it was added
+        if needs_batch_dim:
+            variance_grad = variance_grad.squeeze(0)
+        
+        # Convert to numpy
+        result = variance_grad.cpu().numpy()
+        
+        return result
+
+
+def create_tf_exact_vargrad_analyzer(model: nn.Module, **kwargs):
+    """Create TF-exact VarGrad analyzer with TensorFlow-compatible parameters.
+    
+    Args:
+        model: PyTorch model
+        **kwargs: Additional arguments
+        
+    Returns:
+        TFExactVarGradAnalyzer instance
+    """
+    # Use TensorFlow defaults
+    noise_scale = kwargs.get('noise_scale', 0.2)  # TF default
+    augment_by_n = kwargs.get('augment_by_n', 50)  # TF default
+    
+    return TFExactVarGradAnalyzer(
+        model=model,
+        noise_scale=noise_scale,
+        augment_by_n=augment_by_n
+    )
+
+
+# ============================================================================
+# TF-Exact VarGrad X Input Analyzer
+# ============================================================================
+
+class TFExactVarGradXInputAnalyzer:
+    """TF-exact VarGrad x Input analyzer that matches TensorFlow implementation exactly.
+    
+    TensorFlow implementation: vargrad_x_input = vargrad * input
+    """
+    
+    def __init__(self, model: nn.Module, noise_scale: float = 0.2, augment_by_n: int = 50):
+        """Initialize TF-exact VarGrad x Input analyzer.
+        
+        Args:
+            model: PyTorch model
+            noise_scale: Standard deviation of noise to add (TF default: 0.2)
+            augment_by_n: Number of noisy samples to generate (TF default: 50)
+        """
+        self.vargrad_analyzer = TFExactVarGradAnalyzer(
+            model=model,
+            noise_scale=noise_scale,
+            augment_by_n=augment_by_n
+        )
+    
+    def analyze(self, input_tensor: torch.Tensor, target_class: Optional[Union[int, torch.Tensor]] = None, **kwargs) -> np.ndarray:
+        """Analyze input using TF-exact VarGrad x Input algorithm.
+        
+        Args:
+            input_tensor: Input tensor to analyze
+            target_class: Target class index
+            **kwargs: Additional arguments
+            
+        Returns:
+            VarGrad x Input attribution as numpy array
+        """
+        # Get VarGrad attribution
+        vargrad_result = self.vargrad_analyzer.analyze(input_tensor, target_class, **kwargs)
+        
+        # Convert input to numpy if needed
+        if isinstance(input_tensor, torch.Tensor):
+            input_np = input_tensor.detach().cpu().numpy()
+        else:
+            input_np = input_tensor
+        
+        # Handle batch dimension
+        if input_np.ndim == 4:  # (batch, channels, height, width)
+            input_np = input_np[0]  # Remove batch dimension
+        elif input_np.ndim == 3:  # (channels, height, width) - already correct
+            pass
+        
+        # Multiply VarGrad result by input exactly as TensorFlow does: v * x
+        result = vargrad_result * input_np
+        
+        return result
+
+
+def create_tf_exact_vargrad_x_input_analyzer(model: nn.Module, **kwargs):
+    """Create TF-exact VarGrad x Input analyzer with TensorFlow-compatible parameters.
+    
+    Args:
+        model: PyTorch model
+        **kwargs: Additional arguments
+        
+    Returns:
+        TFExactVarGradXInputAnalyzer instance
+    """
+    # Use TensorFlow defaults
+    noise_scale = kwargs.get('noise_scale', 0.2)  # TF default
+    augment_by_n = kwargs.get('augment_by_n', 50)  # TF default
+    
+    return TFExactVarGradXInputAnalyzer(
+        model=model,
+        noise_scale=noise_scale,
+        augment_by_n=augment_by_n
+    )
+
+
+# ============================================================================
+# TF-Exact VarGrad X Input X Sign Analyzer
+# ============================================================================
+
+class TFExactVarGradXInputXSignAnalyzer:
+    """TF-exact VarGrad x Input x Sign analyzer that matches TensorFlow implementation exactly.
+    
+    TensorFlow implementation: vargrad_x_input_x_sign = vargrad * input * sign(input)
+    where sign(input) = np.nan_to_num(input / np.abs(input), nan=1.0)
+    """
+    
+    def __init__(self, model: nn.Module, noise_scale: float = 0.2, augment_by_n: int = 50):
+        """Initialize TF-exact VarGrad x Input x Sign analyzer.
+        
+        Args:
+            model: PyTorch model
+            noise_scale: Standard deviation of noise to add (TF default: 0.2)
+            augment_by_n: Number of noisy samples to generate (TF default: 50)
+        """
+        self.vargrad_analyzer = TFExactVarGradAnalyzer(
+            model=model,
+            noise_scale=noise_scale,
+            augment_by_n=augment_by_n
+        )
+    
+    def analyze(self, input_tensor: torch.Tensor, target_class: Optional[Union[int, torch.Tensor]] = None, **kwargs) -> np.ndarray:
+        """Analyze input using TF-exact VarGrad x Input x Sign algorithm.
+        
+        Args:
+            input_tensor: Input tensor to analyze
+            target_class: Target class index
+            **kwargs: Additional arguments
+            
+        Returns:
+            VarGrad x Input x Sign attribution as numpy array
+        """
+        # Get VarGrad attribution
+        vargrad_result = self.vargrad_analyzer.analyze(input_tensor, target_class, **kwargs)
+        
+        # Convert input to numpy if needed
+        if isinstance(input_tensor, torch.Tensor):
+            input_np = input_tensor.detach().cpu().numpy()
+        else:
+            input_np = input_tensor
+        
+        # Handle batch dimension
+        if input_np.ndim == 4:  # (batch, channels, height, width)
+            input_np = input_np[0]  # Remove batch dimension
+        elif input_np.ndim == 3:  # (channels, height, width) - already correct
+            pass
+        
+        # Calculate sign exactly as TensorFlow does: np.nan_to_num(x / np.abs(x), nan=1.0)
+        # This handles division by zero by setting result to 1.0 where input is 0
+        input_abs = np.abs(input_np)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            sign = input_np / input_abs
+        sign = np.nan_to_num(sign, nan=1.0, posinf=1.0, neginf=-1.0)
+        
+        # Apply TensorFlow formula: v * x * s
+        # VarGrad result is already channel-summed (224, 224)
+        # Input and sign are (3, 224, 224), so we need to apply the formula channel-wise then sum
+        result_channels = []
+        for c in range(input_np.shape[0]):  # For each channel
+            channel_result = vargrad_result * input_np[c] * sign[c]
+            result_channels.append(channel_result)
+        
+        # Sum across channels to get final (224, 224) result
+        result = np.sum(result_channels, axis=0)
+        
+        return result
+
+
+def create_tf_exact_vargrad_x_input_x_sign_analyzer(model: nn.Module, **kwargs):
+    """Create TF-exact VarGrad x Input x Sign analyzer with TensorFlow-compatible parameters.
+    
+    Args:
+        model: PyTorch model
+        **kwargs: Additional arguments
+        
+    Returns:
+        TFExactVarGradXInputXSignAnalyzer instance
+    """
+    # Use TensorFlow defaults
+    noise_scale = kwargs.get('noise_scale', 0.2)  # TF default
+    augment_by_n = kwargs.get('augment_by_n', 50)  # TF default
+    
+    return TFExactVarGradXInputXSignAnalyzer(
+        model=model,
+        noise_scale=noise_scale,
+        augment_by_n=augment_by_n
+    )
+
+
+# ============================================================================
+# TF-Exact VarGrad X Sign Analyzer
+# ============================================================================
+
+class TFExactVarGradXSignAnalyzer:
+    """TF-exact VarGrad x Sign analyzer that matches TensorFlow implementation exactly.
+    
+    TensorFlow implementation: vargrad_x_sign = vargrad * sign(input)
+    where sign(input) = np.nan_to_num(input / np.abs(input), nan=1.0)
+    """
+    
+    def __init__(self, model: nn.Module, noise_scale: float = 0.2, augment_by_n: int = 50):
+        """Initialize TF-exact VarGrad x Sign analyzer.
+        
+        Args:
+            model: PyTorch model
+            noise_scale: Standard deviation of noise to add (TF default: 0.2)
+            augment_by_n: Number of noisy samples to generate (TF default: 50)
+        """
+        self.vargrad_analyzer = TFExactVarGradAnalyzer(
+            model=model,
+            noise_scale=noise_scale,
+            augment_by_n=augment_by_n
+        )
+    
+    def analyze(self, input_tensor: torch.Tensor, target_class: Optional[Union[int, torch.Tensor]] = None, **kwargs) -> np.ndarray:
+        """Analyze input using TF-exact VarGrad x Sign algorithm.
+        
+        Args:
+            input_tensor: Input tensor to analyze
+            target_class: Target class index
+            **kwargs: Additional arguments
+            
+        Returns:
+            VarGrad x Sign attribution as numpy array
+        """
+        # Get VarGrad attribution
+        vargrad_result = self.vargrad_analyzer.analyze(input_tensor, target_class, **kwargs)
+        
+        # Convert input to numpy if needed
+        if isinstance(input_tensor, torch.Tensor):
+            input_np = input_tensor.detach().cpu().numpy()
+        else:
+            input_np = input_tensor
+        
+        # Handle batch dimension
+        if input_np.ndim == 4:  # (batch, channels, height, width)
+            input_np = input_np[0]  # Remove batch dimension
+        elif input_np.ndim == 3:  # (channels, height, width) - already correct
+            pass
+        
+        # Calculate sign exactly as TensorFlow does: np.nan_to_num(x / np.abs(x), nan=1.0)
+        # This handles division by zero by setting result to 1.0 where input is 0
+        input_abs = np.abs(input_np)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            sign = input_np / input_abs
+        sign = np.nan_to_num(sign, nan=1.0, posinf=1.0, neginf=-1.0)
+        
+        # Apply TensorFlow formula: v * s
+        # VarGrad result is already channel-summed (224, 224)
+        # Sign is (3, 224, 224), so we need to apply the formula channel-wise then sum
+        result_channels = []
+        for c in range(input_np.shape[0]):  # For each channel
+            channel_result = vargrad_result * sign[c]
+            result_channels.append(channel_result)
+        
+        # Sum across channels to get final (224, 224) result
+        result = np.sum(result_channels, axis=0)
+        
+        return result
+
+
+def create_tf_exact_vargrad_x_sign_analyzer(model: nn.Module, **kwargs):
+    """Create TF-exact VarGrad x Sign analyzer with TensorFlow-compatible parameters.
+    
+    Args:
+        model: PyTorch model
+        **kwargs: Additional arguments
+        
+    Returns:
+        TFExactVarGradXSignAnalyzer instance
+    """
+    # Use TensorFlow defaults
+    noise_scale = kwargs.get('noise_scale', 0.2)  # TF default
+    augment_by_n = kwargs.get('augment_by_n', 50)  # TF default
+    
+    return TFExactVarGradXSignAnalyzer(
+        model=model,
+        noise_scale=noise_scale,
+        augment_by_n=augment_by_n
+    )
+
+
+# ============================================================================
+# TF-Exact W2LRP Epsilon 0.1 Hook
+# ============================================================================
+
+class CustomWSquareRule(Hook):
+    """Custom WSquare rule for the input layer."""
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, module: nn.Module, input: tuple, output: Any) -> Any:
+        """Store input for backward pass."""
+        if len(input) > 0:
+            # Store input for backward pass
+            setattr(module, '_lrp_input', input[0].detach())
+        return output
+
+    def backward(self, module: nn.Module, grad_input: tuple, grad_output: tuple) -> tuple:
+        """
+        Implements the WSquare rule backward pass.
+        
+        WSquare rule uses squared weights for relevance propagation.
+        """
+        # Get the stored input from forward hook
+        if not hasattr(module, '_lrp_input'):
+            return grad_input
+            
+        input_tensor = module._lrp_input
+        
+        if grad_output[0] is None:
+            return grad_input
+            
+        relevance = grad_output[0]
+        
+        # Get the weights of the module
+        weights = module.weight
+        
+        # Square the weights
+        squared_weights = weights ** 2
+        
+        # Compute activations (z) with squared weights
+        if isinstance(module, nn.Linear):
+            # Compute activations using original weights
+            z = F.linear(input_tensor, weights, module.bias)
+            
+            # Apply epsilon stabilization
+            epsilon = 1e-6  # Small epsilon for numerical stability
+            z_stabilized = z + epsilon * torch.sign(z)
+            
+            # Compute relevance ratio
+            relevance_ratio = relevance / z_stabilized
+            
+            # Propagate relevance using squared weights
+            # For WSquare rule, we use squared weights for the backward pass
+            z_squared = F.linear(input_tensor, squared_weights, module.bias if module.bias is not None else None)
+            z_squared_stabilized = z_squared + epsilon * torch.sign(z_squared)
+            
+            # The relevance is distributed according to the squared weight contributions
+            grad_input_computed = F.linear(relevance_ratio, squared_weights.t())
+            
+            # Final relevance
+            result_relevance = input_tensor * grad_input_computed
+            
+        elif isinstance(module, nn.Conv2d):
+            # Compute activations using original weights
+            z = F.conv2d(
+                input_tensor, weights, module.bias,
+                module.stride, module.padding, module.dilation, module.groups
+            )
+            
+            # Apply epsilon stabilization
+            epsilon = 1e-6  # Small epsilon for numerical stability
+            z_stabilized = z + epsilon * torch.sign(z)
+            
+            # Compute relevance ratio
+            relevance_ratio = relevance / z_stabilized
+            
+            # Propagate relevance using squared weights
+            # For conv layers, use conv_transpose with squared weights
+            grad_input_computed = F.conv_transpose2d(
+                relevance_ratio, squared_weights, None,
+                module.stride, module.padding, 0, module.groups, module.dilation
+            )
+            
+            # Final relevance
+            result_relevance = input_tensor * grad_input_computed
+            
+        else:
+            # For other layer types, return the original gradient
+            return grad_input
+        
+        return (result_relevance,)
+
+
+class TFExactW2LRPEpsilon01Composite(Composite):
+    """TF-exact composite for W2LRP Epsilon 0.1, applying CustomWSquareRule to first layer and Epsilon to others."""
+    def __init__(self, epsilon=0.1):
+        # Define the module mapping function
+        self.epsilon = epsilon
+        self.first_layer_seen = [False]
+        
+        def module_map(ctx, name, module):
+            if isinstance(module, (Convolution, Linear)):
+                if not self.first_layer_seen[0]:
+                    self.first_layer_seen[0] = True
+                    return CustomWSquareRule()
+                else:
+                    from zennit.rules import Epsilon
+                    return Epsilon(epsilon=self.epsilon)
+            return None
+        
+        super().__init__(module_map=module_map)
+
+
+def create_tf_exact_w2lrp_epsilon_0_1_composite(epsilon=0.1):
+    return TFExactW2LRPEpsilon01Composite(epsilon=epsilon)
+
+
+# ============================================================================
 # Factory Functions and Exports
 # ============================================================================
 
@@ -2018,4 +3107,35 @@ __all__ = [
     'create_tf_exact_lrpz_sequential_composite_a_composite',
     'TFExactLRPZSequentialCompositeB',
     'create_tf_exact_lrpz_sequential_composite_b_composite',
+    
+    # W2LRP Sequential Composite hooks
+    'create_tf_exact_w2lrp_sequential_composite_a',
+    'create_tf_exact_w2lrp_sequential_composite_b',
+    
+    # TF-exact Sign hooks
+    'TFExactSignHook',
+    'TFExactAlpha1Beta0Hook',
+    
+    # TF-exact StdX Epsilon hooks
+    'TFExactStdxEpsilonHook',
+    'create_tf_exact_stdx_epsilon_composite',
+    'create_tf_exact_alpha1_beta0_plus_stdx_epsilon_composite',
+    'create_tf_exact_stdx_epsilon_plus_alpha1_beta0_composite',
+    'create_tf_exact_w2lrp_sequential_composite_a_stdx',
+    'create_tf_exact_w2lrp_sequential_composite_b_stdx',
+    
+    # TF-exact VarGrad analyzers
+    'TFExactVarGradAnalyzer',
+    'create_tf_exact_vargrad_analyzer',
+    'TFExactVarGradXInputAnalyzer',
+    'create_tf_exact_vargrad_x_input_analyzer',
+    'TFExactVarGradXInputXSignAnalyzer',
+    'create_tf_exact_vargrad_x_input_x_sign_analyzer',
+    'TFExactVarGradXSignAnalyzer',
+    'create_tf_exact_vargrad_x_sign_analyzer',
+    
+    # W2LRP Epsilon 0.1 hooks
+    'CustomWSquareRule',
+    'TFExactW2LRPEpsilon01Composite',
+    'create_tf_exact_w2lrp_epsilon_0_1_composite',
 ]
