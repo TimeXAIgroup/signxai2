@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "signxai2"
-version = "0.6.0"
+version = "0.7.0"
 authors = [
-    {name = "TIME XAI Group", email = "nils.gumpfer@kite.thm.de"},
+    {name = "IRISlaboratory", email = "nils.gumpfer@kite.thm.de"},
 ]
 maintainers = [
     {name = "Nils Gumpfer", email = "nils.gumpfer@kite.thm.de"},
@@ -79,12 +79,9 @@ tensorflow = [
     "scikit-learn~=1.5.0",
     "scikit-image>=0.19.0",
     # TensorFlow only - with Python version specific constraints
-    "tensorflow>=2.16.0,<2.20.0 ; platform_system=='Linux' and python_version>='3.12'",
-    "tensorflow>=2.16.0,<2.20.0 ; platform_system=='Windows' and python_version>='3.12'",
-    "tensorflow-macos>=2.16.0,<2.20.0 ; platform_system=='Darwin' and python_version>='3.12'",
-    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Linux' and python_version<'3.12'",
-    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Windows' and python_version<'3.12'",
-    "tensorflow-macos>=2.8.0,<=2.12.0 ; platform_system=='Darwin' and python_version<'3.12'",
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Linux'",
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Windows'",
+    "tensorflow-macos>=2.8.0,<=2.12.0 ; platform_system=='Darwin'",
 ]
 pytorch = [
     # Core dependencies only
@@ -106,7 +103,6 @@ pytorch = [
     # PyTorch only
     "torch>=1.10.0",
     "zennit==0.5.1",
-    "scikit-image>=0.19.0",
 ]
 # Development dependencies
 dev = [
@@ -129,12 +125,12 @@ dev = [
 all = ["signxai2"]  # Since default already includes both frameworks
 
 [project.urls]
-Homepage = "https://github.com/TimeXAI-group/signxai2"
-Documentation = "https://timexai-group.github.io/signxai2/index.html"
-Repository = "https://github.com/TimeXAI-group/signxai2.git"
-"Bug Reports" = "https://github.com/TimeXAI-group/signxai2/issues"
-Changelog = "https://github.com/TimeXAI-group/signxai2/blob/main/CHANGELOG.md"
-"Publication" = "https://github.com/TimeXAI-group/signxai2#citation"
+Homepage = "https://github.com/IRISlaboratory/signxai2"
+Documentation = "https://IRISlaboratory.github.io/signxai2/index.html"
+Repository = "https://github.com/IRISlaboratory/signxai2.git"
+"Bug Reports" = "https://github.com/IRISlaboratory/signxai2/issues"
+Changelog = "https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md"
+"Publication" = "https://github.com/IRISlaboratory/signxai2#citation"
 
 [project.scripts]
 signxai2-setup = "signxai2.cli.setup:main"
@@ -162,7 +158,7 @@ signxai2 = [
 # Modern Python tooling configuration
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py39', 'py310']
 include = '\.pyi?$'
 extend-exclude = '''
 /(

@@ -27,6 +27,12 @@ pip install signxai2
 
 ## Installation after cloning the repository [Dual Framework Support]
 
+Git clone the repository:
+
+```bash
+git clone https://github.com/IRISlaboratory/signxai2.git
+```
+
 Navigate to the repository directory and run:
 
 ```bash
