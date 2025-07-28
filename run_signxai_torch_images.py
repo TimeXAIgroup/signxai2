@@ -13,6 +13,8 @@ from signxai.torch_signxai.methods.wrappers import calculate_relevancemap as tor
 from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
 from signxai.torch_signxai.utils import decode_predictions as decode_predictions_pytorch
 
+# Example command line usage: python run_signxai_torch_images.py --image_path examples/data/images/example.jpg --model_path examples/data/models/pytorch/VGG16/VGG16.py --method_name gradient_x_sign
+
 # Import visualization utilities from signxai.common.visualization
 try:
     from signxai.common.visualization import normalize_relevance_map, relevance_to_heatmap, overlay_heatmap

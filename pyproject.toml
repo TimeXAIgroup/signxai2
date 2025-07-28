@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "signxai2"
-version = "0.8.0"
+version = "0.9.0"
 authors = [
     {name = "IRISlaboratory", email = "nils.gumpfer@kite.thm.de"},
 ]
@@ -86,7 +86,7 @@ Documentation = "https://IRISlaboratory.github.io/signxai2/index.html"
 Repository = "https://github.com/IRISlaboratory/signxai2.git"
 "Bug Reports" = "https://github.com/IRISlaboratory/signxai2/issues"
 Changelog = "https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md"
-"Publication" = "https://github.com/IRISlaboratory/signxai2#citation"
+"Publication" = "https://www.sciencedirect.com/science/article/pii/S1566253523001999?via%3Dihub"
 
 [project.scripts]
 signxai2-setup = "signxai2.cli.setup:main"

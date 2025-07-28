@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from typing import Dict, Any, Tuple, Optional
 import time  # For a small pause if saving multiple plots
 
+# Example command line usage: python run_signxai_torch_timeseries.py --pathology AVB --record_id 03509_hr --method_name gradient
+
 # --- Setup Project Root and Utility Paths ---
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = current_script_dir

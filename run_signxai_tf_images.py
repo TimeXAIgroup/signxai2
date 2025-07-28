@@ -11,6 +11,8 @@ import time  # To briefly pause if saving plots
 from signxai.utils.utils import load_image, aggregate_and_normalize_relevancemap_rgb
 from tensorflow.python.keras.activations import linear  # For removing softmax
 
+# Example command line usage: python run_signxai_tf_images.py --image_path examples/data/images/example.jpg --model_path examples/data/models/tensorflow/VGG16/model.h5 --method_name gradient_x_sign
+
 
 # signxai.tf_signxai will be imported conditionally/checked later
 
