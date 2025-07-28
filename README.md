@@ -19,12 +19,34 @@ If you use the code from this repository in your work, please cite:
 
 <img src="https://ars.els-cdn.com/content/image/1-s2.0-S1566253523001999-ga1_lrg.jpg" title="Graphical Abstract" width="900px"/>
 
-## 📦 Quick Setup
+## 🚀 Installation as Python Package via Pypi [Dual Framework Support]
+
+```bash
+pip install signxai2
+```
+
+## Installation after cloning the repository [Dual Framework Support]
+
+Navigate to the repository directory and run:
+
+```bash
+pip install -e .
+```
+
+## Setup of Git LFS
+
+Before you get started please set up [Git LFS](https://git-lfs.github.com/) to download the large files in this repository. This is required to access the pre-trained models and example data.
+
+```bash
+git lfs install
+```
+
+## 📦 Load Data and Documentation
 
 After installation, run the setup script to download documentation, examples, and sample data:
 
 ```bash
-bash prepare.sh
+bash ./prepare.sh
 ```
 
 This will download:
@@ -32,32 +54,10 @@ This will download:
 - 📝 Example scripts and notebooks (`examples/`)  
 - 📊 Sample ECG data and images (`examples/data/`)
 
-## 🚀 Installation
-
-```bash
-pip install signxai2
-```
 
 ## Examples
 
-To get started with SignXAI2 Methods, please follow the examples.
-
-
-## Setup
-
-To install the package in your environment, run:
-
-```shell
- pip3 install signxai2
-```
-
-### PyTorch Support
-
-The library now includes a PyTorch implementation based on [zennit](https://github.com/chr5tphr/zennit). To use the PyTorch implementation, you'll need to install the additional dependencies:
-
-```shell
-pip install -r requirements/torch_requirements.txt
-```
+To get started with SignXAI2 Methods, please follow the example tutorials ('examples/tutorials/').
 
 ## Features
 
@@ -71,170 +71,36 @@ pip install -r requirements/torch_requirements.txt
   - Sign-based thresholding for binary relevance maps
 
 
+### PyTorch only 
+
+The library now includes a PyTorch implementation based on [zennit](https://github.com/chr5tphr/zennit). To use the PyTorch implementation only, you'll need to install:
+
+```shell
+pip install signxai2[pytorch]
+```
+
+### TensorFlow only 
+
+To use the TensorFlow implementation only, you'll need to install:
+
+```shell
+pip install signxai2[tensorflow]
+```
+
+### Development version can be installed with:
+
+To reproduce all results from the paper, you can install the development version of SignXAI2 with:
+
+```shell
+pip install signxai2[dev]
+```
+
+After running the Dual Setup first.
+
 ## Usage
 
-### TensorFlow (VGG16)
+Please follow the example tutorials in the `examples/tutorials/` directory to get started with SignXAI2 methods. The examples cover various use cases, including images and time series analysis.
 
-The below example illustrates the usage of the ```signxai``` package with TensorFlow:
-
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-from tensorflow.keras.applications.vgg16 import VGG16
-from signxai.tf_signxai import calculate_relevancemap
-from signxai.utils.utils import (load_image, aggregate_and_normalize_relevancemap_rgb, download_image, 
-                                 calculate_explanation_innvestigate)
-
-# Load model
-model = VGG16(weights='imagenet')
-
-#  Remove last layer's softmax activation (we need the raw values!)
-model.layers[-1].activation = None
-
-# Load example image
-path = 'example.jpg'
-download_image(path)
-img, x = load_image(path)
-
-# Calculate relevancemaps
-R1 = calculate_relevancemap('lrpz_epsilon_0_1_std_x', np.array(x), model)
-R2 = calculate_relevancemap('lrpsign_epsilon_0_1_std_x', np.array(x), model)
-
-# Equivalent relevance maps as for R1 and R2, but with direct access to innvestigate and parameters
-R3 = calculate_explanation_innvestigate(model, x, method='lrp.stdxepsilon', stdfactor=0.1, input_layer_rule='Z')
-R4 = calculate_explanation_innvestigate(model, x, method='lrp.stdxepsilon', stdfactor=0.1, input_layer_rule='SIGN')
-
-# Visualize heatmaps
-fig, axs = plt.subplots(ncols=3, nrows=2, figsize=(18, 12))
-axs[0][0].imshow(img)
-axs[1][0].imshow(img)
-axs[0][1].matshow(aggregate_and_normalize_relevancemap_rgb(R1), cmap='seismic', clim=(-1, 1))
-axs[0][2].matshow(aggregate_and_normalize_relevancemap_rgb(R2), cmap='seismic', clim=(-1, 1))
-axs[1][1].matshow(aggregate_and_normalize_relevancemap_rgb(R3), cmap='seismic', clim=(-1, 1))
-axs[1][2].matshow(aggregate_and_normalize_relevancemap_rgb(R4), cmap='seismic', clim=(-1, 1))
-
-plt.show()
-```
-(Image credit for example used in this code: Greg Gjerdingen from Willmar, USA)
-
-### PyTorch (VGG16)
-
-The PyTorch implementation provides a similar API with the same functionality:
-
-```python
-import torch
-import torchvision.models as models
-import torchvision.transforms as transforms
-from PIL import Image
-import numpy as np
-import matplotlib.pyplot as plt
-
-from signxai.torch_signxai import calculate_relevancemap
-from signxai.common.visualization import normalize_relevance_map, relevance_to_heatmap, overlay_heatmap
-
-# Load pre-trained VGG16 model
-model = models.vgg16(pretrained=True)
-model.eval()
-
-# Load and preprocess image
-img_path = "example.jpg"
-img = Image.open(img_path)
-
-# Preprocessing
-preprocess = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-])
-
-input_tensor = preprocess(img)
-
-# Keep a copy of the original image for visualization
-img_np = np.array(img.resize((224, 224))) / 255.0
-
-# Generate explanations with different methods
-methods = ["gradients", "integrated_gradients", "grad_cam", "guided_backprop"]
-fig, axes = plt.subplots(1, len(methods)+1, figsize=(15, 5))
-
-# Display original image
-axes[0].imshow(img_np)
-axes[0].set_title("Original")
-axes[0].axis('off')
-
-for i, method in enumerate(methods):
-    # Calculate relevance map
-    relevance_map = calculate_relevancemap(model, input_tensor, method=method)
-    
-    # Convert to absolute values and sum across channels for visualization
-    if relevance_map.ndim == 3:  # (C, H, W)
-        relevance_map = np.abs(relevance_map).sum(axis=0)
-    
-    # Normalize relevance map
-    relevance_map = normalize_relevance_map(relevance_map)
-    
-    # Convert to heatmap
-    heatmap = relevance_to_heatmap(relevance_map)
-    
-    # Overlay on original image
-    overlaid = overlay_heatmap(img_np, heatmap)
-    
-    # Display
-    axes[i+1].imshow(overlaid)
-    axes[i+1].set_title(method)
-    axes[i+1].axis('off')
-
-plt.tight_layout()
-plt.show()
-```
-
-### MNIST
-
-The below example illustrates the usage of the ```signxai``` package in combination with a dense model trained on MNIST:
-
-```python
-import numpy as np
-from matplotlib import pyplot as plt
-from tensorflow.python.keras.datasets import mnist
-from tensorflow.python.keras.models import load_model
-
-from signxai.methods.wrappers import calculate_relevancemap
-from signxai.utils.utils import normalize_heatmap, download_model
-
-# Load train and test data
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
-
-# Scale images to the [-1, 0] range
-x_train = x_train.astype("float32") / -255.0
-x_test = x_test.astype("float32") / -255.0
-x_train = -(np.ones_like(x_train) + x_train)
-x_test = -(np.ones_like(x_test) + x_test)
-
-# Load model
-path = 'model.h5'
-download_model(path)
-model = load_model(path)
-
-# Remove softmax
-model.layers[-1].activation = None
-
-# Calculate relevancemaps
-x = x_test[231]
-R1 = calculate_relevancemap('gradient_x_input', np.array(x), model, neuron_selection=3)
-R2 = calculate_relevancemap('gradient_x_sign_mu_neg_0_5', np.array(x), model, neuron_selection=3)
-R3 = calculate_relevancemap('gradient_x_input', np.array(x), model, neuron_selection=8)
-R4 = calculate_relevancemap('gradient_x_sign_mu_neg_0_5', np.array(x), model, neuron_selection=8)
-
-# Visualize heatmaps
-fig, axs = plt.subplots(ncols=3, nrows=2, figsize=(18, 12))
-axs[0][0].imshow(x, cmap='seismic', clim=(-1, 1))
-axs[1][0].imshow(x, cmap='seismic', clim=(-1, 1))
-axs[0][1].matshow(normalize_heatmap(R1), cmap='seismic', clim=(-1, 1))
-axs[0][2].matshow(normalize_heatmap(R2), cmap='seismic', clim=(-1, 1))
-axs[1][1].matshow(normalize_heatmap(R3), cmap='seismic', clim=(-1, 1))
-axs[1][2].matshow(normalize_heatmap(R4), cmap='seismic', clim=(-1, 1))
-
-plt.show()
-```
 
 ## Methods
 

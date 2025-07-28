@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "signxai2"
-version = "0.5.0"
+version = "0.6.0"
 authors = [
     {name = "TIME XAI Group", email = "nils.gumpfer@kite.thm.de"},
 ]
@@ -14,72 +14,120 @@ maintainers = [
 description = "A comprehensive explainable AI library supporting both TensorFlow and PyTorch with unified API and advanced XAI methods including SIGN, LRP, and Grad-CAM. Authored by Nils Gumpfer, Jana Fischer and Alexander Paul."
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.9,<3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
+    "Typing :: Typed",
+    "License :: OSI Approved :: BSD License",
+    "Framework :: Jupyter",
 ]
-keywords = ["explainable ai", "interpretability", "machine learning", "deep learning", "tensorflow", "pytorch", "lrp", "grad-cam", "sign"]
+keywords = ["explainable ai", "xai", "interpretability", "machine learning", "deep learning", "tensorflow", "pytorch", "lrp", "grad-cam", "sign", "attribution", "saliency"]
+
+# Default installation includes BOTH frameworks
 dependencies = [
-    "numpy>=1.19.0,<2.0",
+    # Core dependencies (from common.txt)
+    "numpy==1.26.4",
     "matplotlib>=3.7.0",
     "scipy>=1.10.0",
     "pillow>=8.0.0",
     "requests>=2.25.0",
+    "setuptools~=68.2.2",
+    "version-parser>=1.0.1",
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+    "ipywidgets>=7.0.0",
+    "notebook>=6.0.0",
+    "protobuf<=3.20.3",
+    "wfdb~=4.1.2",
+    "scikit-learn~=1.5.0",
+    "scikit-image>=0.19.0",
+
+    # TensorFlow - included by default!
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Linux'",
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Windows'",
+    "tensorflow-macos>=2.8.0,<=2.12.0 ; platform_system=='Darwin'",
+    # PyTorch - included by default!
+    "torch>=1.10.0",
+    "zennit==0.5.1",
 ]
 
 [project.optional-dependencies]
+# Single framework installations for optimized deployments
 tensorflow = [
-    "tensorflow>=2.8.0,<=2.12.1",
+    # Core dependencies only
+    "numpy==1.26.4",
+    "matplotlib>=3.7.0",
+    "scipy>=1.10.0",
+    "pillow>=8.0.0",
+    "requests>=2.25.0",
+    "setuptools~=68.2.2",
+    "version-parser>=1.0.1",
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+    "ipywidgets>=7.0.0",
+    "notebook>=6.0.0",
+    "protobuf<=3.20.3",
+    "wfdb~=4.1.2",
+    "scikit-learn~=1.5.0",
+    "scikit-image>=0.19.0",
+    # TensorFlow only - with Python version specific constraints
+    "tensorflow>=2.16.0,<2.20.0 ; platform_system=='Linux' and python_version>='3.12'",
+    "tensorflow>=2.16.0,<2.20.0 ; platform_system=='Windows' and python_version>='3.12'",
+    "tensorflow-macos>=2.16.0,<2.20.0 ; platform_system=='Darwin' and python_version>='3.12'",
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Linux' and python_version<'3.12'",
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Windows' and python_version<'3.12'",
+    "tensorflow-macos>=2.8.0,<=2.12.0 ; platform_system=='Darwin' and python_version<'3.12'",
 ]
 pytorch = [
+    # Core dependencies only
+    "numpy==1.26.4",
+    "matplotlib>=3.7.0",
+    "scipy>=1.10.0",
+    "pillow>=8.0.0",
+    "requests>=2.25.0",
+    "setuptools~=68.2.2",
+    "version-parser>=1.0.1",
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+    "ipywidgets>=7.0.0",
+    "notebook>=6.0.0",
+    "protobuf<=3.20.3",
+    "wfdb~=4.1.2",
+    "scikit-learn~=1.5.0",
+    "scikit-image>=0.19.0",
+    # PyTorch only
     "torch>=1.10.0",
-    "zennit>=0.5.1",
+    "zennit==0.5.1",
     "scikit-image>=0.19.0",
 ]
-all = [
-    "tensorflow>=2.8.0,<=2.12.1",
-    "torch>=1.10.0",
-    "zennit>=0.5.1",
-    "scikit-image>=0.19.0",
-]
+# Development dependencies
 dev = [
-    "pytest>=6.0",
-    "pytest-cov",
-    "black",
-    "flake8",
-    "mypy",
-    "pre-commit",
-    "sphinx",
-    "sphinx-rtd-theme",
-    "nbsphinx",
-    "myst-parser",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=3.0.0",  # Parallel testing
+    "pytest-benchmark>=3.4.0",  # Performance benchmarking
+    "flake8>=6.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",  # Import sorting
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+    "sphinx>=5.0",
+    "sphinx-rtd-theme>=1.2",
+    "pydata-sphinx-theme>=0.13",  # Modern theme option
+    "nbsphinx>=0.9",
+    "myst-parser>=1.0",
 ]
-full-dev = [
-    "tensorflow>=2.8.0,<=2.12.1",
-    "torch>=1.10.0",
-    "zennit>=0.5.1",
-    "scikit-image>=0.19.0",
-    "pytest>=6.0",
-    "pytest-cov",
-    "black",
-    "flake8",
-    "mypy",
-    "pre-commit",
-    "sphinx",
-    "sphinx-rtd-theme",
-    "nbsphinx",
-    "myst-parser",
-]
+# Alias for backward compatibility
+all = ["signxai2"]  # Since default already includes both frameworks
 
 [project.urls]
 Homepage = "https://github.com/TimeXAI-group/signxai2"
@@ -87,9 +135,218 @@ Documentation = "https://timexai-group.github.io/signxai2/index.html"
 Repository = "https://github.com/TimeXAI-group/signxai2.git"
 "Bug Reports" = "https://github.com/TimeXAI-group/signxai2/issues"
 Changelog = "https://github.com/TimeXAI-group/signxai2/blob/main/CHANGELOG.md"
+"Publication" = "https://github.com/TimeXAI-group/signxai2#citation"
+
+[project.scripts]
+signxai2-setup = "signxai2.cli.setup:main"
+signxai2-benchmark = "signxai2.cli.benchmark:main"
+signxai2-validate = "signxai2.cli.validate:main"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
 
 [tool.setuptools.packages.find]
-exclude = ["tests*", "docs*", "examples*"]
+where = ["."]
+include = ["signxai*"]
+exclude = ["tests*", "docs*", "examples*", "utils*", "benchmarks*"]
 
 [tool.setuptools.package-data]
-"*" = ["*.txt", "*.md", "*.rst"]
+signxai2 = [
+    "py.typed",
+    "data/*.json",
+    "data/*.yaml",
+    "configs/*.yaml",
+    "configs/*.json",
+]
+
+# Modern Python tooling configuration
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | docs
+  | examples/data
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
+skip_gitignore = true
+skip = ["__init__.py"]
+known_first_party = ["signxai2"]
+known_third_party = ["numpy", "tensorflow", "torch", "matplotlib", "scipy"]
+
+[tool.mypy]
+python_version = "3.9"
+namespace_packages = true
+explicit_package_bases = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false  # Too strict for some libraries
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+
+# Per-module options
+[[tool.mypy.overrides]]
+module = [
+    "tensorflow.*",
+    "torch.*",
+    "matplotlib.*",
+    "scipy.*",
+    "sklearn.*",
+    "wfdb.*",
+    "zennit.*",
+]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=signxai2",
+    "--cov-branch",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=80",
+    "-n auto",  # Use pytest-xdist for parallel execution
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*Tests"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "gpu: marks tests that require GPU (deselect with '-m \"not gpu\"')",
+    "tensorflow: marks tests specific to TensorFlow",
+    "pytorch: marks tests specific to PyTorch",
+    "benchmark: marks performance benchmark tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:tensorflow.*",
+    "ignore::DeprecationWarning:torch.*",
+]
+
+[tool.coverage.run]
+source = ["signxai2"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+    "*/cli/*",
+    "*/setup.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+    "@overload",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+# Ruff - Modern Python linter (faster alternative to flake8)
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "A",    # flake8-builtins
+    "C4",   # flake8-comprehensions
+    "PT",   # flake8-pytest-style
+    "SIM",  # flake8-simplify
+    "NPY",  # NumPy-specific rules
+    "RUF",  # Ruff-specific rules
+]
+ignore = [
+    "E501",   # Line too long (handled by black)
+    "B008",   # Do not perform function calls in argument defaults
+    "C901",   # Too complex
+    "NPY002", # Legacy numpy random
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "docs",
+    "examples/data",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"tests/*" = ["S101"]      # Allow assert in tests
+
+# Bandit - Security linting
+[tool.bandit]
+exclude_dirs = ["tests", "docs", "examples"]
+skips = ["B101", "B601"]  # Skip assert_used and shell_usage tests
+
+# Documentation coverage
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = false
+ignore-magic = false
+ignore-semiprivate = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-module = false
+ignore-nested-functions = false
+ignore-nested-classes = true
+ignore-setters = false
+fail-under = 80
+exclude = ["setup.py", "docs", "build", "tests", "examples"]
+verbose = 0
+quiet = false
+color = true
+omit-covered-files = false
