@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2025-01-25
+## [0.7.0] - 2025-07-28
 
 ### Added
 
@@ -58,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Core**: NumPy ≥1.19.0, Matplotlib ≥3.7.0, SciPy ≥1.10.0, Pillow ≥8.0.0
 - **TensorFlow**: TensorFlow ≥2.8.0, ≤2.12.1
 - **PyTorch**: PyTorch ≥1.10.0, Zennit ≥0.5.1, scikit-image ≥0.19.0
-- **Python**: Supports Python 3.9-3.12
+- **Python**: Supports Python 3.9-3.10
 
 #### Package Structure
 - **signxai.tf_signxai**: TensorFlow-specific implementations
@@ -81,4 +81,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Built upon [Zennit](https://github.com/chr5tphr/zennit) for PyTorch LRP implementations
 - SIGN method represents the novel contribution of the SignXAI project
 
-[0.1.0]: https://github.com/TimeXAI-group/signxai/releases/tag/v0.1.0
+[0.7.0]: https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md
