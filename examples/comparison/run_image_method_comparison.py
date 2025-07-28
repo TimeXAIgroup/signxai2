@@ -999,7 +999,9 @@ def main():
         'calculate_relevancemap', 'calculate_relevancemaps',
         'deconvnet_x_sign_mu_wrapper', 'gradient_x_sign_mu_wrapper', 
         'guided_backprop_x_sign_mu_wrapper', 'lrp_epsilon_wrapper',
-        'deeplift_method'
+        'deeplift_method',
+        # Exclude deeplift methods as they're not properly implemented
+        'deeplift_x_input', 'deeplift_x_input_x_sign', 'deeplift_x_sign'
     }
     common_methods = [m for m in common_methods if m not in excluded_methods and 
                      not m.startswith('calculate_') and not m.startswith('_')]

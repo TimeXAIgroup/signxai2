@@ -24,22 +24,22 @@ import argparse
 from tensorflow.keras.models import model_from_json
 from typing import Dict, Any, Tuple, Optional
 
-# Add project root to sys.path
+# Add project root to sys.path BEFORE any local imports
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+
+# Import ECG utilities (these require project_root in sys.path)
+from utils.ecg_data import load_and_preprocess_ecg, perform_shape_switch
+from utils.ecg_explainability import normalize_ecg_relevancemap
+from utils.ecg_visualization import plot_ecg
 
 # --- Import packages ---
 from signxai.tf_signxai import calculate_relevancemap as tf_calculate_relevancemap
 from signxai.utils.utils import remove_softmax as tf_remove_softmax
 from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
 from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
-
-# Import ECG utilities
-from utils.ecg_data import load_and_preprocess_ecg, perform_shape_switch
-from utils.ecg_explainability import normalize_ecg_relevancemap
-from utils.ecg_visualization import plot_ecg
 
 # Add PyTorch ECG model directory to path
 ecg_model_dir = os.path.join(project_root, 'examples', 'data', 'models', 'pytorch', 'ECG')

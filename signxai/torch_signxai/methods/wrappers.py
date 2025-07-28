@@ -9153,28 +9153,514 @@ def w2lrp_epsilon_100(model_no_softmax, x, **kwargs):
 
 # ZBLRP methods (model-specific VGG16)
 def zblrp_epsilon_0_5_VGG16ILSVRC(model_no_softmax, x, **kwargs):
-    """ZBLRP for VGG16 with epsilon=0.5."""
-    return _calculate_relevancemap(model_no_softmax, x, method="lrp_zbox", epsilon=0.5, low=0.0, high=1.0, **kwargs)
+    """Calculate LRP with epsilon=0.5 and Bounded input layer rule for VGG16.
+    
+    This uses TF-exact implementation to match TensorFlow iNNvestigate behavior exactly.
+    """
+    import torch
+    import numpy as np
+    from zennit.composites import Composite
+    from zennit.rules import ZBox, Epsilon
+    from .zennit_impl.hooks import TFExactEpsilonHook
+    from zennit.types import Convolution, Linear
+    
+    device = x.device if isinstance(x, torch.Tensor) else torch.device('cpu')
+    
+    # Convert input to tensor if needed
+    if not isinstance(x, torch.Tensor):
+        x = torch.tensor(x, dtype=torch.float32)
+    
+    # Add batch dimension if needed
+    needs_batch_dim = x.ndim == 3
+    if needs_batch_dim:
+        x = x.unsqueeze(0)
+    
+    model_no_softmax = model_no_softmax.to(device)
+    x = x.to(device)
+    
+    # Create composite with Bounded (ZBox) for first layer and TF-exact epsilon for others
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                # Use ZBox for the first layer with VGG16 bounds
+                return ZBox(low=-123.68, high=151.061)
+            else:
+                # Use TF-exact epsilon hook for all other layers
+                return TFExactEpsilonHook(epsilon=0.5)
+        return None
+    
+    composite = Composite(module_map=module_map)
+    
+    # Get target class
+    target_class = kwargs.get('target_class', None)
+    if target_class is None:
+        with torch.no_grad():
+            logits = model_no_softmax(x)
+            target_class = logits.argmax(dim=1).item() if x.shape[0] == 1 else logits.argmax(dim=1)
+    
+    # Create one-hot encoding
+    with torch.no_grad():
+        output = model_no_softmax(x)
+    
+    if isinstance(target_class, (int, np.integer)):
+        one_hot = torch.zeros_like(output)
+        one_hot[0, target_class] = 1.0
+    else:
+        one_hot = torch.zeros_like(output)
+        for i, tc in enumerate(target_class):
+            one_hot[i, tc] = 1.0
+    
+    # Calculate attribution
+    with composite.context(model_no_softmax) as modified_model:
+        x.requires_grad_(True)
+        output = modified_model(x)
+        attribution, = torch.autograd.grad(
+            (output * one_hot).sum(), 
+            x, 
+            retain_graph=False,
+            create_graph=False
+        )
+    
+    # Process attribution
+    if isinstance(attribution, torch.Tensor):
+        result = attribution.sum(dim=1, keepdim=True).detach().cpu().numpy()
+        result = np.transpose(result, (0, 2, 3, 1))[0]
+    else:
+        result = attribution
+    
+    # Remove batch dimension if it was added
+    if needs_batch_dim and result.ndim == 4:
+        result = result[0]
+    
+    return result
 
 def zblrp_epsilon_1_VGG16ILSVRC(model_no_softmax, x, **kwargs):
-    """ZBLRP for VGG16 with epsilon=1."""
-    return _calculate_relevancemap(model_no_softmax, x, method="lrp_zbox", epsilon=1.0, low=0.0, high=1.0, **kwargs)
+    """Calculate LRP with epsilon=1 and Bounded input layer rule for VGG16.
+    
+    This uses TF-exact implementation to match TensorFlow iNNvestigate behavior exactly.
+    """
+    import torch
+    import numpy as np
+    from zennit.composites import Composite
+    from zennit.rules import ZBox, Epsilon
+    from .zennit_impl.hooks import TFExactEpsilonHook
+    from zennit.types import Convolution, Linear
+    
+    device = x.device if isinstance(x, torch.Tensor) else torch.device('cpu')
+    
+    # Convert input to tensor if needed
+    if not isinstance(x, torch.Tensor):
+        x = torch.tensor(x, dtype=torch.float32)
+    
+    # Add batch dimension if needed
+    needs_batch_dim = x.ndim == 3
+    if needs_batch_dim:
+        x = x.unsqueeze(0)
+    
+    model_no_softmax = model_no_softmax.to(device)
+    x = x.to(device)
+    
+    # Create composite with Bounded (ZBox) for first layer and TF-exact epsilon for others
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                # Use ZBox for the first layer with VGG16 bounds
+                return ZBox(low=-123.68, high=151.061)
+            else:
+                # Use TF-exact epsilon hook for all other layers
+                return TFExactEpsilonHook(epsilon=1.0)
+        return None
+    
+    composite = Composite(module_map=module_map)
+    
+    # Get target class
+    target_class = kwargs.get('target_class', None)
+    if target_class is None:
+        with torch.no_grad():
+            logits = model_no_softmax(x)
+            target_class = logits.argmax(dim=1).item() if x.shape[0] == 1 else logits.argmax(dim=1)
+    
+    # Create one-hot encoding
+    with torch.no_grad():
+        output = model_no_softmax(x)
+    
+    if isinstance(target_class, (int, np.integer)):
+        one_hot = torch.zeros_like(output)
+        one_hot[0, target_class] = 1.0
+    else:
+        one_hot = torch.zeros_like(output)
+        for i, tc in enumerate(target_class):
+            one_hot[i, tc] = 1.0
+    
+    # Calculate attribution
+    with composite.context(model_no_softmax) as modified_model:
+        x.requires_grad_(True)
+        output = modified_model(x)
+        attribution, = torch.autograd.grad(
+            (output * one_hot).sum(), 
+            x, 
+            retain_graph=False,
+            create_graph=False
+        )
+    
+    # Process attribution
+    if isinstance(attribution, torch.Tensor):
+        result = attribution.sum(dim=1, keepdim=True).detach().cpu().numpy()
+        result = np.transpose(result, (0, 2, 3, 1))[0]
+    else:
+        result = attribution
+    
+    # Remove batch dimension if it was added
+    if needs_batch_dim and result.ndim == 4:
+        result = result[0]
+    
+    return result
 
 def zblrp_epsilon_5_VGG16ILSVRC(model_no_softmax, x, **kwargs):
-    """ZBLRP for VGG16 with epsilon=5."""
-    return _calculate_relevancemap(model_no_softmax, x, method="lrp_zbox", epsilon=5.0, low=0.0, high=1.0, **kwargs)
+    """Calculate LRP with epsilon=5 and Bounded input layer rule for VGG16.
+    
+    This uses TF-exact implementation to match TensorFlow iNNvestigate behavior exactly.
+    """
+    import torch
+    import numpy as np
+    from zennit.composites import Composite
+    from zennit.rules import ZBox, Epsilon
+    from .zennit_impl.hooks import TFExactEpsilonHook
+    from zennit.types import Convolution, Linear
+    
+    device = x.device if isinstance(x, torch.Tensor) else torch.device('cpu')
+    
+    # Convert input to tensor if needed
+    if not isinstance(x, torch.Tensor):
+        x = torch.tensor(x, dtype=torch.float32)
+    
+    # Add batch dimension if needed
+    needs_batch_dim = x.ndim == 3
+    if needs_batch_dim:
+        x = x.unsqueeze(0)
+    
+    model_no_softmax = model_no_softmax.to(device)
+    x = x.to(device)
+    
+    # Create composite with Bounded (ZBox) for first layer and TF-exact epsilon for others
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                # Use ZBox for the first layer with VGG16 bounds
+                return ZBox(low=-123.68, high=151.061)
+            else:
+                # Use TF-exact epsilon hook for all other layers
+                return TFExactEpsilonHook(epsilon=5.0)
+        return None
+    
+    composite = Composite(module_map=module_map)
+    
+    # Get target class
+    target_class = kwargs.get('target_class', None)
+    if target_class is None:
+        with torch.no_grad():
+            logits = model_no_softmax(x)
+            target_class = logits.argmax(dim=1).item() if x.shape[0] == 1 else logits.argmax(dim=1)
+    
+    # Create one-hot encoding
+    with torch.no_grad():
+        output = model_no_softmax(x)
+    
+    if isinstance(target_class, (int, np.integer)):
+        one_hot = torch.zeros_like(output)
+        one_hot[0, target_class] = 1.0
+    else:
+        one_hot = torch.zeros_like(output)
+        for i, tc in enumerate(target_class):
+            one_hot[i, tc] = 1.0
+    
+    # Calculate attribution
+    with composite.context(model_no_softmax) as modified_model:
+        x.requires_grad_(True)
+        output = modified_model(x)
+        attribution, = torch.autograd.grad(
+            (output * one_hot).sum(), 
+            x, 
+            retain_graph=False,
+            create_graph=False
+        )
+    
+    # Process attribution
+    if isinstance(attribution, torch.Tensor):
+        result = attribution.sum(dim=1, keepdim=True).detach().cpu().numpy()
+        result = np.transpose(result, (0, 2, 3, 1))[0]
+    else:
+        result = attribution
+    
+    # Remove batch dimension if it was added
+    if needs_batch_dim and result.ndim == 4:
+        result = result[0]
+    
+    return result
 
 def zblrp_epsilon_10_VGG16ILSVRC(model_no_softmax, x, **kwargs):
-    """ZBLRP for VGG16 with epsilon=10."""
-    return _calculate_relevancemap(model_no_softmax, x, method="lrp_zbox", epsilon=10.0, low=0.0, high=1.0, **kwargs)
+    """Calculate LRP with epsilon=10 and Bounded input layer rule for VGG16.
+    
+    This uses TF-exact implementation to match TensorFlow iNNvestigate behavior exactly.
+    """
+    import torch
+    import numpy as np
+    from zennit.composites import Composite
+    from zennit.rules import ZBox, Epsilon
+    from .zennit_impl.hooks import TFExactEpsilonHook
+    from zennit.types import Convolution, Linear
+    
+    device = x.device if isinstance(x, torch.Tensor) else torch.device('cpu')
+    
+    # Convert input to tensor if needed
+    if not isinstance(x, torch.Tensor):
+        x = torch.tensor(x, dtype=torch.float32)
+    
+    # Add batch dimension if needed
+    needs_batch_dim = x.ndim == 3
+    if needs_batch_dim:
+        x = x.unsqueeze(0)
+    
+    model_no_softmax = model_no_softmax.to(device)
+    x = x.to(device)
+    
+    # Create composite with Bounded (ZBox) for first layer and TF-exact epsilon for others
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                # Use ZBox for the first layer with VGG16 bounds
+                return ZBox(low=-123.68, high=151.061)
+            else:
+                # Use TF-exact epsilon hook for all other layers
+                return TFExactEpsilonHook(epsilon=10.0)
+        return None
+    
+    composite = Composite(module_map=module_map)
+    
+    # Get target class
+    target_class = kwargs.get('target_class', None)
+    if target_class is None:
+        with torch.no_grad():
+            logits = model_no_softmax(x)
+            target_class = logits.argmax(dim=1).item() if x.shape[0] == 1 else logits.argmax(dim=1)
+    
+    # Create one-hot encoding
+    with torch.no_grad():
+        output = model_no_softmax(x)
+    
+    if isinstance(target_class, (int, np.integer)):
+        one_hot = torch.zeros_like(output)
+        one_hot[0, target_class] = 1.0
+    else:
+        one_hot = torch.zeros_like(output)
+        for i, tc in enumerate(target_class):
+            one_hot[i, tc] = 1.0
+    
+    # Calculate attribution
+    with composite.context(model_no_softmax) as modified_model:
+        x.requires_grad_(True)
+        output = modified_model(x)
+        attribution, = torch.autograd.grad(
+            (output * one_hot).sum(), 
+            x, 
+            retain_graph=False,
+            create_graph=False
+        )
+    
+    # Process attribution
+    if isinstance(attribution, torch.Tensor):
+        result = attribution.sum(dim=1, keepdim=True).detach().cpu().numpy()
+        result = np.transpose(result, (0, 2, 3, 1))[0]
+    else:
+        result = attribution
+    
+    # Remove batch dimension if it was added
+    if needs_batch_dim and result.ndim == 4:
+        result = result[0]
+    
+    return result
 
 def zblrp_epsilon_20_VGG16ILSVRC(model_no_softmax, x, **kwargs):
-    """ZBLRP for VGG16 with epsilon=20."""
-    return _calculate_relevancemap(model_no_softmax, x, method="lrp_zbox", epsilon=20.0, low=0.0, high=1.0, **kwargs)
+    """Calculate LRP with epsilon=20 and Bounded input layer rule for VGG16.
+    
+    This uses TF-exact implementation to match TensorFlow iNNvestigate behavior exactly.
+    """
+    import torch
+    import numpy as np
+    from zennit.composites import Composite
+    from zennit.rules import ZBox, Epsilon
+    from .zennit_impl.hooks import TFExactEpsilonHook
+    from zennit.types import Convolution, Linear
+    
+    device = x.device if isinstance(x, torch.Tensor) else torch.device('cpu')
+    
+    # Convert input to tensor if needed
+    if not isinstance(x, torch.Tensor):
+        x = torch.tensor(x, dtype=torch.float32)
+    
+    # Add batch dimension if needed
+    needs_batch_dim = x.ndim == 3
+    if needs_batch_dim:
+        x = x.unsqueeze(0)
+    
+    model_no_softmax = model_no_softmax.to(device)
+    x = x.to(device)
+    
+    # Create composite with Bounded (ZBox) for first layer and TF-exact epsilon for others
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                # Use ZBox for the first layer with VGG16 bounds
+                return ZBox(low=-123.68, high=151.061)
+            else:
+                # Use TF-exact epsilon hook for all other layers
+                return TFExactEpsilonHook(epsilon=20.0)
+        return None
+    
+    composite = Composite(module_map=module_map)
+    
+    # Get target class
+    target_class = kwargs.get('target_class', None)
+    if target_class is None:
+        with torch.no_grad():
+            logits = model_no_softmax(x)
+            target_class = logits.argmax(dim=1).item() if x.shape[0] == 1 else logits.argmax(dim=1)
+    
+    # Create one-hot encoding
+    with torch.no_grad():
+        output = model_no_softmax(x)
+    
+    if isinstance(target_class, (int, np.integer)):
+        one_hot = torch.zeros_like(output)
+        one_hot[0, target_class] = 1.0
+    else:
+        one_hot = torch.zeros_like(output)
+        for i, tc in enumerate(target_class):
+            one_hot[i, tc] = 1.0
+    
+    # Calculate attribution
+    with composite.context(model_no_softmax) as modified_model:
+        x.requires_grad_(True)
+        output = modified_model(x)
+        attribution, = torch.autograd.grad(
+            (output * one_hot).sum(), 
+            x, 
+            retain_graph=False,
+            create_graph=False
+        )
+    
+    # Process attribution
+    if isinstance(attribution, torch.Tensor):
+        result = attribution.sum(dim=1, keepdim=True).detach().cpu().numpy()
+        result = np.transpose(result, (0, 2, 3, 1))[0]
+    else:
+        result = attribution
+    
+    # Remove batch dimension if it was added
+    if needs_batch_dim and result.ndim == 4:
+        result = result[0]
+    
+    return result
 
 def zblrp_epsilon_100_VGG16ILSVRC(model_no_softmax, x, **kwargs):
-    """ZBLRP for VGG16 with epsilon=100."""
-    return _calculate_relevancemap(model_no_softmax, x, method="lrp_zbox", epsilon=100.0, low=0.0, high=1.0, **kwargs)
+    """Calculate LRP with epsilon=100 and Bounded input layer rule for VGG16.
+    
+    This uses TF-exact implementation to match TensorFlow iNNvestigate behavior exactly.
+    """
+    import torch
+    import numpy as np
+    from zennit.composites import Composite
+    from zennit.rules import ZBox, Epsilon
+    from .zennit_impl.hooks import TFExactEpsilonHook
+    from zennit.types import Convolution, Linear
+    
+    device = x.device if isinstance(x, torch.Tensor) else torch.device('cpu')
+    
+    # Convert input to tensor if needed
+    if not isinstance(x, torch.Tensor):
+        x = torch.tensor(x, dtype=torch.float32)
+    
+    # Add batch dimension if needed
+    needs_batch_dim = x.ndim == 3
+    if needs_batch_dim:
+        x = x.unsqueeze(0)
+    
+    model_no_softmax = model_no_softmax.to(device)
+    x = x.to(device)
+    
+    # Create composite with Bounded (ZBox) for first layer and TF-exact epsilon for others
+    first_layer_applied = [False]
+    
+    def module_map(ctx, name, module):
+        if isinstance(module, (Convolution, Linear)):
+            if not first_layer_applied[0]:
+                first_layer_applied[0] = True
+                # Use ZBox for the first layer with VGG16 bounds
+                return ZBox(low=-123.68, high=151.061)
+            else:
+                # Use TF-exact epsilon hook for all other layers
+                return TFExactEpsilonHook(epsilon=100.0)
+        return None
+    
+    composite = Composite(module_map=module_map)
+    
+    # Get target class
+    target_class = kwargs.get('target_class', None)
+    if target_class is None:
+        with torch.no_grad():
+            logits = model_no_softmax(x)
+            target_class = logits.argmax(dim=1).item() if x.shape[0] == 1 else logits.argmax(dim=1)
+    
+    # Create one-hot encoding
+    with torch.no_grad():
+        output = model_no_softmax(x)
+    
+    if isinstance(target_class, (int, np.integer)):
+        one_hot = torch.zeros_like(output)
+        one_hot[0, target_class] = 1.0
+    else:
+        one_hot = torch.zeros_like(output)
+        for i, tc in enumerate(target_class):
+            one_hot[i, tc] = 1.0
+    
+    # Calculate attribution
+    with composite.context(model_no_softmax) as modified_model:
+        x.requires_grad_(True)
+        output = modified_model(x)
+        attribution, = torch.autograd.grad(
+            (output * one_hot).sum(), 
+            x, 
+            retain_graph=False,
+            create_graph=False
+        )
+    
+    # Process attribution
+    if isinstance(attribution, torch.Tensor):
+        result = attribution.sum(dim=1, keepdim=True).detach().cpu().numpy()
+        result = np.transpose(result, (0, 2, 3, 1))[0]
+    else:
+        result = attribution
+    
+    # Remove batch dimension if it was added
+    if needs_batch_dim and result.ndim == 4:
+        result = result[0]
+    
+    return result
 
 
 # ===== REDIRECT TO WORKING ZENNIT IMPLEMENTATIONS =====
