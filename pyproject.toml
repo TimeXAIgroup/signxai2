@@ -13,8 +13,8 @@ maintainers = [
 ]
 description = "A comprehensive explainable AI library supporting both TensorFlow and PyTorch with unified API and advanced XAI methods including SIGN, LRP, and Grad-CAM. Authored by Nils Gumpfer, Jana Fischer and Alexander Paul."
 readme = "README.md"
-license = {text = "BSD-3-Clause"}
-requires-python = ">=3.9,<3.11"
+license = "BSD-3-Clause"
+requires-python = ">=3.9,<3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -27,7 +27,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Operating System :: OS Independent",
     "Typing :: Typed",
-    "License :: OSI Approved :: BSD License",
     "Framework :: Jupyter",
 ]
 keywords = ["explainable ai", "xai", "interpretability", "machine learning", "deep learning", "tensorflow", "pytorch", "lrp", "grad-cam", "sign", "attribution", "saliency"]

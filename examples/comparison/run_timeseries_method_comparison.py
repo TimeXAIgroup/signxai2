@@ -6,12 +6,12 @@ This script compares the outputs of TensorFlow and PyTorch implementations
 of XAI methods on ECG data and produces visualizations with highlighted areas.
 
 Usage:
-    python run_timeseries_method_comparison.py --pathology [MODEL] --method [METHOD] --record_id [RECORD_ID]
+    python examples/comparison/run_timeseries_method_comparison.py --pathology [MODEL] --method [METHOD] --record_id [RECORD_ID]
 
 Example:
-    python run_timeseries_method_comparison.py --pathology AVB --method gradient --record_id 03509_hr
-    python run_timeseries_method_comparison.py --pathology LBBB --method integrated_gradients
-    python run_timeseries_method_comparison.py --method smoothgrad  # Uses default ECG model
+    python examples/comparison/run_timeseries_method_comparison.py --pathology AVB --method gradient --record_id 03509_hr
+    python examples/comparison/run_timeseries_method_comparison.py --pathology LBBB --method integrated_gradients
+    python examples/comparison/run_timeseries_method_comparison.py --method smoothgrad  # Uses default ECG model
 """
 
 import numpy as np
