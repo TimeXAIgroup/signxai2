@@ -19,25 +19,44 @@ If you use the code from this repository in your work, please cite:
 
 <img src="https://ars.els-cdn.com/content/image/1-s2.0-S1566253523001999-ga1_lrg.jpg" title="Graphical Abstract" width="900px"/>
 
-## 🚀 Installation as Python Package via Pypi [Dual Framework Support]
+## 🚀 Installation
 
+### Install from PyPI
 ```bash
 pip install signxai2
 ```
 
-## Installation after cloning the repository [Dual Framework Support]
+This installs the complete package with both TensorFlow and PyTorch support.
 
-Git clone the repository:
+### Install from source
 
+#### Option 1: Full installation (both frameworks)
 ```bash
 git clone https://github.com/IRISlaboratory/signxai2.git
-```
-
-Navigate to the repository directory and run:
-
-```bash
+cd signxai2
 pip install -e .
 ```
+
+#### Option 2: Framework-specific installation
+For users who want to install only specific framework support:
+
+**TensorFlow only:**
+```bash
+git clone https://github.com/IRISlaboratory/signxai2.git
+cd signxai2
+pip install -r requirements/common.txt -r requirements/tensorflow.txt
+pip install -e . --no-deps
+```
+
+**PyTorch only:**
+```bash
+git clone https://github.com/IRISlaboratory/signxai2.git
+cd signxai2
+pip install -r requirements/common.txt -r requirements/pytorch.txt
+pip install -e . --no-deps
+```
+
+Note: Framework-specific installation is only available when installing from source. The PyPI package includes both frameworks for seamless compatibility.
 
 ## Setup of Git LFS
 
@@ -77,31 +96,30 @@ To get started with SignXAI2 Methods, please follow the example tutorials ('exam
   - Sign-based thresholding for binary relevance maps
 
 
-### PyTorch only 
+### Development version
 
-The library now includes a PyTorch implementation based on [zennit](https://github.com/chr5tphr/zennit). To use the PyTorch implementation only, you'll need to install:
-
-```shell
-pip install signxai2[pytorch]
-```
-
-### TensorFlow only 
-
-To use the TensorFlow implementation only, you'll need to install:
-
-```shell
-pip install signxai2[tensorflow]
-```
-
-### Development version can be installed with:
-
-To reproduce all results from the paper, you can install the development version of SignXAI2 with:
+To install with development dependencies for testing and documentation:
 
 ```shell
 pip install signxai2[dev]
 ```
 
-After running the Dual Setup first.
+Or from source:
+```shell
+git clone https://github.com/IRISlaboratory/signxai2.git
+cd signxai2
+pip install -e ".[dev]"
+```
+
+##  Project Structure
+
+  - signxai/: Main package with unified API and framework detection
+  - signxai/tf_signxai/: TensorFlow implementation using modified iNNvestigate
+  - signxai/torch_signxai/: PyTorch implementation using zennit with custom hooks
+  - examples/tutorials/: Tutorials for both frameworks covering images and time series
+  - examples/comparison/: Implementation for reproducing results from the paper
+  - utils/: Helper scripts for model conversion (tf -> torch) and data preprocessing
+
 
 ## Usage
 

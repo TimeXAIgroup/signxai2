@@ -1,10 +1,14 @@
 #!/bin/bash
 
 # Script to run all curated timeseries methods using the extended comparison script
-# This will generate side-by-side TF vs PyTorch comparison plots for 25 verified methods
+# This enforces the correct ECG record to pathology mapping:
+#   03509 -> AVB
+#   12131 -> ISCH
+#   02906 -> RBBB
+#   14493 -> LBBB
 
 echo "Starting curated timeseries method comparison..."
-echo "This will generate 25 comparison plots for verified working methods"
+echo "This will generate comparison plots for verified working methods"
 
 # Create results directory
 mkdir -p results
@@ -12,12 +16,33 @@ mkdir -p results
 # Counter for progress tracking
 count=0
 
-# Default parameters
-pathology=${1:-"LBBB"}  # Default to LBBB, can be overridden with: ./run_all_timeseries_methods_fixed.sh AVB
-record_id=${2:-"03509_hr"}  # Default record, can be overridden
+# Define the correct ECG record to pathology mapping
+declare -A record_to_pathology=(
+    ["03509"]="AVB"
+    ["12131"]="ISCH"
+    ["02906"]="RBBB"
+    ["14493"]="LBBB"
+)
 
-echo "Using pathology: $pathology"
-echo "Using record ID: $record_id"
+# Default to 03509_hr with AVB
+record_id=${1:-"03509_hr"}
+
+# Extract the numeric part of the record ID
+record_num=$(echo $record_id | grep -oE '[0-9]+' | head -1)
+
+# Get the correct pathology for this record
+if [[ -n "${record_to_pathology[$record_num]}" ]]; then
+    pathology="${record_to_pathology[$record_num]}"
+    echo "Using record ID: $record_id with pathology: $pathology (correct mapping)"
+else
+    echo "ERROR: Unknown record ID: $record_id"
+    echo "Valid record IDs and their pathologies:"
+    echo "  03509_hr -> AVB"
+    echo "  12131_hr -> ISCH"
+    echo "  02906_hr -> RBBB"
+    echo "  14493_hr -> LBBB"
+    exit 1
+fi
 
 # Curated methods that work for timeseries in BOTH frameworks
 methods=(
@@ -103,3 +128,9 @@ ls -1 results/${pathology,,}_*_12leads_comparison_${record_id}.png 2>/dev/null |
 echo ""
 echo "Generated data files:"
 ls -1 results/${pathology,,}_*_${record_id}_data.npz 2>/dev/null | wc -l
+echo ""
+echo "Usage examples:"
+echo "  ./run_all_timeseries_methods_fixed.sh              # Run with default 03509_hr (AVB)"
+echo "  ./run_all_timeseries_methods_fixed.sh 12131_hr     # Run with ISCH pathology"
+echo "  ./run_all_timeseries_methods_fixed.sh 02906_hr     # Run with RBBB pathology"
+echo "  ./run_all_timeseries_methods_fixed.sh 14493_hr     # Run with LBBB pathology"
