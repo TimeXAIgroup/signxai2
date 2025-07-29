@@ -18,7 +18,7 @@ We'll use a pre-trained VGG16 model that classifies images into 1000 categories 
 Setup
 -----
 
-First, let's install the required packages:
+First, let's install the required packages. You must specify which framework(s) you want to use:
 
 .. code-block:: bash
 
@@ -28,8 +28,8 @@ First, let's install the required packages:
     # For PyTorch
     pip install signxai2[pytorch]
     
-    # For both
-    pip install signxai2[tensorflow,pytorch]
+    # For both frameworks
+    pip install signxai2[all]
 
 Let's also download a sample image to work with:
 

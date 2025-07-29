@@ -18,7 +18,7 @@ ECG signals are particularly interesting because they have specific patterns (P-
 Setup
 -----
 
-First, let's install the required packages:
+First, let's install the required packages. You must specify which framework(s) you want to use:
 
 .. code-block:: bash
 
@@ -28,8 +28,10 @@ First, let's install the required packages:
     # For PyTorch
     pip install signxai2[pytorch]
     
-    # Additional packages for this tutorial
-    pip install wfdb matplotlib scikit-learn
+    # For both frameworks
+    pip install signxai2[all]
+    
+    # Note: wfdb is already included in the signxai2 installation
 
 Let's download a sample ECG record from PhysioNet:
 

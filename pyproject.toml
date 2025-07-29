@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "signxai2"
-version = "0.13.2"
+version = "0.13.3"
 authors = [
     {name = "IRISlaboratory", email = "nils.gumpfer@kite.thm.de"},
 ]
@@ -31,9 +31,10 @@ classifiers = [
 ]
 keywords = ["explainable ai", "xai", "interpretability", "machine learning", "deep learning", "tensorflow", "pytorch", "lrp", "grad-cam", "sign", "attribution", "saliency"]
 
-# Default installation includes BOTH frameworks
+# Core dependencies only - framework must be explicitly selected
+# To install, use: pip install signxai2[tensorflow] or signxai2[pytorch] or signxai2[all]
 dependencies = [
-    # Core dependencies (from common.txt)
+    # Core dependencies
     "numpy==1.26.4",
     "matplotlib>=3.7.0",
     "scipy>=1.10.0",
@@ -41,27 +42,51 @@ dependencies = [
     "requests>=2.25.0",
     "setuptools~=68.2.2",
     "version-parser>=1.0.1",
+    "protobuf<=3.20.3",
+    "scikit-learn~=1.5.0",
+    "scikit-image>=0.19.0",
     "jupyter>=1.0.0",
     "ipykernel>=6.0.0",
     "ipywidgets>=7.0.0",
     "notebook>=6.0.0",
-    "protobuf<=3.20.3",
     "wfdb~=4.1.2",
-    "scikit-learn~=1.5.0",
-    "scikit-image>=0.19.0",
+]
 
-    # TensorFlow - included by default!
+[project.optional-dependencies]
+# TensorFlow installation
+tensorflow = [
     "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Linux'",
     "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Windows'",
     "tensorflow-macos>=2.8.0,<=2.12.0 ; platform_system=='Darwin'",
-    # PyTorch - included by default!
+]
+
+# PyTorch installation
+pytorch = [
     "torch>=1.10.0",
     "zennit==0.5.1",
 ]
 
-[project.optional-dependencies]
-# Development dependencies
+# All frameworks (TensorFlow + PyTorch)
+all = [
+    # TensorFlow
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Linux'",
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Windows'",
+    "tensorflow-macos>=2.8.0,<=2.12.0 ; platform_system=='Darwin'",
+    # PyTorch
+    "torch>=1.10.0",
+    "zennit==0.5.1",
+]
+
+# Development dependencies (includes all frameworks)
 dev = [
+    # All frameworks
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Linux'",
+    "tensorflow>=2.8.0,<=2.12.1 ; platform_system=='Windows'",
+    "tensorflow-macos>=2.8.0,<=2.12.0 ; platform_system=='Darwin'",
+    "torch>=1.10.0",
+    "zennit==0.5.1",
+
+    # Testing and development tools
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pytest-xdist>=3.0.0",  # Parallel testing
@@ -77,8 +102,6 @@ dev = [
     "nbsphinx>=0.9",
     "myst-parser>=1.0",
 ]
-# Alias for backward compatibility
-all = ["signxai2"]  # Since default already includes both frameworks
 
 [project.urls]
 Homepage = "https://github.com/IRISlaboratory/signxai2"

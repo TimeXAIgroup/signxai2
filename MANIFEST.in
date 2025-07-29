@@ -39,20 +39,9 @@ include README.md
 include LICENSE  
 include CHANGELOG.md
 include pyproject.toml
-include setup.py
-include setup.cfg
 include MANIFEST.in
 
-# Include specific example scripts (as requested by user)
-include ecg_example_plot.py
-include ecg_example_xai.py  
-include run_signxai_tf_images.py
-include run_signxai_tf_timeseries.py
-include run_signxai_torch_images.py
-include run_signxai_torch_timeseries.py
-
-# Include requirements
-recursive-include requirements *.txt
+# Requirements are now managed in pyproject.toml
 
 # Include source code
 recursive-include signxai *.py
@@ -61,6 +50,3 @@ recursive-include signxai *.py
 # Excluding from distribution to reduce package size (PyPI 100MB limit)
 prune docs
 prune examples
-
-# Include utility scripts
-recursive-include utils *.py *.txt

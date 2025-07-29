@@ -5,7 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.13.2] - 2025-07-29
+## [0.13.3] - 2025-07-29
+
+### Changed
+- **BREAKING CHANGE**: Installation now requires explicit framework selection
+  - `pip install signxai2` alone is no longer supported
+  - Users must specify: `signxai2[tensorflow]`, `signxai2[pytorch]`, `signxai2[all]`, or `signxai2[dev]`
+- Moved TensorFlow and PyTorch dependencies from core to optional dependencies
+- Updated all documentation and tutorials to reflect new installation pattern
+- Removed references to requirements.txt files in favor of pyproject.toml extras
+
+### Added
+- Clear error messaging when attempting to use SignXAI2 without framework installation
+- Framework-specific installation options for reduced dependency footprint
+
+### Fixed
+- Unified API method naming consistency across documentation tutorials
+- Tutorial notebooks now use correct model paths and unified API patterns
 
 ### Added
 
@@ -81,4 +97,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Built upon [Zennit](https://github.com/chr5tphr/zennit) for PyTorch LRP implementations
 - SIGN method represents the novel contribution of the SignXAI project
 
-[0.13.2]: https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md
+[0.13.3]: https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md

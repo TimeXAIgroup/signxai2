@@ -23,49 +23,47 @@ Requirements
 Install from PyPI
 -----------------
 
-The simplest way to install SignXAI2:
+SignXAI2 requires you to explicitly choose which deep learning framework(s) to install:
+
+**For TensorFlow users:**
 
 .. code-block:: bash
 
-    pip install signxai2
+    pip install signxai2[tensorflow]
 
-**Note:** This installs the complete package with both TensorFlow and PyTorch support. Ensure you're using Python 3.9 or 3.10 before installation.
+**For PyTorch users:**
+
+.. code-block:: bash
+
+    pip install signxai2[pytorch]
+
+**For both frameworks:**
+
+.. code-block:: bash
+
+    pip install signxai2[all]
+
+**For development (includes all frameworks + dev tools):**
+
+.. code-block:: bash
+
+    pip install signxai2[dev]
+
+**Note:** Installing ``pip install signxai2`` alone is not supported. You must specify at least one framework.
 
 Install from Source
 -------------------
 
-Option 1: Full Installation (both frameworks)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 .. code-block:: bash
 
     git clone https://github.com/IRISlaboratory/signxai2.git
     cd signxai2
-    pip install -e .
-
-Option 2: Framework-specific Installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For users who want to install only specific framework support:
-
-**TensorFlow only:**
-
-.. code-block:: bash
-
-    git clone https://github.com/IRISlaboratory/signxai2.git
-    cd signxai2
-    pip install -r requirements/common.txt -r requirements/tensorflow.txt
-
-**PyTorch only:**
-
-.. code-block:: bash
-
-    git clone https://github.com/IRISlaboratory/signxai2.git
-    cd signxai2
-    pip install -r requirements/common.txt -r requirements/pytorch.txt
-
-.. note::
-   Framework-specific installation is only available when installing from source. The PyPI package includes both frameworks for seamless compatibility.
+    
+    # Choose your installation:
+    pip install -e .[tensorflow]    # TensorFlow only
+    pip install -e .[pytorch]       # PyTorch only  
+    pip install -e .[all]           # Both frameworks
+    pip install -e .[dev]           # Development (all frameworks + tools)
 
 Setup Git LFS
 -------------
@@ -102,10 +100,21 @@ To verify that SignXAI2 is installed correctly:
     print(signxai.__version__)
     
     # Check available backends
-    import signxai.tf_signxai
-    import signxai.torch_signxai
-    print("TensorFlow backend available")
-    print("PyTorch backend available")
+    from signxai import list_methods
+    print(f"Available methods: {len(list_methods())}")
+    
+    # Check specific backends if installed
+    try:
+        import signxai.tf_signxai
+        print("TensorFlow backend available")
+    except ImportError:
+        print("TensorFlow backend not installed")
+        
+    try:
+        import signxai.torch_signxai
+        print("PyTorch backend available")
+    except ImportError:
+        print("PyTorch backend not installed")
 
 Creating a Virtual Environment (Optional)
 -----------------------------------------
@@ -123,8 +132,8 @@ If you prefer using a virtual environment instead of conda:
     # Activate (Windows)
     signxai_env\Scripts\activate
     
-    # Install SignXAI2
-    pip install signxai2
+    # Install SignXAI2 with your preferred framework
+    pip install signxai2[tensorflow]  # or signxai2[pytorch] or signxai2[all]
 
 Troubleshooting
 ---------------
@@ -167,7 +176,7 @@ Common Installation Issues
     # Reinstall with all dependencies
     pip uninstall signxai2
     pip install --upgrade pip
-    pip install signxai2
+    pip install signxai2[all]  # or your preferred framework
 
 **Issue: Missing large files (models/data)**
 

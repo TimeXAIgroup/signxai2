@@ -28,40 +28,44 @@ If you use the code from this repository in your work, please cite:
 
 ## 🚀 Installation
 
+SignXAI2 requires you to explicitly choose which deep learning framework(s) to install. This ensures you only install what you need.
+
 ### Install from PyPI
+
+**For TensorFlow users:**
 ```bash
-pip install signxai2
+pip install signxai2[tensorflow]
 ```
 
-**Note:** This installs the complete package with both TensorFlow and PyTorch support. Ensure you're using Python 3.9 or 3.10 before installation.
+**For PyTorch users:**
+```bash
+pip install signxai2[pytorch]
+```
+
+**For both frameworks:**
+```bash
+pip install signxai2[all]
+```
+
+**For development (includes all frameworks + dev tools):**
+```bash
+pip install signxai2[dev]
+```
+
+**Note:** Installing `pip install signxai2` alone is not supported. You must specify at least one framework.
 
 ### Install from source
 
-#### Option 1: Full installation (both frameworks)
 ```bash
 git clone https://github.com/IRISlaboratory/signxai2.git
 cd signxai2
-pip install -e .
+
+# Choose your installation:
+pip install -e .[tensorflow]    # TensorFlow only
+pip install -e .[pytorch]       # PyTorch only  
+pip install -e .[all]           # Both frameworks
+pip install -e .[dev]           # Development (all frameworks + tools)
 ```
-
-#### Option 2: Framework-specific installation
-For users who want to install only specific framework support:
-
-**TensorFlow only:**
-```bash
-git clone https://github.com/IRISlaboratory/signxai2.git
-cd signxai2
-pip install -r requirements/common.txt -r requirements/tensorflow.txt
-```
-
-**PyTorch only:**
-```bash
-git clone https://github.com/IRISlaboratory/signxai2.git
-cd signxai2
-pip install -r requirements/common.txt -r requirements/pytorch.txt
-```
-
-Note: Framework-specific installation is only available when installing from source. The PyPI package includes both frameworks for seamless compatibility.
 
 ## Setup of Git LFS
 
