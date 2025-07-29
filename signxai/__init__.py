@@ -1,5 +1,5 @@
 # signxai/__init__.py (Simplified and Fixed)
-__version__ = "0.13.1"
+__version__ = "0.13.2"
 
 _DEFAULT_BACKEND = None
 _AVAILABLE_BACKENDS = []

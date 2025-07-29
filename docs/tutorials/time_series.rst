@@ -131,7 +131,7 @@ Now let's use SignXAI to explain the ECG model's predictions:
     import numpy as np
     import matplotlib.pyplot as plt
     import tensorflow as tf
-    from signxai.tf_signxai import calculate_relevancemap
+    from signxai import explain, list_methods
     
     # Load the model and sample
     model = tf.keras.models.load_model('ecg_model_tf.h5')
@@ -150,7 +150,7 @@ Now let's use SignXAI to explain the ECG model's predictions:
         'gradient',
         'gradient_x_input',
         'integrated_gradients',
-        'grad_cam_timeseries',  # Special method for time series
+        'grad_cam',  # Works for time series too
         'lrp_z',
         'lrp_epsilon_0_1',
         'lrpsign_z'  # The SIGN method
@@ -158,13 +158,21 @@ Now let's use SignXAI to explain the ECG model's predictions:
     
     explanations = {}
     for method in methods:
-        explanations[method] = calculate_relevancemap(
-            method, 
-            x, 
-            model, 
-            neuron_selection=predicted_class,
-            last_conv_layer_name='conv1d_2' if method == 'grad_cam_timeseries' else None
-        )
+        if method == 'grad_cam':
+            explanations[method] = explain(
+                model=model,
+                x=x,
+                method_name=method,
+                target_class=predicted_class,
+                last_conv_layer_name='conv1d_2'
+            )
+        else:
+            explanations[method] = explain(
+                model=model,
+                x=x,
+                method_name=method,
+                target_class=predicted_class
+            )
     
     # Visualize explanations
     fig, axs = plt.subplots(len(methods) + 1, 1, figsize=(15, 3*(len(methods) + 1)))
@@ -324,16 +332,16 @@ Now let's use SignXAI to explain the PyTorch ECG model:
     import torch
     import numpy as np
     import matplotlib.pyplot as plt
-    from signxai.torch_signxai import calculate_relevancemap
-    from signxai.torch_signxai.utils import remove_softmax
+    from signxai import explain, list_methods
     
     # Load the model
     model = ECG_CNN()
     model.load_state_dict(torch.load('ecg_model_pt.pth'))
     model.eval()
     
-    # Remove softmax
-    model_no_softmax = remove_softmax(model)
+    # Remove softmax (modify the last layer)
+    model.fc2 = torch.nn.Linear(64, 2, bias=True)
+    model.load_state_dict(torch.load('ecg_model_pt.pth'), strict=False)
     
     # Load the sample
     ecg_sample_pt = torch.load('ecg_sample_pt.pt')
@@ -352,20 +360,20 @@ Now let's use SignXAI to explain the PyTorch ECG model:
     
     # Calculate explanations with different methods
     methods = [
-        "gradients",
-        "input_t_gradient",
+        "gradient",
+        "gradient_x_input",
         "integrated_gradients",
         "smoothgrad",
-        "lrp_epsilon",
-        "lrp_alphabeta"
+        "lrp_epsilon_0_1",
+        "lrp_alpha_1_beta_0"
     ]
     
     explanations = {}
     for method in methods:
-        explanations[method] = calculate_relevancemap(
-            model_no_softmax, 
-            input_tensor, 
-            method=method,
+        explanations[method] = explain(
+            model=model,
+            x=input_tensor,
+            method_name=method,
             target_class=predicted_idx.item()
         )
     

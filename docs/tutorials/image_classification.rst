@@ -53,7 +53,7 @@ Let's use a pre-trained VGG16 model with TensorFlow:
     import matplotlib.pyplot as plt
     from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input, decode_predictions
     from tensorflow.keras.preprocessing.image import load_img, img_to_array
-    from signxai.tf_signxai import calculate_relevancemap
+    from signxai import explain, list_methods
     from signxai.utils.utils import normalize_heatmap
     
     # Load the pre-trained model
@@ -88,11 +88,11 @@ Let's use a pre-trained VGG16 model with TensorFlow:
     
     explanations = {}
     for method in methods:
-        explanations[method] = calculate_relevancemap(
-            method, 
-            x, 
-            model, 
-            neuron_selection=top_pred_idx
+        explanations[method] = explain(
+            model=model,
+            x=x,
+            method_name=method,
+            target_class=top_pred_idx
         )
     
     # Visualize explanations
@@ -147,16 +147,15 @@ Now let's do the same with PyTorch:
     from PIL import Image
     import torchvision.models as models
     import torchvision.transforms as transforms
-    from signxai.torch_signxai import calculate_relevancemap
-    from signxai.torch_signxai.utils import remove_softmax
-    from signxai.common.visualization import normalize_relevance_map
+    from signxai import explain, list_methods
+    from signxai.utils.utils import normalize_heatmap
     
     # Load the pre-trained model
     model = models.vgg16(pretrained=True)
     model.eval()
     
-    # Remove softmax
-    model_no_softmax = remove_softmax(model)
+    # Remove softmax layer (critical for explanations)
+    model.classifier[-1] = torch.nn.Identity()
     
     # Load and preprocess the image
     img_path = "dog.jpg"
@@ -180,21 +179,21 @@ Now let's do the same with PyTorch:
     
     # Calculate explanations with different methods
     methods = [
-        "gradients",
-        "input_t_gradient",
+        "gradient",
+        "gradient_x_input",
         "integrated_gradients",
         "smoothgrad",
         "grad_cam",
-        "lrp_epsilon",  # Equivalent to lrp_epsilon_0_1
-        "lrp_alphabeta"  # Equivalent to lrp_alpha_1_beta_0
+        "lrp_epsilon_0_1",
+        "lrp_alpha_1_beta_0"
     ]
     
     explanations = {}
     for method in methods:
-        explanations[method] = calculate_relevancemap(
-            model_no_softmax, 
-            input_tensor, 
-            method=method,
+        explanations[method] = explain(
+            model=model,
+            x=input_tensor,
+            method_name=method,
             target_class=predicted_idx.item()
         )
     
@@ -210,7 +209,7 @@ Now let's do the same with PyTorch:
     # Explanations
     for i, method in enumerate(methods[:7]):
         explanation = explanations[method][0].sum(axis=0)
-        axs[i+1].imshow(normalize_relevance_map(explanation), cmap='seismic', clim=(-1, 1))
+        axs[i+1].imshow(normalize_heatmap(explanation), cmap='seismic', clim=(-1, 1))
         axs[i+1].set_title(method, fontsize=14)
         axs[i+1].axis('off')
     
@@ -232,11 +231,11 @@ Let's compare class-specific explanations:
     # Calculate explanations for each class
     class_explanations = {}
     for idx in top_classes:
-        class_explanations[idx] = calculate_relevancemap(
-            'lrp_epsilon_0_1', 
-            x, 
-            model, 
-            neuron_selection=idx
+        class_explanations[idx] = explain(
+            model=model,
+            x=x,
+            method_name='lrp_epsilon_0_1',
+            target_class=idx
         )
     
     # Visualize
