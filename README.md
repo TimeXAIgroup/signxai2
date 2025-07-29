@@ -19,6 +19,13 @@ If you use the code from this repository in your work, please cite:
 
 <img src="https://ars.els-cdn.com/content/image/1-s2.0-S1566253523001999-ga1_lrg.jpg" title="Graphical Abstract" width="900px"/>
 
+## Requirements
+
+- Python 3.9 or 3.10 (Python 3.11+ is not supported)
+- TensorFlow >=2.8.0,<=2.12.1
+- PyTorch >=1.10.0
+- NumPy, Matplotlib, SciPy
+
 ## 🚀 Installation
 
 ### Install from PyPI
@@ -26,7 +33,7 @@ If you use the code from this repository in your work, please cite:
 pip install signxai2
 ```
 
-This installs the complete package with both TensorFlow and PyTorch support.
+**Note:** This installs the complete package with both TensorFlow and PyTorch support. Ensure you're using Python 3.9 or 3.10 before installation.
 
 ### Install from source
 

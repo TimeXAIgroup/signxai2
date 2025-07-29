@@ -15,14 +15,10 @@ First, install SignXAI2 with your preferred framework:
 
 .. code-block:: bash
 
-    # For TensorFlow
-    pip install signxai2[tensorflow]
+    # Default installation includes both TensorFlow and PyTorch
+    pip install signxai2
     
-    # For PyTorch
-    pip install signxai2[pytorch]
-    
-    # For both frameworks
-    pip install signxai2[tensorflow,pytorch]
+    # Note: Requires Python 3.9 or 3.10
 
 TensorFlow Quickstart
 ---------------------
@@ -158,10 +154,10 @@ You can also use the framework-agnostic API:
     import signxai
     
     # Will work with either TensorFlow or PyTorch model
-    explanation = signxai.calculate_relevancemap(model, input_tensor, method="gradient")
+    explanation = signxai.explain(model, input_tensor, method="gradient")
     
     # SignXAI will automatically detect the framework and use the appropriate implementation
-    print(f"Available backends: {signxai._AVAILABLE_BACKENDS}")
+    print(f"Detected framework: {signxai.get_framework(model)}")
 
 Multiple Explanation Methods
 ----------------------------
@@ -226,8 +222,12 @@ Generate a saliency map overlaid on the original image:
 
     from signxai.common.visualization import normalize_relevance_map, relevance_to_heatmap, overlay_heatmap
     
-    # Get explanation
-    explanation = calculate_relevancemap(model, input_tensor, method="lrp_epsilon", epsilon=0.1)
+    # Get explanation (framework-specific imports)
+    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap  # TensorFlow
+    # or
+    from signxai.torch_signxai import calculate_relevancemap  # PyTorch
+    
+    explanation = calculate_relevancemap(method="lrp_epsilon", inputs=input_tensor, model=model, epsilon=0.1)
     
     # Normalize relevance map
     normalized = normalize_relevance_map(explanation[0].sum(axis=0))

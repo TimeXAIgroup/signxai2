@@ -7,10 +7,10 @@ This guide provides detailed instructions for installing SignXAI2 with proper de
 Python Version Requirements
 ---------------------------
 
-SignXAI2 requires Python 3.9, 3.10, 3.11, or 3.12. Python 3.13 and newer versions are not supported due to TensorFlow compatibility limitations.
+SignXAI2 requires Python 3.9 or 3.10. Python 3.11 and newer versions are not currently supported due to dependency compatibility constraints.
 
 .. warning::
-   Using Python 3.13+ will lead to TensorFlow installation failures. Always check your Python version before installation:
+   Using Python 3.11+ will lead to installation failures. Always check your Python version before installation:
    
    .. code-block:: bash
    
@@ -159,12 +159,12 @@ Common Issues and Solutions
 
     ERROR: No matching distribution found for tensorflow<=2.12.1,>=2.8.0
 
-**Solution**: Check your Python version. TensorFlow 2.12.1 requires Python 3.9-3.12:
+**Solution**: Check your Python version. SignXAI2 requires Python 3.9 or 3.10:
 
 .. code-block:: bash
 
     python --version
-    # If using 3.13+, create a new environment with 3.10
+    # If using 3.11+, create a new environment with 3.10
     conda create -n signxai python=3.10 -y
 
 **Issue: Package dependency conflicts**
@@ -192,7 +192,7 @@ Dependencies
 Core Dependencies
 ~~~~~~~~~~~~~~~~~
 
-* Python (>=3.9, <3.13)
+* Python (>=3.9, <3.11)
 * NumPy (>=1.19.0)
 * Matplotlib (>=3.7.0)
 * SciPy (>=1.10.0)

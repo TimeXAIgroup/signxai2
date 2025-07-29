@@ -30,8 +30,8 @@ Working with a TensorFlow model:
     import matplotlib.pyplot as plt
     from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input, decode_predictions
     from tensorflow.keras.preprocessing.image import load_img, img_to_array
-    from signxai.tf_signxai import calculate_relevancemap
-    from signxai.utils.utils import normalize_heatmap
+    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap
+    from signxai.common.visualization import normalize_relevance_map
     
     # Step 1: Load a pre-trained model
     model = VGG16(weights='imagenet')
@@ -84,7 +84,12 @@ Working with a TensorFlow model:
     
     # Explanation methods
     for i, method in enumerate(methods):
-        axs[i+1].imshow(normalize_heatmap(explanations[method][0]), cmap='seismic', clim=(-1, 1))
+        # Sum over channels and normalize
+        heatmap = explanations[method][0].sum(axis=-1)
+        abs_max = np.max(np.abs(heatmap))
+        if abs_max > 0:
+            heatmap = heatmap / abs_max
+        axs[i+1].imshow(heatmap, cmap='seismic', clim=(-1, 1))
         axs[i+1].set_title(method)
         axs[i+1].axis('off')
     

@@ -1,44 +1,40 @@
-SignXAI2 Documentation
-=======================
+SignXAI Documentation
+=====================
 
 **SignXAI2** is a comprehensive cross-framework explainable AI (XAI) library that provides unified access to explanation methods across TensorFlow and PyTorch. With over 200 XAI methods and automatic framework detection, SignXAI makes it easy to understand and interpret your deep learning models.
 
-=� **Key Features**
--------------------
+Key Features
+------------
 
 * **Cross-Framework Compatibility**: Single API works with both TensorFlow and PyTorch
 * **200+ XAI Methods**: Comprehensive collection including gradients, LRP, CAM, and more
-* **Automatic Framework Detection**: No need to specify framework - SignXAI2 detects it automatically
+* **Automatic Framework Detection**: No need to specify framework - SignXAI detects it automatically
 * **Parameter Mapping**: Consistent parameter names across frameworks
 * **Robust Implementation**: Extensive testing and validation across frameworks
 
-<� **Quick Start**
-------------------
+Quick Start
+-----------
 
-Install SignXAI2 with your preferred framework:
+Install SignXAI2:
 
 .. code-block:: bash
 
-    # For TensorFlow only
-    pip install signxai2[tensorflow]
+    # Default installation includes both TensorFlow and PyTorch
+    pip install signxai2
     
-    # For PyTorch only  
-    pip install signxai2[pytorch]
-    
-    # For both frameworks
-    pip install signxai2[all]
+    # Note: Requires Python 3.9 or 3.10
 
 Generate your first explanation:
 
 .. code-block:: python
 
-    from signxai2 import explain
+    from signxai import explain
     
     # Works with any model - automatic framework detection!
     explanation = explain(model, input_data, 'gradient')
 
-=� **Documentation Structure**
-------------------------------
+Documentation Structure
+-----------------------
 
 .. toctree::
    :maxdepth: 2
@@ -84,10 +80,10 @@ Generate your first explanation:
    changelog
    license
 
-= **Method Categories**
-------------------------
+Method Categories
+-----------------
 
-SignXAI2 organizes XAI methods into intuitive categories:
+SignXAI organizes XAI methods into intuitive categories:
 
 **Gradient-Based Methods**
   * ``gradient`` - Basic gradient attribution
@@ -97,8 +93,8 @@ SignXAI2 organizes XAI methods into intuitive categories:
 
 **Layer-wise Relevance Propagation (LRP)**
   * ``lrp_epsilon`` - Epsilon rule with stabilization
-  * ``lrp_alpha_1_beta_0`` - Alpha-beta rule (�=1, �=0)
-  * ``lrp_alpha_2_beta_1`` - Alpha-beta rule (�=2, �=1)
+  * ``lrp_alpha_1_beta_0`` - Alpha-beta rule (α=1, β=0)
+  * ``lrp_alpha_2_beta_1`` - Alpha-beta rule (α=2, β=1)
   * ``lrp_z`` - Z+ rule for positive contributions
 
 **Class Activation Methods (CAM)**
@@ -109,13 +105,14 @@ SignXAI2 organizes XAI methods into intuitive categories:
   * ``guided_backprop`` - Guided backpropagation
   * ``deconvnet`` - Deconvolutional networks
 
-**Advanced Methods**
-  * ``deeplift`` - DeepLIFT attribution
-  * ``lime`` - Local interpretable model-agnostic explanations
-  * ``shap`` - SHapley Additive exPlanations
+**SIGN Methods**
+  * ``gradient_x_sign`` - Gradient × SIGN (μ=0)
+  * ``gradient_x_sign_mu`` - Gradient × SIGN with custom μ
+  * ``smoothgrad_x_sign`` - SmoothGrad × SIGN
+  * ``guided_backprop_x_sign`` - Guided Backprop × SIGN
 
-=� **Why SignXAI?**
--------------------
+Why SignXAI?
+------------
 
 **Unified Interface**
     One API works across TensorFlow and PyTorch - no more learning framework-specific tools.
@@ -132,8 +129,8 @@ SignXAI2 organizes XAI methods into intuitive categories:
 **Active Development**
     Regular updates, new methods, and community contributions.
 
-<� **Success Stories**
-----------------------
+Success Stories
+---------------
 
 SignXAI is used by researchers and practitioners worldwide for:
 
@@ -143,40 +140,44 @@ SignXAI is used by researchers and practitioners worldwide for:
 * **NLP**: Analyzing attention patterns and feature importance
 * **Research**: Cross-framework method validation and benchmarking
 
-=� **Performance & Reliability**
---------------------------------
+Performance & Reliability
+-------------------------
 
-* **Cross-Framework Consistency**: Average correlation >0.85 between TensorFlow and PyTorch implementations
-* **Comprehensive Testing**: 500+ test cases covering all major method combinations
+* **Cross-Framework Consistency**: High correlation between TensorFlow and PyTorch implementations
+* **Comprehensive Testing**: Extensive test coverage for all major method combinations
 * **Performance Optimized**: Efficient implementations with minimal overhead
 * **Memory Efficient**: Smart batching and memory management for large models
 
-> **Community & Support**
----------------------------
+Community & Support
+-------------------
 
-* **GitHub Repository**: https://github.com/signxai/signxai
+* **GitHub Repository**: https://github.com/IRISlaboratory/signxai2
 * **Issue Tracker**: Report bugs and request features
 * **Discussions**: Community support and method discussions
 * **Contributing**: Guidelines for contributing new methods and improvements
 
-=� **Citation**
-----------------
+Citation
+--------
 
 If you use SignXAI in your research, please cite:
 
 .. code-block:: bibtex
 
-    @software{signxai2024,
-      title={SignXAI: Cross-Framework Explainable AI Library},
-      author={SignXAI Team},
-      year={2024},
-      url={https://github.com/signxai/signxai}
+    @article{Gumpfer2023SIGN,
+       title = {SIGNed explanations: Unveiling relevant features by reducing bias},
+       author = {Nils Gumpfer and Joshua Prim and Till Keller and Bernhard Seeger and Michael Guckert and Jennifer Hannig},
+       journal = {Information Fusion},
+       pages = {101883},
+       year = {2023},
+       issn = {1566-2535},
+       doi = {https://doi.org/10.1016/j.inffus.2023.101883},
+       url = {https://www.sciencedirect.com/science/article/pii/S1566253523001999}
     }
 
-=� **License**
---------------
+License
+-------
 
-SignXAI is released under the MIT License. See the :doc:`license` for details.
+SignXAI is released under the BSD-3-Clause License. See the :doc:`license` for details.
 
 Indices and tables
 ==================

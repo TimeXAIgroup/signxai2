@@ -13,12 +13,15 @@ The unified API automatically detects whether you're using TensorFlow or PyTorch
 Main Interface
 --------------
 
-.. autofunction:: signxai.get_explanation
+Main Function
+~~~~~~~~~~~~~
+
+**explain(model, input_data, method, \*\*kwargs)**
 
     Get explanations for a model's predictions using any supported XAI method.
 
     :param model: The neural network model (TensorFlow or PyTorch)
-    :param input_data: Input data for which to generate explanations
+    :param input_data: Input data for which to generate explanations  
     :param method: The explanation method to use
     :param kwargs: Additional method-specific parameters
     :return: Explanation array with same shape as input
@@ -26,7 +29,7 @@ Main Interface
 Framework Detection
 -------------------
 
-.. autofunction:: signxai.methods.common.get_framework
+**get_framework(model)**
 
     Automatically detect the framework of a given model.
 
@@ -80,14 +83,14 @@ Basic usage with automatic framework detection::
     import signxai
     
     # TensorFlow model
-    explanation_tf = signxai.get_explanation(
+    explanation_tf = signxai.explain(
         tf_model, 
         input_data, 
         method='gradient'
     )
     
     # PyTorch model  
-    explanation_pt = signxai.get_explanation(
+    explanation_pt = signxai.explain(
         torch_model,
         input_data,
         method='gradient'
@@ -96,7 +99,7 @@ Basic usage with automatic framework detection::
 Using method-specific parameters::
 
     # LRP with epsilon
-    explanation = signxai.get_explanation(
+    explanation = signxai.explain(
         model,
         input_data, 
         method='lrp_epsilon',
@@ -104,7 +107,7 @@ Using method-specific parameters::
     )
     
     # SIGN variant with custom mu
-    explanation = signxai.get_explanation(
+    explanation = signxai.explain(
         model,
         input_data,
         method='gradient_x_sign_mu',
