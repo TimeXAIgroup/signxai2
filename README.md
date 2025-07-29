@@ -52,7 +52,6 @@ For users who want to install only specific framework support:
 git clone https://github.com/IRISlaboratory/signxai2.git
 cd signxai2
 pip install -r requirements/common.txt -r requirements/tensorflow.txt
-pip install -e . --no-deps
 ```
 
 **PyTorch only:**
@@ -60,7 +59,6 @@ pip install -e . --no-deps
 git clone https://github.com/IRISlaboratory/signxai2.git
 cd signxai2
 pip install -r requirements/common.txt -r requirements/pytorch.txt
-pip install -e . --no-deps
 ```
 
 Note: Framework-specific installation is only available when installing from source. The PyPI package includes both frameworks for seamless compatibility.

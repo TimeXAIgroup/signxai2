@@ -2,222 +2,198 @@
 Installation
 =============
 
-This guide provides detailed instructions for installing SignXAI2 with proper dependencies to avoid compatibility issues.
+This guide provides instructions for installing SignXAI2.
 
-Python Version Requirements
----------------------------
+Requirements
+------------
 
-SignXAI2 requires Python 3.9 or 3.10. Python 3.11 and newer versions are not currently supported due to dependency compatibility constraints.
+- Python 3.9 or 3.10 (Python 3.11+ is not supported)
+- TensorFlow >=2.8.0,<=2.12.1
+- PyTorch >=1.10.0
+- NumPy, Matplotlib, SciPy
 
 .. warning::
-   Using Python 3.11+ will lead to installation failures. Always check your Python version before installation:
+   SignXAI2 requires Python 3.9 or 3.10. Using Python 3.11+ will lead to installation failures.
+   Always check your Python version before installation:
    
    .. code-block:: bash
    
        python --version
 
-Recommended Installation Method
--------------------------------
+Install from PyPI
+-----------------
 
-The most reliable way to install SignXAI2 is using Conda with a step-by-step approach to manage dependencies properly.
-
-Step 1: Create a Fresh Conda Environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The simplest way to install SignXAI2:
 
 .. code-block:: bash
 
-    # Create a new conda environment with Python 3.10 (recommended)
-    conda create -n signxai2 python=3.10 -y
-    conda activate signxai2
+    pip install signxai2
 
-Step 2: Install Jupyter Support (for Notebooks)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Note:** This installs the complete package with both TensorFlow and PyTorch support. Ensure you're using Python 3.9 or 3.10 before installation.
 
-.. code-block:: bash
+Install from Source
+-------------------
 
-    # Install Jupyter and register the kernel
-    conda install -y jupyter ipykernel
-    python -m ipykernel install --user --name=signxai2 --display-name="Python (signxai2)"
-
-Step 3: Install Dependencies in the Correct Order
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Option 1: Full Installation (both frameworks)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    # Navigate to the SignXAI2 package directory (if you're installing from source)
-    cd /path/to/signxai2/
+    git clone https://github.com/IRISlaboratory/signxai2.git
+    cd signxai2
+    pip install -e .
 
-    # Install common dependencies first
-    pip install -r requirements/common.txt
+Option 2: Framework-specific Installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    # Install PyTorch dependencies
-    pip install -r requirements/pytorch.txt
+For users who want to install only specific framework support:
 
-    # Install TensorFlow dependencies last
-    pip install -r requirements/tensorflow.txt
+**TensorFlow only:**
+
+.. code-block:: bash
+
+    git clone https://github.com/IRISlaboratory/signxai2.git
+    cd signxai2
+    pip install -r requirements/common.txt -r requirements/tensorflow.txt
+
+**PyTorch only:**
+
+.. code-block:: bash
+
+    git clone https://github.com/IRISlaboratory/signxai2.git
+    cd signxai2
+    pip install -r requirements/common.txt -r requirements/pytorch.txt
 
 .. note::
-   The order of installation is important to avoid dependency conflicts.
+   Framework-specific installation is only available when installing from source. The PyPI package includes both frameworks for seamless compatibility.
 
-Step 4: Install SignXAI
-~~~~~~~~~~~~~~~~~~~~~~~
+Setup Git LFS
+-------------
 
-For development mode (from source):
-
-.. code-block:: bash
-
-    # Install in development mode
-    pip install -e .
-
-For regular installation from PyPI:
+Before you get started, please set up `Git LFS <https://git-lfs.github.com/>`_ to download the large files in this repository. This is required to access the pre-trained models and example data.
 
 .. code-block:: bash
 
-    # With TensorFlow support
-    pip install signxai[tensorflow]
+    git lfs install
 
-    # With PyTorch support
-    pip install signxai[pytorch]
+Load Data and Documentation
+---------------------------
 
-    # With both frameworks
-    pip install signxai[all]
-
-Step 5: Verify Installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+After installation, run the setup script to download documentation, examples, and sample data:
 
 .. code-block:: bash
 
-    python -c "import numpy, matplotlib, torch, tensorflow, signxai; print(f'NumPy: {numpy.__version__}, PyTorch: {torch.__version__}, TensorFlow: {tensorflow.__version__}, SignXAI: {signxai.__version__}')"
+    bash ./prepare.sh
 
-This should output the version numbers for all the key packages.
+This will download:
 
-Framework-Specific Installations
---------------------------------
+- 📚 Full documentation (viewable at ``docs/index.html``)
+- 📝 Example scripts and notebooks (``examples/``)  
+- 📊 Sample ECG data and images (``examples/data/``)
 
-If you only need one framework, you can install SignXAI with specific dependencies:
+Verify Installation
+-------------------
 
-TensorFlow Only
-~~~~~~~~~~~~~~~
+To verify that SignXAI2 is installed correctly:
 
-.. code-block:: bash
+.. code-block:: python
+
+    import signxai
+    print(signxai.__version__)
     
-    # Create conda environment with Python 3.10
-    conda create -n signxai-tf python=3.10 -y
-    conda activate signxai-tf
-    
-    # Install dependencies
-    pip install -r requirements/common.txt
-    pip install -r requirements/tensorflow.txt
-    
-    # Install SignXAI
-    pip install -e .
+    # Check available backends
+    import signxai.tf_signxai
+    import signxai.torch_signxai
+    print("TensorFlow backend available")
+    print("PyTorch backend available")
 
-PyTorch Only
-~~~~~~~~~~~~
+Creating a Virtual Environment (Optional)
+-----------------------------------------
 
-.. code-block:: bash
-    
-    # Create conda environment with Python 3.10
-    conda create -n signxai-pt python=3.10 -y
-    conda activate signxai-pt
-    
-    # Install dependencies
-    pip install -r requirements/common.txt
-    pip install -r requirements/pytorch.txt
-    
-    # Install SignXAI
-    pip install -e .
-
-Running Jupyter Notebooks
--------------------------
-
-After installation, you can run the example notebooks:
+If you prefer using a virtual environment instead of conda:
 
 .. code-block:: bash
 
-    # Activate your environment
-    conda activate signxai
+    # Create virtual environment
+    python3.10 -m venv signxai_env
     
-    # Start Jupyter notebook
-    jupyter notebook
-
-When opening a notebook, make sure to select the correct kernel:
-
-1. Click on the "Kernel" menu
-2. Select "Change kernel"
-3. Choose "Python (signxai)" from the dropdown
+    # Activate (Linux/Mac)
+    source signxai_env/bin/activate
+    
+    # Activate (Windows)
+    signxai_env\Scripts\activate
+    
+    # Install SignXAI2
+    pip install signxai2
 
 Troubleshooting
 ---------------
 
-Common Issues and Solutions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Common Installation Issues
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Issue: Python version error**
+
+.. code-block:: text
+
+    ERROR: Package 'signxai2' requires a different Python: 3.11.0 not in '>=3.9,<3.11'
+
+**Solution:** Install Python 3.9 or 3.10:
+
+.. code-block:: bash
+
+    # Using conda
+    conda create -n signxai2 python=3.10
+    conda activate signxai2
+    
+    # Or using pyenv
+    pyenv install 3.10.11
+    pyenv local 3.10.11
 
 **Issue: TensorFlow installation fails**
 
-.. code-block:: bash
+.. code-block:: text
 
-    ERROR: No matching distribution found for tensorflow<=2.12.1,>=2.8.0
+    ERROR: No matching distribution found for tensorflow>=2.8.0,<=2.12.1
 
-**Solution**: Check your Python version. SignXAI2 requires Python 3.9 or 3.10:
+**Solution:** Ensure you're using Python 3.9 or 3.10, as TensorFlow 2.12.1 doesn't support newer Python versions.
 
-.. code-block:: bash
+**Issue: Import errors after installation**
 
-    python --version
-    # If using 3.11+, create a new environment with 3.10
-    conda create -n signxai python=3.10 -y
-
-**Issue: Package dependency conflicts**
-
-**Solution**: Install dependencies in the correct order as specified above.
-
-**Issue: Cannot import signxai module**
-
-**Solution**: Check that you've activated the correct conda environment:
+**Solution:** Ensure all dependencies are installed:
 
 .. code-block:: bash
 
-    # Check which environment is active
-    conda info --envs
-    
-    # Activate the correct environment
-    conda activate signxai
-    
-    # Verify installation
-    python -c "import signxai; print(signxai.__version__)"
+    # Reinstall with all dependencies
+    pip uninstall signxai2
+    pip install --upgrade pip
+    pip install signxai2
 
-Dependencies
-------------
+**Issue: Missing large files (models/data)**
 
-Core Dependencies
-~~~~~~~~~~~~~~~~~
+**Solution:** Ensure Git LFS is installed and run:
 
-* Python (>=3.9, <3.11)
-* NumPy (>=1.19.0)
-* Matplotlib (>=3.7.0)
-* SciPy (>=1.10.0)
-* Pillow (>=8.0.0)
-* Requests (>=2.25.0)
+.. code-block:: bash
 
-Framework Dependencies
-~~~~~~~~~~~~~~~~~~~~~~
+    git lfs install
+    git lfs pull
 
-TensorFlow:
-    * TensorFlow (>=2.8.0, <=2.12.1)
+GPU Support
+-----------
 
-PyTorch:
-    * PyTorch (>=1.10.0)
+SignXAI2 will automatically use GPU if available. For GPU support:
 
-Optional Dependencies
-~~~~~~~~~~~~~~~~~~~~~
+**TensorFlow GPU:**
+Follow the `TensorFlow GPU installation guide <https://www.tensorflow.org/install/gpu>`_
 
-* Scikit-image (for visualization and comparison)
-* Jupyter/IPython (for running example notebooks)
+**PyTorch GPU:**
+Follow the `PyTorch installation guide <https://pytorch.org/get-started/locally/>`_ and select the appropriate CUDA version.
 
-CUDA and GPU Support
-~~~~~~~~~~~~~~~~~~~~
+Next Steps
+----------
 
-SignXAI does not directly specify CUDA dependencies. For GPU support, ensure you have installed the GPU-compatible versions of TensorFlow and/or PyTorch according to their official documentation:
+After installation:
 
-- `TensorFlow GPU Support <https://www.tensorflow.org/install/gpu>`_
-- `PyTorch GPU Support <https://pytorch.org/get-started/locally/>`_
+1. Check out the :doc:`quickstart` guide
+2. Explore the example notebooks in ``examples/tutorials/``
+3. Read about :doc:`basic_usage` for detailed API information

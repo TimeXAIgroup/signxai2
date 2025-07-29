@@ -177,7 +177,7 @@ If you use SignXAI in your research, please cite:
 License
 -------
 
-SignXAI is released under the BSD-3-Clause License. See the :doc:`license` for details.
+SignXAI is released under the BSD 3-Clause License. See the :doc:`license` for details.
 
 Indices and tables
 ==================
