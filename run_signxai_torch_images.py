@@ -1,6 +1,5 @@
 import argparse
 import numpy as np
-import torch
 import matplotlib.pyplot as plt
 import os
 import sys
@@ -8,10 +7,14 @@ import inspect
 import time
 from PIL import Image
 
-# Import necessary functions from the signxai library
-from signxai.torch_signxai.methods.wrappers import calculate_relevancemap as torch_calculate_relevancemap
-from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
-from signxai.torch_signxai.utils import decode_predictions as decode_predictions_pytorch
+# Check if PyTorch is available before importing
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    print("Warning: PyTorch is not installed. Please install SignXAI2 with PyTorch support:")
+    print("  pip install signxai2[pytorch]")
 
 # Example command line usage: python run_signxai_torch_images.py --image_path examples/data/images/example.jpg --model_path examples/data/models/pytorch/VGG16/VGG16.py --method_name gradient_x_sign
 
@@ -164,15 +167,18 @@ def run_explanation(framework, model_path, image_path, method_name,
         print(f"Additional method parameters: {method_params}")
 
     if framework.lower() == 'pytorch':
+        if not TORCH_AVAILABLE:
+            print("Error: PyTorch is not installed. Please install SignXAI2 with PyTorch support:")
+            print("  pip install signxai2[pytorch]")
+            return False
+            
         try:
-            # Ensure PyTorch and the signxai PyTorch submodule are available
-            import torch
-            from signxai.torch_signxai.methods import wrappers
-            if not wrappers:
-                raise ImportError(
-                    "signxai.torch_signxai.methods.wrappers submodule not loaded. Check your SignXAI __init__.py and installation.")
+            # Import SignXAI PyTorch components
+            from signxai.torch_signxai.methods.wrappers import calculate_relevancemap as torch_calculate_relevancemap
+            from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
+            from signxai.torch_signxai.utils import decode_predictions as decode_predictions_pytorch
         except ImportError as e:
-            print(f"Error: PyTorch or signxai.torch_signxai module is not available: {e}")
+            print(f"Error: SignXAI PyTorch components are not available: {e}")
             return False
 
         print(f"Loading PyTorch model...")
@@ -421,6 +427,13 @@ def parse_method_params(params_str):
         return None
 
 if __name__ == '__main__':
+    # Check for PyTorch availability
+    if not TORCH_AVAILABLE:
+        print("\nError: PyTorch is not installed.")
+        print("Please install SignXAI2 with PyTorch support:")
+        print("  pip install signxai2[pytorch]")
+        sys.exit(1)
+        
     try:
         import signxai
         print(f"SignXAI version: {signxai.__version__}")

@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 import argparse
 import numpy as np
-import tensorflow as tf
 import os
 import sys
 import matplotlib.pyplot as plt
-from tensorflow.keras.models import model_from_json
 from typing import Dict, Any, Tuple, Optional
 import time  # For a small pause if saving multiple plots
+
+# Check if TensorFlow is available before importing
+try:
+    import tensorflow as tf
+    from tensorflow.keras.models import model_from_json
+    TF_AVAILABLE = True
+except ImportError:
+    TF_AVAILABLE = False
+    print("Warning: TensorFlow is not installed. Please install SignXAI2 with TensorFlow support:")
+    print("  pip install signxai2[tensorflow]")
 
 # Example command line usage: python run_signxai_tf_timeseries.py --pathology AVB --record_id 03509_hr --method_name gradient
 
@@ -48,7 +56,7 @@ GRAD_CAM_LAYERS_TF = {
 }
 ECG_FRIENDLY_METHODS = [
     'gradient', 'integrated_gradients', 'smoothgrad', 'grad_cam_timeseries',  # Using grad_cam_timeseries for time series data
-    'guided_backprop', 'gradient_x_sign', 'gradient_x_input',
+    'guided_backprop', 'gradient_x_sign', 'input_t_gradient',
     'lrp_alpha_1_beta_0', 'lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x'
 ]
 
@@ -974,7 +982,7 @@ def execute_single_ecg_explanation(
         traceback.print_exc()
         
         # Try a fallback to basic gradient method if the selected method failed
-        if method_name != 'gradient' and method_name not in ['gradient_x_input', 'gradient_x_sign']:
+        if method_name != 'gradient' and method_name not in ['input_t_gradient', 'gradient_x_sign']:
             print("\n  --- Attempting FALLBACK to basic 'gradient' method ---")
             try:
                 fallback_relevance_map = tf_calculate_relevancemap(
@@ -1213,7 +1221,7 @@ def execute_single_ecg_explanation(
         'grad_cam_timeseries': 30,
         'guided_backprop': 20,
         'gradient_x_sign': 20,
-        'gradient_x_input': 20
+        'input_t_gradient': 20
     }
     
     # Choose bubble size based on method
@@ -1276,6 +1284,13 @@ def parse_arguments() -> argparse.Namespace:
 
 # --- Main Execution ---
 def main():
+    # Check if TensorFlow is available before proceeding
+    if not TF_AVAILABLE:
+        print("\nError: TensorFlow is not installed.")
+        print("Please install SignXAI2 with TensorFlow support:")
+        print("  pip install signxai2[tensorflow]")
+        sys.exit(1)
+        
     args = parse_arguments()
 
     if args.list_available_methods:

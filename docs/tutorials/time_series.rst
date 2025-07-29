@@ -150,7 +150,7 @@ Now let's use SignXAI to explain the ECG model's predictions:
     # Calculate explanations with different methods
     methods = [
         'gradient',
-        'gradient_x_input',
+        'input_t_gradient',
         'integrated_gradients',
         'grad_cam',  # Works for time series too
         'lrp_z',
@@ -363,7 +363,7 @@ Now let's use SignXAI to explain the PyTorch ECG model:
     # Calculate explanations with different methods
     methods = [
         "gradient",
-        "gradient_x_input",
+        "input_t_gradient",
         "integrated_gradients",
         "smoothgrad",
         "lrp_epsilon_0_1",
@@ -499,7 +499,7 @@ Let's perform a more detailed analysis focusing on characteristic ECG features:
     plt.show()
     
     # Compare attribution across methods
-    methods_to_compare = ['gradient', 'gradient_x_input', 'lrp_z', 'lrpsign_z']
+    methods_to_compare = ['gradient', 'input_t_gradient', 'lrp_z', 'lrpsign_z']
     components = ['P-wave', 'QRS Complex', 'T-wave']
     regions = [p_wave_region, qrs_complex_region, t_wave_region]
     
@@ -555,3 +555,51 @@ For hands-on experience with time series explanations using ECG data, check out 
 - `examples/tutorials/pytorch/pytorch_time_series.ipynb` - ECG classification with PyTorch and Zennit
 
 These notebooks provide complete implementations including data preprocessing, model training, and explanation generation with real ECG datasets.
+
+Standalone ECG Example Scripts
+------------------------------
+
+In addition to the notebooks, SignXAI2 includes standalone Python scripts for ECG analysis:
+
+**ecg_example_plot.py**
+  Simple ECG plotting example that loads and visualizes ECG data.
+  
+  Usage::
+  
+      python ecg_example_plot.py
+  
+  This will plot ECG records for multiple patients and save plots to ``./examples/.ecgs/``
+
+**ecg_example_xai.py**
+  ECG explainability example that generates explanations for ECG classification models using various XAI methods.
+  
+  Prerequisites:
+  
+  - Install SignXAI2 with TensorFlow support: ``pip install signxai2[tensorflow]``
+  - Ensure ECG data files are in ``examples/data/timeseries/``
+  - Ensure ECG models are in ``examples/data/models/tensorflow/ECG/``
+  
+  Usage::
+  
+      python ecg_example_xai.py
+  
+  This generates explanations for different ECG conditions:
+  
+  - AVB (Atrioventricular Block) - Patient 03509_hr
+  - ISCH (Ischemia) - Patient 12131_hr
+  - LBBB (Left Bundle Branch Block) - Patient 14493_hr
+  - RBBB (Right Bundle Branch Block) - Patient 02906_hr
+  
+  XAI methods used include:
+  
+  - Grad-CAM for time series
+  - Gradient
+  - Input × Gradient
+  - Gradient × Sign
+  - LRP-α₁β₀
+  - LRP-ε with standard deviation
+  - LRP-SIGN-ε with standard deviation
+  
+  Explanation visualizations are saved to ``./examples/{model_id}/``
+  
+  Note: The scripts use utility functions from the ``utils/`` directory for data loading, model handling, and visualization. ECG data is preprocessed with filters: BWR, BLA, AC50Hz, LP40Hz.

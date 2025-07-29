@@ -11,14 +11,21 @@ This quickstart guide will help you get up and running with SignXAI2 quickly for
 Installation
 ------------
 
-First, install SignXAI2 with your preferred framework:
+SignXAI2 requires you to explicitly choose which deep learning framework(s) to install:
 
 .. code-block:: bash
 
-    # Default installation includes both TensorFlow and PyTorch
-    pip install signxai2
+    # For TensorFlow users:
+    pip install signxai2[tensorflow]
+    
+    # For PyTorch users:
+    pip install signxai2[pytorch]
+    
+    # For both frameworks:
+    pip install signxai2[all]
     
     # Note: Requires Python 3.9 or 3.10
+    # Installing pip install signxai2 alone is NOT supported
 
 TensorFlow Quickstart
 ---------------------
@@ -31,7 +38,7 @@ Here's a complete example using TensorFlow:
     import matplotlib.pyplot as plt
     from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input, decode_predictions
     from tensorflow.keras.preprocessing.image import load_img, img_to_array
-    from signxai.tf_signxai import calculate_relevancemap
+    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap
     
     # Step 1: Load a pre-trained model
     model = VGG16(weights='imagenet')
@@ -51,12 +58,17 @@ Here's a complete example using TensorFlow:
     top_pred_idx = np.argmax(preds[0])
     print(f"Predicted class: {decode_predictions(preds, top=1)[0][0][1]}")
     
-    # Step 5: Calculate explanation with Gradient x Input method
-    explanation = calculate_relevancemap('gradient_x_input', x, model, neuron_selection=top_pred_idx)
+    # Step 5: Calculate explanation with input × gradient method
+    explanation = calculate_relevancemap('input_t_gradient', x, model, neuron_selection=top_pred_idx)
     
     # Step 6: Normalize and visualize
-    abs_max = np.max(np.abs(explanation))
-    normalized = explanation / abs_max
+    # Sum over channels to create 2D heatmap
+    heatmap = explanation[0].sum(axis=-1)
+    abs_max = np.max(np.abs(heatmap))
+    if abs_max > 0:
+        normalized = heatmap / abs_max
+    else:
+        normalized = heatmap
     
     plt.figure(figsize=(10, 5))
     plt.subplot(1, 2, 1)
@@ -65,7 +77,7 @@ Here's a complete example using TensorFlow:
     plt.axis('off')
     
     plt.subplot(1, 2, 2)
-    plt.imshow(normalized[0].sum(axis=-1), cmap='seismic', clim=(-1, 1))
+    plt.imshow(normalized, cmap='seismic', clim=(-1, 1))
     plt.title('Explanation')
     plt.axis('off')
     
@@ -124,8 +136,14 @@ Here's a complete example using PyTorch:
     
     # Step 6: Normalize and visualize
     # Convert back to numpy for visualization
-    abs_max = np.max(np.abs(explanation))
-    normalized = explanation / abs_max
+    explanation_np = explanation.detach().cpu().numpy() if hasattr(explanation, 'detach') else explanation
+    # Sum over channels to create 2D heatmap  
+    heatmap = explanation_np[0].sum(axis=0)
+    abs_max = np.max(np.abs(heatmap))
+    if abs_max > 0:
+        normalized = heatmap / abs_max
+    else:
+        normalized = heatmap
     
     # Convert the original image for display
     img_np = np.array(img.resize((224, 224))) / 255.0
@@ -137,7 +155,7 @@ Here's a complete example using PyTorch:
     plt.axis('off')
     
     plt.subplot(1, 2, 2)
-    plt.imshow(normalized[0].sum(axis=0), cmap='seismic', clim=(-1, 1))
+    plt.imshow(normalized, cmap='seismic', clim=(-1, 1))
     plt.title('Explanation')
     plt.axis('off')
     
@@ -151,13 +169,15 @@ You can also use the framework-agnostic API:
 
 .. code-block:: python
 
-    import signxai
+    from signxai import explain, list_methods
+    
+    # List available methods
+    print(f"Available methods: {list_methods()}")
     
     # Will work with either TensorFlow or PyTorch model
-    explanation = signxai.explain(model, input_tensor, method="gradient")
+    explanation = explain(model, input_data, method="gradient")
     
-    # SignXAI will automatically detect the framework and use the appropriate implementation
-    print(f"Detected framework: {signxai.get_framework(model)}")
+    # SignXAI will automatically detect the framework
 
 Multiple Explanation Methods
 ----------------------------
@@ -167,7 +187,7 @@ Compare different explanation methods for the same input:
 .. code-block:: python
 
     # For TensorFlow
-    methods = ['gradient', 'gradient_x_input', 'integrated_gradients', 'smoothgrad', 'lrp_z']
+    methods = ['gradient', 'input_t_gradient', 'integrated_gradients', 'smoothgrad', 'lrp_z']
     explanations = []
     
     for method in methods:
@@ -181,9 +201,14 @@ Compare different explanation methods for the same input:
     axs[0].axis('off')
     
     for i, (method, expl) in enumerate(zip(methods, explanations)):
-        abs_max = np.max(np.abs(expl))
-        normalized = expl / abs_max
-        axs[i+1].imshow(normalized[0].sum(axis=-1), cmap='seismic', clim=(-1, 1))
+        # Sum over channels and normalize
+        heatmap = expl[0].sum(axis=-1)
+        abs_max = np.max(np.abs(heatmap))
+        if abs_max > 0:
+            normalized = heatmap / abs_max
+        else:
+            normalized = heatmap
+        axs[i+1].imshow(normalized, cmap='seismic', clim=(-1, 1))
         axs[i+1].set_title(method)
         axs[i+1].axis('off')
     
@@ -213,36 +238,37 @@ Layer-wise Relevance Propagation (LRP) has several variants:
     # Visualize LRP variants
     # ...
 
-Creating a Saliency Map
------------------------
+Working with Different Method Parameters
+----------------------------------------
 
-Generate a saliency map overlaid on the original image:
+Many methods support additional parameters:
 
 .. code-block:: python
 
-    from signxai.common.visualization import normalize_relevance_map, relevance_to_heatmap, overlay_heatmap
+    # LRP with different epsilon values
+    epsilons = [0.01, 0.1, 1.0]
+    for eps in epsilons:
+        explanation = calculate_relevancemap(
+            'lrp_epsilon', x, model, 
+            neuron_selection=top_pred_idx,
+            epsilon=eps
+        )
+        # Visualize...
     
-    # Get explanation (framework-specific imports)
-    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap  # TensorFlow
-    # or
-    from signxai.torch_signxai import calculate_relevancemap  # PyTorch
+    # SmoothGrad with custom parameters
+    explanation = calculate_relevancemap(
+        'smoothgrad', x, model,
+        neuron_selection=top_pred_idx,
+        augment_by_n=50,  # Number of samples
+        noise_scale=0.1   # Noise level
+    )
     
-    explanation = calculate_relevancemap(method="lrp_epsilon", inputs=input_tensor, model=model, epsilon=0.1)
-    
-    # Normalize relevance map
-    normalized = normalize_relevance_map(explanation[0].sum(axis=0))
-    
-    # Convert to heatmap
-    heatmap = relevance_to_heatmap(normalized)
-    
-    # Overlay on original image
-    overlaid = overlay_heatmap(img_np, heatmap, alpha=0.7)
-    
-    plt.figure(figsize=(10, 10))
-    plt.imshow(overlaid)
-    plt.title('Explanation Heatmap')
-    plt.axis('off')
-    plt.show()
+    # Integrated Gradients with custom steps
+    explanation = calculate_relevancemap(
+        'integrated_gradients', x, model,
+        neuron_selection=top_pred_idx,
+        steps=100  # Integration steps
+    )
 
 Next Steps
 ----------

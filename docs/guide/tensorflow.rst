@@ -186,7 +186,7 @@ Gradient x Input
 
 .. code-block:: python
 
-    def gradient_x_input(model_no_softmax, x, **kwargs):
+    def input_t_gradient(model_no_softmax, x, **kwargs):
         g = gradient(model_no_softmax, x, **kwargs)
         return g * x
 

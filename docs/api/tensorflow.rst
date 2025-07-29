@@ -63,10 +63,10 @@ Vanilla Gradient
    :return: Gradient-based attribution
    :rtype: numpy.ndarray
 
-Gradient x Input
+Input x Gradient
 ~~~~~~~~~~~~~~~~
 
-.. py:function:: gradient_x_input(model_no_softmax, x, **kwargs)
+.. py:function:: input_t_gradient(model_no_softmax, x, **kwargs)
 
    Computes the element-wise product of gradients and input.
    

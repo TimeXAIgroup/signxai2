@@ -160,7 +160,7 @@ TensorFlow Custom Target
     class_explanations = {}
     for idx in top_classes:
         class_explanations[idx] = calculate_relevancemap(
-            'gradient_x_input', 
+            'input_t_gradient', 
             x, 
             model, 
             neuron_selection=idx  # Specific class
@@ -203,7 +203,7 @@ PyTorch Custom Target
         class_explanations[idx] = calculate_relevancemap(
             model_no_softmax, 
             input_tensor, 
-            method="gradient_x_input",
+            method="input_t_gradient",
             target_class=idx  # Specific class
         )
     
@@ -250,7 +250,7 @@ TensorFlow Time Series
     
     # Calculate explanation
     explanation = calculate_relevancemap(
-        'gradient_x_input', 
+        'input_t_gradient', 
         ecg_input, 
         model
     )
@@ -432,7 +432,7 @@ SHAP Integration
     shap_values = explainer.shap_values(x)
     
     # Calculate SignXAI explanation
-    signxai_explanation = calculate_relevancemap('gradient_x_input', x, model)
+    signxai_explanation = calculate_relevancemap('input_t_gradient', x, model)
     
     # Compare explanations
     plt.figure(figsize=(12, 4))
@@ -601,7 +601,7 @@ TensorFlow Performance
         all_explanations = []
         
         for batch in dataset.batch(batch_size):
-            batch_explanations = calculate_relevancemap('gradient_x_input', batch, model)
+            batch_explanations = calculate_relevancemap('input_t_gradient', batch, model)
             all_explanations.append(batch_explanations)
         
         return np.concatenate(all_explanations, axis=0)

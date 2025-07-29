@@ -1,3 +1,8 @@
+"""ECG Plotting Example.
+
+This example demonstrates how to load and plot ECG data.
+Does not require SignXAI2, only the utility functions.
+"""
 import os
 
 from utils.ecg_data import load_and_preprocess_ecg

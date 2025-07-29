@@ -80,17 +80,21 @@ Usage Examples
 
 Basic usage with automatic framework detection::
 
-    import signxai
+    from signxai import explain, list_methods
+    
+    # List all available methods
+    available_methods = list_methods()
+    print(f"Available methods: {available_methods}")
     
     # TensorFlow model
-    explanation_tf = signxai.explain(
+    explanation_tf = explain(
         tf_model, 
         input_data, 
         method='gradient'
     )
     
     # PyTorch model  
-    explanation_pt = signxai.explain(
+    explanation_pt = explain(
         torch_model,
         input_data,
         method='gradient'
@@ -99,15 +103,22 @@ Basic usage with automatic framework detection::
 Using method-specific parameters::
 
     # LRP with epsilon
-    explanation = signxai.explain(
+    explanation = explain(
         model,
         input_data, 
         method='lrp_epsilon',
         epsilon=0.01
     )
     
+    # Input × Gradient method
+    explanation = explain(
+        model,
+        input_data,
+        method='input_t_gradient'
+    )
+    
     # SIGN variant with custom mu
-    explanation = signxai.explain(
+    explanation = explain(
         model,
         input_data,
         method='gradient_x_sign_mu',

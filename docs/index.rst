@@ -15,12 +15,18 @@ Key Features
 Quick Start
 -----------
 
-Install SignXAI2:
+Install SignXAI2 with your preferred framework:
 
 .. code-block:: bash
 
-    # Default installation includes both TensorFlow and PyTorch
-    pip install signxai2
+    # For TensorFlow users:
+    pip install signxai2[tensorflow]
+    
+    # For PyTorch users:
+    pip install signxai2[pytorch]
+    
+    # For both frameworks:
+    pip install signxai2[all]
     
     # Note: Requires Python 3.9 or 3.10
 

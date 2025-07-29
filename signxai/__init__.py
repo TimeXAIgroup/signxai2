@@ -1,5 +1,6 @@
 # signxai/__init__.py (Simplified and Fixed)
-__version__ = "0.13.3"
+__version__ = ("0.13.4"
+               )
 
 _DEFAULT_BACKEND = None
 _AVAILABLE_BACKENDS = []
@@ -158,6 +159,8 @@ def _map_parameters(method_name, framework, **kwargs):
 def _call_tensorflow_method(model, x, method_name, target_class, **kwargs):
     """Call TensorFlow implementation."""
     tf_module = _load_tf_signxai()
+    if not tf_module:
+        _check_framework_availability()
     from signxai.tf_signxai.methods.wrappers import calculate_relevancemap
     
     # Handle neuron_selection parameter
@@ -171,6 +174,8 @@ def _call_tensorflow_method(model, x, method_name, target_class, **kwargs):
 def _call_pytorch_method(model, x, method_name, target_class, **kwargs):
     """Call PyTorch implementation."""
     torch_module = _load_torch_signxai()
+    if not torch_module:
+        _check_framework_availability()
     from signxai.torch_signxai import calculate_relevancemap
     
     return calculate_relevancemap(
@@ -190,13 +195,75 @@ def _framework_specific_import_required(*args, **kwargs):
 calculate_relevancemap = _framework_specific_import_required
 calculate_relevancemaps = _framework_specific_import_required
 
+# Check if any framework is available
+def _check_framework_availability():
+    """Check if at least one framework is available and provide helpful error if not."""
+    if not _AVAILABLE_BACKENDS:
+        error_msg = (
+            "\n" + "="*70 + "\n"
+            "ERROR: No deep learning framework detected!\n\n"
+            "SignXAI2 requires at least one framework to be installed.\n"
+            "You have installed signxai2 without specifying a framework.\n\n"
+            "Please install SignXAI2 with one of the following options:\n\n"
+            "  For TensorFlow support:\n"
+            "    pip install signxai2[tensorflow]\n\n"
+            "  For PyTorch support:\n"
+            "    pip install signxai2[pytorch]\n\n"
+            "  For both frameworks:\n"
+            "    pip install signxai2[all]\n\n"
+            "  For development (includes all frameworks + dev tools):\n"
+            "    pip install signxai2[dev]\n\n"
+            "Note: Python 3.9 or 3.10 is required.\n"
+            "="*70 + "\n"
+        )
+        raise ImportError(error_msg)
+
 # Import API functions for convenience
 try:
-    from .api import explain, list_methods, get_method_info, explain_with_preset, METHOD_PRESETS
+    from .api import (
+        explain as _explain_impl, 
+        list_methods as _list_methods_impl, 
+        get_method_info as _get_method_info_impl, 
+        explain_with_preset as _explain_with_preset_impl, 
+        METHOD_PRESETS
+    )
     _API_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Could not import unified API: {e}")
     _API_AVAILABLE = False
+
+# Create wrapper functions that check framework availability
+def explain(*args, **kwargs):
+    """Wrapper for explain that checks framework availability."""
+    if not _AVAILABLE_BACKENDS:
+        _check_framework_availability()
+    if not _API_AVAILABLE:
+        raise ImportError("SignXAI API is not available. Please check your installation.")
+    return _explain_impl(*args, **kwargs)
+
+def list_methods(*args, **kwargs):
+    """Wrapper for list_methods that checks framework availability."""
+    if not _AVAILABLE_BACKENDS:
+        _check_framework_availability()
+    if not _API_AVAILABLE:
+        raise ImportError("SignXAI API is not available. Please check your installation.")
+    return _list_methods_impl(*args, **kwargs)
+
+def get_method_info(*args, **kwargs):
+    """Wrapper for get_method_info that checks framework availability."""
+    if not _AVAILABLE_BACKENDS:
+        _check_framework_availability()
+    if not _API_AVAILABLE:
+        raise ImportError("SignXAI API is not available. Please check your installation.")
+    return _get_method_info_impl(*args, **kwargs)
+
+def explain_with_preset(*args, **kwargs):
+    """Wrapper for explain_with_preset that checks framework availability."""
+    if not _AVAILABLE_BACKENDS:
+        _check_framework_availability()
+    if not _API_AVAILABLE:
+        raise ImportError("SignXAI API is not available. Please check your installation.")
+    return _explain_with_preset_impl(*args, **kwargs)
 
 # Dynamically build __all__
 __all__ = ['__version__', '_DEFAULT_BACKEND', '_AVAILABLE_BACKENDS', 'calculate_relevancemap', 'calculate_relevancemaps']
@@ -210,3 +277,5 @@ if _load_tf_signxai():
     __all__.append('tf_signxai')
 if _load_torch_signxai():
     __all__.append('torch_signxai')
+
+# Note: Framework availability is checked when API functions are called

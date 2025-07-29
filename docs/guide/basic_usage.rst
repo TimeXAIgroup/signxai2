@@ -55,7 +55,7 @@ Working with a TensorFlow model:
     explanations = {}
     methods = [
         'gradient',              # Vanilla gradient
-        'gradient_x_input',      # Gradient × Input
+        'input_t_gradient',      # Input × Gradient
         'gradient_x_sign',       # Gradient × Sign
         'integrated_gradients',  # Integrated gradients
         'smoothgrad',            # SmoothGrad
@@ -84,12 +84,14 @@ Working with a TensorFlow model:
     
     # Explanation methods
     for i, method in enumerate(methods):
-        # Sum over channels and normalize
+            # Sum over channels and normalize
         heatmap = explanations[method][0].sum(axis=-1)
         abs_max = np.max(np.abs(heatmap))
         if abs_max > 0:
-            heatmap = heatmap / abs_max
-        axs[i+1].imshow(heatmap, cmap='seismic', clim=(-1, 1))
+            normalized = heatmap / abs_max
+        else:
+            normalized = heatmap
+        axs[i+1].imshow(normalized, cmap='seismic', clim=(-1, 1))
         axs[i+1].set_title(method)
         axs[i+1].axis('off')
     
@@ -318,7 +320,7 @@ TensorFlow Batch Processing
     batch_inputs = np.random.random((batch_size, 224, 224, 3))
     
     # Calculate explanations for each image in batch
-    batch_explanations = calculate_relevancemap('gradient_x_input', batch_inputs, model)
+    batch_explanations = calculate_relevancemap('input_t_gradient', batch_inputs, model)
     
     # Visualize batch results
     fig, axs = plt.subplots(2, batch_size, figsize=(12, 6))
@@ -331,7 +333,13 @@ TensorFlow Batch Processing
     
     # Bottom row: Explanations
     for i in range(batch_size):
-        axs[1, i].imshow(normalize_heatmap(batch_explanations[i]), cmap='seismic', clim=(-1, 1))
+        heatmap = batch_explanations[i].sum(axis=-1)
+        abs_max = np.max(np.abs(heatmap))
+        if abs_max > 0:
+            normalized = heatmap / abs_max
+        else:
+            normalized = heatmap
+        axs[1, i].imshow(normalized, cmap='seismic', clim=(-1, 1))
         axs[1, i].set_title(f'Explanation {i+1}')
         axs[1, i].axis('off')
     

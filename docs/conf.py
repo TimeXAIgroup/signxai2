@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'SignXAI'
-copyright = '2024, SignXAI Team'
+copyright = '2025, SignXAI Team'
 author = 'SignXAI Team'
 
 # The full version, including alpha/beta/rc tags

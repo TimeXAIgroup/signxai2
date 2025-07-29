@@ -54,7 +54,7 @@ The framework-agnostic API provides a consistent interface regardless of which f
     explanations = signxai.calculate_relevancemaps(
         model,
         [input1, input2, input3],
-        method="gradient_x_input"
+        method="input_t_gradient"
     )
 
 Method Consistency Across Frameworks
@@ -66,7 +66,7 @@ SignXAI ensures that the same method produces comparable results across framewor
 Method                          TensorFlow         PyTorch
 =============================== ================== ==================
 ``gradient``                    ✓                  ✓
-``gradient_x_input``            ✓                  ✓
+``input_t_gradient``            ✓                  ✓
 ``gradient_x_sign``             ✓                  ✓
 ``guided_backprop``             ✓                  ✓
 ``integrated_gradients``        ✓                  ✓

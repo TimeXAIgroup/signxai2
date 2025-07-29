@@ -1,15 +1,27 @@
 import argparse
 import numpy as np
-import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
 import sys  # For checking arguments before argparse fully parses
 import inspect  # For dynamically listing methods
 import time  # To briefly pause if saving plots
 
+# Check if TensorFlow is available before importing
+try:
+    import tensorflow as tf
+    from tensorflow.python.keras.activations import linear  # For removing softmax
+    TF_AVAILABLE = True
+except ImportError:
+    TF_AVAILABLE = False
+    print("Warning: TensorFlow is not installed. Please install SignXAI2 with TensorFlow support:")
+    print("  pip install signxai2[tensorflow]")
+    
 # Import necessary functions from the signxai library
-from signxai.utils.utils import load_image, aggregate_and_normalize_relevancemap_rgb
-from tensorflow.python.keras.activations import linear  # For removing softmax
+try:
+    from signxai.utils.utils import load_image, aggregate_and_normalize_relevancemap_rgb
+except ImportError as e:
+    print(f"Error importing SignXAI utilities: {e}")
+    sys.exit(1)
 
 # Example command line usage: python run_signxai_tf_images.py --image_path examples/data/images/example.jpg --model_path examples/data/models/tensorflow/VGG16/model.h5 --method_name gradient_x_sign
 
@@ -64,9 +76,13 @@ def run_explanation(framework, model_path, image_path, method_name,
         print(f"Additional method parameters: {method_params}")
 
     if framework.lower() == 'tensorflow':
+        if not TF_AVAILABLE:
+            print("Error: TensorFlow is not installed. Please install SignXAI2 with TensorFlow support:")
+            print("  pip install signxai2[tensorflow]")
+            return False
+            
         try:
             # Ensure TF and the signxai TF submodule are available
-            import tensorflow
             from signxai import tf_signxai
             if not tf_signxai:
                 raise ImportError(

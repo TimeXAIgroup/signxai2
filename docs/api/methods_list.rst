@@ -51,7 +51,7 @@ The table below shows all available explanation methods in SignXAI. Methods are 
      - Vanilla gradient
      - ✓
      - ✓
-   * - ``input_t_gradient`` or ``gradient_x_input``
+   * - ``input_t_gradient``
      - Gradient multiplied by input
      - ✓
      - ✓
@@ -159,7 +159,7 @@ Computes the gradient of the target output with respect to the input, highlighti
 Gradient x Input
 ~~~~~~~~~~~~~~~~
 
-Method name: ``input_t_gradient`` or ``gradient_x_input``
+Method name: ``input_t_gradient``
 
 Element-wise multiplication of the gradient with the input to reduce noise and improve visualization.
 

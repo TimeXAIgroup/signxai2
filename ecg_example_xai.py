@@ -1,6 +1,13 @@
+"""ECG Explainability Example using SignXAI2.
+
+This example demonstrates how to generate explanations for ECG classification models.
+Requires SignXAI2 with TensorFlow support:
+    pip install signxai2[tensorflow]
+"""
 import os
 
-from signxai.methods.wrappers import calculate_relevancemap
+# Use the TensorFlow-specific import since we're working with TensorFlow models
+from signxai.tf_signxai.methods.wrappers import calculate_relevancemap
 
 from utils.ecg_data import load_and_preprocess_ecg
 from utils.ecg_explainability import normalize_ecg_relevancemap
@@ -13,7 +20,7 @@ def run(model_id, record_id, subsample_start=0, posthresh=0.2, cmap_adjust=0.3, 
     os.makedirs('{}{}'.format(plot_dir, model_id) , exist_ok=True)
 
     # Methods to use
-    methods = ['grad_cam_timeseries', 'gradient', 'gradient_x_input', 'gradient_x_sign', 'lrp_alpha_1_beta_0', 'lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x']
+    methods = ['grad_cam_timeseries', 'gradient', 'input_t_gradient', 'gradient_x_sign', 'lrp_alpha_1_beta_0', 'lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x']
 
     # Load models
     model, model_wo_softmax = load_models_from_paths(

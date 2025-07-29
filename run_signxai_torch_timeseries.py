@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 import argparse
 import numpy as np
-import torch
-import torch.nn as nn
 import os
 import sys
 import matplotlib.pyplot as plt
 from typing import Dict, Any, Tuple, Optional
 import time  # For a small pause if saving multiple plots
+
+# Check if PyTorch is available before importing
+try:
+    import torch
+    import torch.nn as nn
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    print("Warning: PyTorch is not installed. Please install SignXAI2 with PyTorch support:")
+    print("  pip install signxai2[pytorch]")
 
 # Example command line usage: python run_signxai_torch_timeseries.py --pathology AVB --record_id 03509_hr --method_name gradient
 
@@ -65,7 +73,7 @@ GRAD_CAM_LAYERS_PT = {
 
 ECG_FRIENDLY_METHODS = [
     'gradient', 'integrated_gradients', 'smoothgrad', 'grad_cam_timeseries',
-    'guided_backprop', 'gradient_x_sign', 'gradient_x_input',
+    'guided_backprop', 'gradient_x_sign', 'input_t_gradient',
     'lrp_alpha_1_beta_0', 'lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x'
 ]
 
@@ -225,7 +233,7 @@ def compute_relevance_map_pytorch(method_name: str, input_tensor: torch.Tensor,
         from signxai.torch_signxai.methods.guided_backprop import guided_backprop
         return guided_backprop(model, input_tensor, target_class)
         
-    elif method_name in ['gradient_x_sign', 'gradient_x_input']:
+    elif method_name in ['gradient_x_sign', 'input_t_gradient']:
         # These are simple combinations - compute gradient first then apply operation
         from signxai.torch_signxai.methods.zennit_impl.analyzers import GradientAnalyzer
         analyzer = GradientAnalyzer(model)
@@ -235,7 +243,7 @@ def compute_relevance_map_pytorch(method_name: str, input_tensor: torch.Tensor,
             # Element-wise product of gradient and sign of input
             input_np = input_tensor.detach().cpu().numpy()
             return grad * np.sign(input_np)
-        else:  # gradient_x_input
+        else:  # input_t_gradient
             # Element-wise product of gradient and input
             input_np = input_tensor.detach().cpu().numpy()
             return grad * input_np
@@ -769,7 +777,7 @@ def execute_single_ecg_explanation(
         'grad_cam_timeseries': 30,
         'guided_backprop': 20,
         'gradient_x_sign': 20,
-        'gradient_x_input': 20
+        'input_t_gradient': 20
     }
     
     # Choose bubble size based on method
@@ -831,6 +839,13 @@ def parse_arguments() -> argparse.Namespace:
 
 # --- Main Execution ---
 def main():
+    # Check if PyTorch is available before proceeding
+    if not TORCH_AVAILABLE:
+        print("\nError: PyTorch is not installed.")
+        print("Please install SignXAI2 with PyTorch support:")
+        print("  pip install signxai2[pytorch]")
+        sys.exit(1)
+        
     args = parse_arguments()
 
     if args.list_available_methods:

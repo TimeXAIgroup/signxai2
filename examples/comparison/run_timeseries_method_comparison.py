@@ -15,14 +15,35 @@ Example:
 """
 
 import numpy as np
-import tensorflow as tf
-import torch
 import os
 import matplotlib.pyplot as plt
 import sys
 import argparse
-from tensorflow.keras.models import model_from_json
 from typing import Dict, Any, Tuple, Optional
+
+# Check if both frameworks are available
+try:
+    import tensorflow as tf
+    from tensorflow.keras.models import model_from_json
+    TF_AVAILABLE = True
+except ImportError:
+    TF_AVAILABLE = False
+    print("ERROR: TensorFlow is not installed.")
+    print("This comparison script requires BOTH frameworks to be installed.")
+    print("Please install SignXAI2 with both frameworks:")
+    print("  pip install signxai2[all]")
+    sys.exit(1)
+
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    print("ERROR: PyTorch is not installed.")
+    print("This comparison script requires BOTH frameworks to be installed.")
+    print("Please install SignXAI2 with both frameworks:")
+    print("  pip install signxai2[all]")
+    sys.exit(1)
 
 # Add project root to sys.path BEFORE any local imports
 current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -35,11 +56,17 @@ from utils.ecg_data import load_and_preprocess_ecg, perform_shape_switch
 from utils.ecg_explainability import normalize_ecg_relevancemap
 from utils.ecg_visualization import plot_ecg
 
-# --- Import packages ---
-from signxai.tf_signxai import calculate_relevancemap as tf_calculate_relevancemap
-from signxai.utils.utils import remove_softmax as tf_remove_softmax
-from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
-from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
+# --- Import SignXAI packages after confirming frameworks are available ---
+try:
+    from signxai.tf_signxai import calculate_relevancemap as tf_calculate_relevancemap
+    from signxai.utils.utils import remove_softmax as tf_remove_softmax
+    from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
+    from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
+except ImportError as e:
+    print(f"ERROR: Failed to import SignXAI components: {e}")
+    print("Please ensure SignXAI2 is installed with both frameworks:")
+    print("  pip install signxai2[all]")
+    sys.exit(1)
 
 # Add PyTorch ECG model directory to path
 ecg_model_dir = os.path.join(project_root, 'examples', 'data', 'models', 'pytorch', 'ECG')
@@ -990,6 +1017,13 @@ def process_relevance_map_for_visualization(
 
 def main():
     """Main function to run the comparison."""
+    # Check that both frameworks are available
+    if not TF_AVAILABLE or not TORCH_AVAILABLE:
+        print("\nERROR: This comparison script requires both TensorFlow and PyTorch.")
+        print("Please install SignXAI2 with both frameworks:")
+        print("  pip install signxai2[all]")
+        sys.exit(1)
+    
     # Parse arguments
     args = parse_arguments()
 

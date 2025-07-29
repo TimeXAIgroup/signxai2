@@ -5,21 +5,46 @@ import sys
 import inspect
 import importlib
 
-# TensorFlow imports
-import tensorflow as tf
-from tensorflow.keras.models import load_model as tf_load_model
-from tensorflow.keras.applications.vgg16 import decode_predictions as decode_predictions_tf
-from signxai.utils.utils import load_image as signxai_load_tf_image
-from signxai.utils.utils import remove_softmax as tf_remove_softmax
-from signxai.tf_signxai.methods.wrappers import calculate_relevancemap as tf_calculate_relevancemap
+# Check if both frameworks are available
+try:
+    import tensorflow as tf
+    from tensorflow.keras.models import load_model as tf_load_model
+    from tensorflow.keras.applications.vgg16 import decode_predictions as decode_predictions_tf
+    TF_AVAILABLE = True
+except ImportError:
+    TF_AVAILABLE = False
+    print("ERROR: TensorFlow is not installed.")
+    print("This comparison script requires BOTH frameworks to be installed.")
+    print("Please install SignXAI2 with both frameworks:")
+    print("  pip install signxai2[all]")
+    sys.exit(1)
 
-# PyTorch imports
-import torch
-from PIL import Image
-from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
-from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
-from signxai.torch_signxai.utils import decode_predictions as decode_predictions_pytorch
-import signxai.torch_signxai.methods.wrappers as torch_wrappers
+try:
+    import torch
+    from PIL import Image
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    print("ERROR: PyTorch is not installed.")
+    print("This comparison script requires BOTH frameworks to be installed.")
+    print("Please install SignXAI2 with both frameworks:")
+    print("  pip install signxai2[all]")
+    sys.exit(1)
+
+# Import SignXAI components after confirming frameworks are available
+try:
+    from signxai.utils.utils import load_image as signxai_load_tf_image
+    from signxai.utils.utils import remove_softmax as tf_remove_softmax
+    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap as tf_calculate_relevancemap
+    from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
+    from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
+    from signxai.torch_signxai.utils import decode_predictions as decode_predictions_pytorch
+    import signxai.torch_signxai.methods.wrappers as torch_wrappers
+except ImportError as e:
+    print(f"ERROR: Failed to import SignXAI components: {e}")
+    print("Please ensure SignXAI2 is installed with both frameworks:")
+    print("  pip install signxai2[all]")
+    sys.exit(1)
 
 # --- Import visualization utilities from signxai.common.visualization ---
 from signxai.common.visualization import normalize_relevance_map, relevance_to_heatmap, overlay_heatmap
@@ -1323,6 +1348,13 @@ def main():
 
 
 if __name__ == '__main__':
+    # Check that both frameworks are available before starting
+    if not TF_AVAILABLE or not TORCH_AVAILABLE:
+        print("\nERROR: This comparison script requires both TensorFlow and PyTorch.")
+        print("Please install SignXAI2 with both frameworks:")
+        print("  pip install signxai2[all]")
+        sys.exit(1)
+    
     physical_devices = tf.config.list_physical_devices('GPU')
     try:
         if physical_devices:
