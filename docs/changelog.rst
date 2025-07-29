@@ -6,7 +6,7 @@ Version 2.0.0 (Current)
 
 **Major Changes**
 
-- Complete rewrite with dual-framework support (TensorFlow and PyTorch)
+- Complete rewrite with dual-framework support (PyTorch and TensorFlow)
 - Unified API for seamless framework switching
 - Integration with zennit 0.5.1 for PyTorch LRP implementation
 - Embedded iNNvestigate for TensorFlow support

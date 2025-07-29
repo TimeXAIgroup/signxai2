@@ -6,7 +6,7 @@ SignXAI Documentation
 Key Features
 ------------
 
-* **Cross-Framework Compatibility**: Single API works with both TensorFlow and PyTorch
+* **Cross-Framework Compatibility**: Single API works with both PyTorch and TensorFlow
 * **200+ XAI Methods**: Comprehensive collection including gradients, LRP, CAM, and more
 * **Automatic Framework Detection**: No need to specify framework - SignXAI detects it automatically
 * **Parameter Mapping**: Consistent parameter names across frameworks
@@ -19,11 +19,11 @@ Install SignXAI2 with your preferred framework:
 
 .. code-block:: bash
 
-    # For TensorFlow users:
-    pip install signxai2[tensorflow]
-    
     # For PyTorch users:
     pip install signxai2[pytorch]
+    
+    # For TensorFlow users:
+    pip install signxai2[tensorflow]
     
     # For both frameworks:
     pip install signxai2[all]
@@ -57,8 +57,8 @@ Documentation Structure
    guide/framework_interop
    guide/advanced_usage
    guide/visualization
-   guide/tensorflow
    guide/pytorch
+   guide/tensorflow
 
 .. toctree::
    :maxdepth: 2
@@ -72,8 +72,8 @@ Documentation Structure
    :caption: API Reference
 
    api/unified_api
-   api/tensorflow
    api/pytorch
+   api/tensorflow
    api/common
    api/utils
    api/methods_list
@@ -121,7 +121,7 @@ Why SignXAI?
 ------------
 
 **Unified Interface**
-    One API works across TensorFlow and PyTorch - no more learning framework-specific tools.
+    One API works across PyTorch and TensorFlow - no more learning framework-specific tools.
 
 **Extensive Method Collection**
     Over 200 XAI methods implemented with consistent interfaces and validated across frameworks.
@@ -149,7 +149,7 @@ SignXAI is used by researchers and practitioners worldwide for:
 Performance & Reliability
 -------------------------
 
-* **Cross-Framework Consistency**: High correlation between TensorFlow and PyTorch implementations
+* **Cross-Framework Consistency**: High correlation between PyTorch and TensorFlow implementations
 * **Comprehensive Testing**: Extensive test coverage for all major method combinations
 * **Performance Optimized**: Efficient implementations with minimal overhead
 * **Memory Efficient**: Smart batching and memory management for large models

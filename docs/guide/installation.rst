@@ -25,17 +25,17 @@ Install from PyPI
 
 SignXAI2 requires you to explicitly choose which deep learning framework(s) to install:
 
-**For TensorFlow users:**
-
-.. code-block:: bash
-
-    pip install signxai2[tensorflow]
-
 **For PyTorch users:**
 
 .. code-block:: bash
 
     pip install signxai2[pytorch]
+
+**For TensorFlow users:**
+
+.. code-block:: bash
+
+    pip install signxai2[tensorflow]
 
 **For both frameworks:**
 
@@ -60,8 +60,8 @@ Install from Source
     cd signxai2
     
     # Choose your installation:
-    pip install -e .[tensorflow]    # TensorFlow only
-    pip install -e .[pytorch]       # PyTorch only  
+    pip install -e .[pytorch]       # PyTorch only
+    pip install -e .[tensorflow]    # TensorFlow only  
     pip install -e .[all]           # Both frameworks
     pip install -e .[dev]           # Development (all frameworks + tools)
 
@@ -133,7 +133,7 @@ If you prefer using a virtual environment instead of conda:
     signxai_env\Scripts\activate
     
     # Install SignXAI2 with your preferred framework
-    pip install signxai2[tensorflow]  # or signxai2[pytorch] or signxai2[all]
+    pip install signxai2[pytorch]  # or signxai2[tensorflow] or signxai2[all]
 
 Troubleshooting
 ---------------

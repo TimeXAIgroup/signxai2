@@ -11,7 +11,7 @@ This tutorial demonstrates how to use SignXAI2 for explaining image classificati
 Introduction
 ------------
 
-Image classification is one of the most common applications of deep learning, and understanding how these models make decisions is crucial. In this tutorial, we'll use SignXAI2 to explain predictions from image classification models built with both TensorFlow and PyTorch.
+Image classification is one of the most common applications of deep learning, and understanding how these models make decisions is crucial. In this tutorial, we'll use SignXAI2 to explain predictions from image classification models built with both PyTorch and TensorFlow.
 
 We'll use a pre-trained VGG16 model that classifies images into 1000 categories from the ImageNet dataset.
 

@@ -2,7 +2,7 @@
 Basic Usage
 ===========
 
-This guide covers the basic usage of SignXAI with both TensorFlow and PyTorch.
+This guide covers the basic usage of SignXAI with both PyTorch and TensorFlow.
 
 .. contents:: Contents
    :local:
@@ -389,6 +389,6 @@ Next Steps
 After mastering the basics, you can:
 
 1. Explore advanced usage in the :doc:`advanced_usage` guide
-2. Learn about framework-specific features in :doc:`tensorflow` and :doc:`pytorch`
+2. Learn about framework-specific features in :doc:`pytorch` and :doc:`tensorflow`
 3. Try different explanation methods from the :doc:`/api/methods_list`
 4. Work with time series data using the examples in :doc:`/tutorials/time_series`

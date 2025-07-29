@@ -4,7 +4,7 @@ Utilities
 
 .. py:module:: signxai.utils
 
-The ``signxai.utils`` module provides utility functions used by both the TensorFlow and PyTorch implementations.
+The ``signxai.utils`` module provides utility functions used by both the PyTorch and TensorFlow implementations.
 
 .. contents:: Contents
    :local:

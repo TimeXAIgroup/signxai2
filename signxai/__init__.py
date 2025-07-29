@@ -1,5 +1,5 @@
 # signxai/__init__.py (Simplified and Fixed)
-__version__ = ("0.13.4"
+__version__ = ("0.13.5"
                )
 
 _DEFAULT_BACKEND = None
@@ -40,20 +40,21 @@ def _load_torch_signxai():
     return torch_signxai
 
 # Attempt immediate loading to populate _AVAILABLE_BACKENDS
-try:
-    import tensorflow
-    _load_tf_signxai()
-    if not _DEFAULT_BACKEND:
-        _DEFAULT_BACKEND = "tensorflow"
-except ImportError:
-    pass
-
+# Check PyTorch first to make it the default when both are available
 try:
     import torch
     import zennit
     _load_torch_signxai()
     if not _DEFAULT_BACKEND:
         _DEFAULT_BACKEND = "pytorch"
+except ImportError:
+    pass
+
+try:
+    import tensorflow
+    _load_tf_signxai()
+    if not _DEFAULT_BACKEND:
+        _DEFAULT_BACKEND = "tensorflow"
 except ImportError:
     pass
 

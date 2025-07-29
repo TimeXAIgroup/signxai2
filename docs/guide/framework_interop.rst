@@ -9,7 +9,7 @@ Framework Interoperability
 Introduction
 ------------
 
-SignXAI offers a unique advantage by supporting both TensorFlow and PyTorch frameworks with a consistent API. This guide explains how to:
+SignXAI offers a unique advantage by supporting both PyTorch and TensorFlow frameworks with a consistent API. This guide explains how to:
 
 1. Use the framework-agnostic API
 2. Switch between frameworks
@@ -31,7 +31,7 @@ SignXAI automatically detects which framework is being used based on the model t
     # To use with automatic framework detection
     result = signxai.calculate_relevancemap(model, input_tensor, method="gradient")
     
-    # SignXAI will automatically determine if model is TensorFlow or PyTorch
+    # SignXAI will automatically determine if model is PyTorch or TensorFlow
     # and use the appropriate implementation
 
 Framework-Agnostic API
@@ -43,7 +43,7 @@ The framework-agnostic API provides a consistent interface regardless of which f
 
     import signxai
     
-    # Works with both TensorFlow and PyTorch models
+    # Works with both PyTorch and TensorFlow models
     explanation = signxai.calculate_relevancemap(
         model,          # Either tf.keras.Model or torch.nn.Module
         input_tensor,   # Either numpy array, tf.Tensor, or torch.Tensor
@@ -63,7 +63,7 @@ Method Consistency Across Frameworks
 SignXAI ensures that the same method produces comparable results across frameworks:
 
 =============================== ================== ==================
-Method                          TensorFlow         PyTorch
+Method                          PyTorch            TensorFlow
 =============================== ================== ==================
 ``gradient``                    ✓                  ✓
 ``input_t_gradient``            ✓                  ✓

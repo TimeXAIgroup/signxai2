@@ -11,7 +11,7 @@ This tutorial demonstrates how to use SignXAI2 for explaining time series models
 Introduction
 ------------
 
-Time series data presents unique challenges for explainability. In this tutorial, we'll use SignXAI2 to explain predictions from ECG classification models built with both TensorFlow and PyTorch.
+Time series data presents unique challenges for explainability. In this tutorial, we'll use SignXAI2 to explain predictions from ECG classification models built with both PyTorch and TensorFlow.
 
 ECG signals are particularly interesting because they have specific patterns (P-wave, QRS complex, T-wave) that domain experts recognize, allowing us to validate if our explainability methods highlight medically relevant features.
 
@@ -534,7 +534,7 @@ Conclusion
 
 In this tutorial, we've demonstrated how SignXAI can be used to explain time series models, specifically:
 
-1. Building and training ECG classification models in both TensorFlow and PyTorch
+1. Building and training ECG classification models in both PyTorch and TensorFlow
 2. Using various explainability methods to generate attributions
 3. Visualizing attributions for time series data
 4. Performing component-specific analysis to identify which ECG features are most important for the model's predictions

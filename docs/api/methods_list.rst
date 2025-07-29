@@ -2,7 +2,7 @@
 Explanation Methods List
 =========================
 
-SignXAI provides a comprehensive list of explanation methods for both TensorFlow and PyTorch models. This page details all available methods, their parameters, and framework compatibility.
+SignXAI provides a comprehensive list of explanation methods for both PyTorch and TensorFlow models. This page details all available methods, their parameters, and framework compatibility.
 
 .. contents:: Contents
    :local:
@@ -32,9 +32,9 @@ Method Overview
 
 The table below shows all available explanation methods in SignXAI. Methods are implemented as follows:
 
-- **Gradient-based methods**: Direct implementation in both TensorFlow and PyTorch
-- **Guided Backpropagation**: Direct implementation in both TensorFlow and PyTorch
-- **Grad-CAM**: Direct implementation in both TensorFlow and PyTorch
+- **Gradient-based methods**: Direct implementation in both PyTorch and TensorFlow
+- **Guided Backpropagation**: Direct implementation in both PyTorch and TensorFlow
+- **Grad-CAM**: Direct implementation in both PyTorch and TensorFlow
 - **LRP methods (TensorFlow)**: Implemented using iNNvestigate
 - **LRP methods (PyTorch)**: Implemented using Zennit
 - **SIGN method**: Original SignXAI contribution, extending both iNNvestigate and Zennit

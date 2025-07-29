@@ -652,6 +652,6 @@ Next Steps
 
 After exploring these advanced techniques, you may want to:
 
-1. Read about the specific implementation details in :doc:`tensorflow` and :doc:`pytorch`
+1. Read about the specific implementation details in :doc:`pytorch` and :doc:`tensorflow`
 2. Learn how to convert models between frameworks in :doc:`framework_interop`
-3. Explore the complete API reference in :doc:`/api/common`, :doc:`/api/tensorflow`, and :doc:`/api/pytorch`
+3. Explore the complete API reference in :doc:`/api/common`, :doc:`/api/pytorch`, and :doc:`/api/tensorflow`

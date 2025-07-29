@@ -2,7 +2,7 @@
 Quickstart
 ==========
 
-This quickstart guide will help you get up and running with SignXAI2 quickly for both TensorFlow and PyTorch models.
+This quickstart guide will help you get up and running with SignXAI2 quickly for both PyTorch and TensorFlow models.
 
 .. contents:: Contents
    :local:
@@ -174,7 +174,7 @@ You can also use the framework-agnostic API:
     # List available methods
     print(f"Available methods: {list_methods()}")
     
-    # Will work with either TensorFlow or PyTorch model
+    # Will work with either PyTorch or TensorFlow model
     explanation = explain(model, input_data, method="gradient")
     
     # SignXAI will automatically detect the framework
@@ -186,23 +186,33 @@ Compare different explanation methods for the same input:
 
 .. code-block:: python
 
-    # For TensorFlow
+    # For PyTorch
+    from signxai.torch_signxai import calculate_relevancemap
+    
     methods = ['gradient', 'input_t_gradient', 'integrated_gradients', 'smoothgrad', 'lrp_z']
     explanations = []
     
     for method in methods:
-        explanation = calculate_relevancemap(method, x, model, neuron_selection=top_pred_idx)
+        explanation = calculate_relevancemap(
+            model=model_no_softmax,
+            input_tensor=input_tensor,
+            method=method,
+            target_class=predicted_idx.item()
+        )
+        # Convert to numpy for visualization
+        if hasattr(explanation, 'detach'):
+            explanation = explanation.detach().cpu().numpy()
         explanations.append(explanation)
     
     # Visualize all methods
     fig, axs = plt.subplots(1, len(methods) + 1, figsize=(15, 4))
-    axs[0].imshow(img)
+    axs[0].imshow(img_np)
     axs[0].set_title('Original')
     axs[0].axis('off')
     
     for i, (method, expl) in enumerate(zip(methods, explanations)):
         # Sum over channels and normalize
-        heatmap = expl[0].sum(axis=-1)
+        heatmap = expl[0].sum(axis=0)  # PyTorch format: (C, H, W)
         abs_max = np.max(np.abs(heatmap))
         if abs_max > 0:
             normalized = heatmap / abs_max
@@ -210,7 +220,7 @@ Compare different explanation methods for the same input:
             normalized = heatmap
         axs[i+1].imshow(normalized, cmap='seismic', clim=(-1, 1))
         axs[i+1].set_title(method)
-        axs[i+1].axis('off')
+        axs[i+1].axis('off']
     
     plt.tight_layout()
     plt.show()
@@ -222,7 +232,7 @@ Layer-wise Relevance Propagation (LRP) has several variants:
 
 .. code-block:: python
 
-    # For TensorFlow
+    # For PyTorch
     lrp_methods = [
         'lrp_z',                  # Basic LRP-Z
         'lrpsign_z',              # LRP-Z with SIGN
@@ -232,11 +242,30 @@ Layer-wise Relevance Propagation (LRP) has several variants:
     
     lrp_explanations = []
     for method in lrp_methods:
-        explanation = calculate_relevancemap(method, x, model, neuron_selection=top_pred_idx)
+        explanation = calculate_relevancemap(
+            model=model_no_softmax,
+            input_tensor=input_tensor,
+            method=method,
+            target_class=predicted_idx.item()
+        )
+        if hasattr(explanation, 'detach'):
+            explanation = explanation.detach().cpu().numpy()
         lrp_explanations.append(explanation)
     
     # Visualize LRP variants
-    # ...
+    fig, axs = plt.subplots(1, len(lrp_methods), figsize=(12, 3))
+    for i, (method, expl) in enumerate(zip(lrp_methods, lrp_explanations)):
+        heatmap = expl[0].sum(axis=0)
+        abs_max = np.max(np.abs(heatmap))
+        if abs_max > 0:
+            normalized = heatmap / abs_max
+        else:
+            normalized = heatmap
+        axs[i].imshow(normalized, cmap='seismic', clim=(-1, 1))
+        axs[i].set_title(method)
+        axs[i].axis('off')
+    plt.tight_layout()
+    plt.show()
 
 Working with Different Method Parameters
 ----------------------------------------
@@ -245,29 +274,45 @@ Many methods support additional parameters:
 
 .. code-block:: python
 
+    # For PyTorch
     # LRP with different epsilon values
     epsilons = [0.01, 0.1, 1.0]
     for eps in epsilons:
         explanation = calculate_relevancemap(
-            'lrp_epsilon', x, model, 
-            neuron_selection=top_pred_idx,
+            model=model_no_softmax,
+            input_tensor=input_tensor,
+            method='lrp_epsilon',
+            target_class=predicted_idx.item(),
             epsilon=eps
         )
         # Visualize...
     
     # SmoothGrad with custom parameters
     explanation = calculate_relevancemap(
-        'smoothgrad', x, model,
-        neuron_selection=top_pred_idx,
-        augment_by_n=50,  # Number of samples
-        noise_scale=0.1   # Noise level
+        model=model_no_softmax,
+        input_tensor=input_tensor,
+        method='smoothgrad',
+        target_class=predicted_idx.item(),
+        num_samples=50,    # Number of samples
+        noise_level=0.1    # Noise level
     )
     
     # Integrated Gradients with custom steps
     explanation = calculate_relevancemap(
-        'integrated_gradients', x, model,
-        neuron_selection=top_pred_idx,
+        model=model_no_softmax,
+        input_tensor=input_tensor,
+        method='integrated_gradients',
+        target_class=predicted_idx.item(),
         steps=100  # Integration steps
+    )
+    
+    # Grad-CAM with specific layer
+    explanation = calculate_relevancemap(
+        model=model_no_softmax,
+        input_tensor=input_tensor,
+        method='grad_cam',
+        target_class=predicted_idx.item(),
+        target_layer=model.features[28]  # Last conv layer for VGG16
     )
 
 Next Steps
@@ -276,6 +321,6 @@ Next Steps
 After this quickstart, you can:
 
 1. Explore different explanation methods in the :doc:`../api/methods_list`
-2. Learn about framework-specific features in :doc:`tensorflow` and :doc:`pytorch`
+2. Learn about framework-specific features in :doc:`pytorch` and :doc:`tensorflow`
 3. Check out complete tutorials in the :doc:`/tutorials/image_classification` and :doc:`/tutorials/time_series`
 4. Understand the framework interoperability options in :doc:`framework_interop`

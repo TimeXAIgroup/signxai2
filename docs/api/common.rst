@@ -2,7 +2,7 @@
 Common Module
 =============
 
-The ``signxai.common`` module contains framework-agnostic utilities and functions used by both the TensorFlow and PyTorch implementations.
+The ``signxai.common`` module contains framework-agnostic utilities and functions used by both the PyTorch and TensorFlow implementations.
 
 .. contents:: Contents
    :local:

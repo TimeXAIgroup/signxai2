@@ -8,7 +8,7 @@ The SignXAI unified API provides a framework-agnostic interface for explainable 
 Overview
 --------
 
-The unified API automatically detects whether you're using TensorFlow or PyTorch models and routes your requests to the appropriate backend implementation.
+The unified API automatically detects whether you're using PyTorch or TensorFlow models and routes your requests to the appropriate backend implementation.
 
 Main Interface
 --------------
@@ -20,7 +20,7 @@ Main Function
 
     Get explanations for a model's predictions using any supported XAI method.
 
-    :param model: The neural network model (TensorFlow or PyTorch)
+    :param model: The neural network model (PyTorch or TensorFlow)
     :param input_data: Input data for which to generate explanations  
     :param method: The explanation method to use
     :param kwargs: Additional method-specific parameters
@@ -34,7 +34,7 @@ Framework Detection
     Automatically detect the framework of a given model.
 
     :param model: The model to check
-    :return: 'tensorflow' or 'pytorch'
+    :return: 'pytorch' or 'tensorflow'
 
 Common Parameters
 -----------------
