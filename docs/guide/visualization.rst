@@ -9,7 +9,7 @@ SignXAI provides powerful visualization utilities to help you interpret and pres
    :depth: 2
 
 Basic Visualization
------------------
+-------------------
 
 The simplest way to visualize explanations is using matplotlib:
 
@@ -30,12 +30,12 @@ The simplest way to visualize explanations is using matplotlib:
     plt.show()
 
 SignXAI Visualization Utilities
------------------------------
+-------------------------------
 
 SignXAI provides several visualization utilities in the ``signxai.common.visualization`` module:
 
 Normalizing Explanation Maps
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -52,7 +52,7 @@ Normalizing Explanation Maps
     plt.show()
 
 Creating Heatmaps
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -68,7 +68,7 @@ Creating Heatmaps
     plt.show()
 
 Overlaying Heatmaps
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -84,7 +84,7 @@ Overlaying Heatmaps
     plt.show()
 
 Multiple Method Comparison
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -123,10 +123,10 @@ Multiple Method Comparison
     plt.show()
 
 Advanced Visualization Techniques
--------------------------------
+---------------------------------
 
 Separating Positive and Negative Contributions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Separate visualization of positive and negative attributions:
 
@@ -168,7 +168,7 @@ Separate visualization of positive and negative attributions:
     plt.show()
 
 Channel-Specific Visualization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Visualize attributions for different input channels individually:
 
@@ -203,7 +203,7 @@ Visualize attributions for different input channels individually:
     plt.show()
 
 Class Activation Mapping Visualization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Special visualization for Grad-CAM results:
 
@@ -240,7 +240,7 @@ Special visualization for Grad-CAM results:
     plt.show()
 
 Time Series Visualization
------------------------
+-------------------------
 
 For time series data, the visualization differs from images:
 
@@ -301,7 +301,7 @@ For time series data, the visualization differs from images:
     plt.show()
 
 Interactive Visualization
------------------------
+-------------------------
 
 For more interactive visualization, you can use libraries like Plotly:
 
@@ -340,7 +340,7 @@ For more interactive visualization, you can use libraries like Plotly:
     fig.show()
 
 Batch Visualization
------------------
+-------------------
 
 Visualize multiple inputs and their explanations:
 
@@ -369,7 +369,7 @@ Visualize multiple inputs and their explanations:
     plt.show()
 
 Saving Visualizations
--------------------
+---------------------
 
 Save your visualizations for later use:
 
@@ -396,7 +396,7 @@ Save your visualizations for later use:
         plt.close()
 
 Visualization Best Practices
---------------------------
+----------------------------
 
 1. **Use a diverging colormap** (like 'seismic', 'RdBu', or 'coolwarm') for signed explanations.
 2. **Normalize explanations** to a fixed range like [-1, 1] for consistent visualization.
@@ -408,10 +408,10 @@ Visualization Best Practices
 8. **Provide proper titles and annotations** to help viewers understand what they're seeing.
 
 Framework-Specific Considerations
--------------------------------
+---------------------------------
 
 TensorFlow Outputs
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 TensorFlow explanations typically have shape ``[batch, height, width, channels]`` for images:
 
@@ -427,7 +427,7 @@ TensorFlow explanations typically have shape ``[batch, height, width, channels]`
     plt.show()
 
 PyTorch Outputs
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 PyTorch explanations typically have shape ``[batch, channels, height, width]`` for images:
 
@@ -443,7 +443,7 @@ PyTorch explanations typically have shape ``[batch, channels, height, width]`` f
     plt.show()
 
 Custom Colormaps
---------------
+----------------
 
 Create custom colormaps for specific visualization needs:
 

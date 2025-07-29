@@ -1,6 +1,6 @@
-==========
+===========
 Basic Usage
-==========
+===========
 
 This guide covers the basic usage of SignXAI with both TensorFlow and PyTorch.
 
@@ -9,7 +9,7 @@ This guide covers the basic usage of SignXAI with both TensorFlow and PyTorch.
    :depth: 2
 
 Common Workflow
--------------
+---------------
 
 Regardless of which framework you use, the general workflow for generating explanations is similar:
 
@@ -20,7 +20,7 @@ Regardless of which framework you use, the general workflow for generating expla
 5. Visualize and analyze results
 
 TensorFlow Basic Usage
---------------------
+----------------------
 
 Working with a TensorFlow model:
 
@@ -92,7 +92,7 @@ Working with a TensorFlow model:
     plt.show()
 
 PyTorch Basic Usage
------------------
+-------------------
 
 Working with a PyTorch model:
 
@@ -179,7 +179,7 @@ Working with a PyTorch model:
     plt.show()
 
 Visualizing Explanations
-----------------------
+------------------------
 
 SignXAI provides several visualization utilities:
 
@@ -207,12 +207,12 @@ SignXAI provides several visualization utilities:
     plt.show()
 
 Working with Custom Models
-------------------------
+--------------------------
 
 You can use SignXAI with your own custom models:
 
 TensorFlow Custom Model
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -249,7 +249,7 @@ TensorFlow Custom Model
     plt.show()
 
 PyTorch Custom Model
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -299,12 +299,12 @@ PyTorch Custom Model
     plt.show()
 
 Batch Processing
---------------
+----------------
 
 Process multiple inputs at once:
 
 TensorFlow Batch Processing
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -334,7 +334,7 @@ TensorFlow Batch Processing
     plt.show()
 
 PyTorch Batch Processing
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -371,7 +371,7 @@ PyTorch Batch Processing
     plt.show()
 
 Next Steps
----------
+----------
 
 After mastering the basics, you can:
 

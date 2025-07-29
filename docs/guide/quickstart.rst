@@ -9,7 +9,7 @@ This quickstart guide will help you get up and running with SignXAI2 quickly for
    :depth: 2
 
 Installation
------------
+------------
 
 First, install SignXAI2 with your preferred framework:
 
@@ -25,7 +25,7 @@ First, install SignXAI2 with your preferred framework:
     pip install signxai2[tensorflow,pytorch]
 
 TensorFlow Quickstart
--------------------
+---------------------
 
 Here's a complete example using TensorFlow:
 
@@ -77,7 +77,7 @@ Here's a complete example using TensorFlow:
     plt.show()
 
 PyTorch Quickstart
-----------------
+------------------
 
 Here's a complete example using PyTorch:
 
@@ -149,7 +149,7 @@ Here's a complete example using PyTorch:
     plt.show()
 
 Framework-Agnostic Approach
--------------------------
+---------------------------
 
 You can also use the framework-agnostic API:
 
@@ -164,7 +164,7 @@ You can also use the framework-agnostic API:
     print(f"Available backends: {signxai._AVAILABLE_BACKENDS}")
 
 Multiple Explanation Methods
---------------------------
+----------------------------
 
 Compare different explanation methods for the same input:
 
@@ -195,7 +195,7 @@ Compare different explanation methods for the same input:
     plt.show()
 
 LRP Variants
-----------
+------------
 
 Layer-wise Relevance Propagation (LRP) has several variants:
 
@@ -218,7 +218,7 @@ Layer-wise Relevance Propagation (LRP) has several variants:
     # ...
 
 Creating a Saliency Map
----------------------
+-----------------------
 
 Generate a saliency map overlaid on the original image:
 
@@ -245,11 +245,11 @@ Generate a saliency map overlaid on the original image:
     plt.show()
 
 Next Steps
----------
+----------
 
 After this quickstart, you can:
 
-1. Explore different explanation methods in the :doc:`methods_list`
+1. Explore different explanation methods in the :doc:`../api/methods_list`
 2. Learn about framework-specific features in :doc:`tensorflow` and :doc:`pytorch`
 3. Check out complete tutorials in the :doc:`/tutorials/image_classification` and :doc:`/tutorials/time_series`
 4. Understand the framework interoperability options in :doc:`framework_interop`

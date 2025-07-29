@@ -3,6 +3,7 @@ TensorFlow Implementation
 ==============================
 
 .. py:module:: signxai.tf_signxai
+   :no-index:
 
 This guide provides a detailed explanation of SignXAI's TensorFlow implementation, with a focus on how the package integrates with iNNvestigate for Layer-wise Relevance Propagation (LRP) methods.
 
@@ -11,17 +12,17 @@ This guide provides a detailed explanation of SignXAI's TensorFlow implementatio
    :depth: 2
 
 Overview
--------
+--------
 
 The TensorFlow implementation in SignXAI provides a comprehensive set of explainability methods for TensorFlow models. It uses the iNNvestigate library as a backend for LRP methods, providing a seamless integration and an extensive array of explanation techniques.
 
 iNNvestigate Integration
-----------------------
+------------------------
 
 The most powerful aspect of the TensorFlow implementation is its integration with iNNvestigate for LRP methods. This section explains how SignXAI leverages iNNvestigate's capabilities.
 
 About iNNvestigate
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 `iNNvestigate <https://github.com/albermax/innvestigate>`_ is a powerful library for explaining neural networks developed at the Technical University of Berlin by Maximilian Alber and colleagues. It offers a comprehensive framework for analyzing and interpreting decisions of neural networks and is particularly renowned for its implementation of various LRP methods.
 
@@ -48,7 +49,7 @@ SignXAI embeds a carefully curated version of iNNvestigate directly within the p
 3. Compatibility with modern TensorFlow versions
 
 How SignXAI Uses iNNvestigate
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The integration happens primarily through the ``calculate_explanation_innvestigate`` function in ``signxai.utils.utils``:
 
@@ -66,7 +67,7 @@ The integration happens primarily through the ``calculate_explanation_innvestiga
 This function serves as a bridge between SignXAI's API and iNNvestigate's internal methods.
 
 Embedded iNNvestigate Module
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SignXAI includes a tailored version of iNNvestigate at ``signxai.tf_signxai.methods.innvestigate``. This module contains:
 
@@ -90,12 +91,12 @@ SignXAI includes a tailored version of iNNvestigate at ``signxai.tf_signxai.meth
 This embedded structure ensures that SignXAI is self-contained and doesn't require external installations or version management for iNNvestigate.
 
 LRP Methods in Detail
-------------------
+---------------------
 
 LRP methods are implemented through iNNvestigate. The key method variants include:
 
 LRP-Z
-~~~~
+~~~~~
 
 The basic LRP rule, which distributes relevance based on the ratio of positive activations.
 
@@ -105,7 +106,7 @@ The basic LRP rule, which distributes relevance based on the ratio of positive a
         return calculate_explanation_innvestigate(model_no_softmax, x, method='lrp.z', **kwargs)
 
 LRP-Epsilon
-~~~~~~~~~~
+~~~~~~~~~~~
 
 Adds a small epsilon value to stabilize the division operation, preventing numerical instabilities.
 
@@ -115,7 +116,7 @@ Adds a small epsilon value to stabilize the division operation, preventing numer
         return calculate_explanation_innvestigate(model_no_softmax, x, method='lrp.epsilon', epsilon=0.1, **kwargs)
 
 LRP-Alpha-Beta
-~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 Separates positive and negative contributions with different weights.
 
@@ -125,7 +126,7 @@ Separates positive and negative contributions with different weights.
         return calculate_explanation_innvestigate(model_no_softmax, x, method='lrp.alpha_1_beta_0', **kwargs)
 
 LRP with SIGN Input Layer Rule
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The novel contribution of SignXAI, combining LRP with sign information.
 
@@ -135,7 +136,7 @@ The novel contribution of SignXAI, combining LRP with sign information.
         return lrp_z(model_no_softmax, x, input_layer_rule='SIGN', **kwargs)
 
 LRP Composite Rules
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 Applies different LRP rules to different layers of the network.
 
@@ -145,7 +146,7 @@ Applies different LRP rules to different layers of the network.
         return calculate_explanation_innvestigate(model_no_softmax, x, method='lrp.sequential_composite_a', **kwargs)
 
 Customizing Input Layer Rules
----------------------------
+-----------------------------
 
 One of the key features of iNNvestigate is the ability to use different rules for the input layer. SignXAI leverages this to implement the SIGN method.
 
@@ -168,12 +169,12 @@ Example usage:
     explanation = lrp_epsilon_0_1(model, input_tensor, input_layer_rule='SIGN')
 
 Implementation of Gradient Methods
---------------------------------
+----------------------------------
 
 While LRP methods use iNNvestigate, gradient-based methods are implemented directly in SignXAI:
 
 Vanilla Gradient
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -181,7 +182,7 @@ Vanilla Gradient
         return calculate_explanation_innvestigate(model_no_softmax, x, method='gradient', **kwargs)
 
 Gradient x Input
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -190,7 +191,7 @@ Gradient x Input
         return g * x
 
 SIGN Methods
-~~~~~~~~~~
+~~~~~~~~~~~~
 
 The SIGN methods apply sign thresholding to the input:
 
@@ -219,7 +220,7 @@ With threshold parameter mu:
             return gradient(model_no_softmax, x, **kwargs) * calculate_sign_mu(x, mu, **kwargs)
 
 Grad-CAM Implementation
----------------------
+-----------------------
 
 Grad-CAM is implemented directly in SignXAI without using iNNvestigate:
 
@@ -236,7 +237,7 @@ Grad-CAM is implemented directly in SignXAI without using iNNvestigate:
         # Returns a heatmap highlighting important regions
 
 Removing Softmax for Explainability
----------------------------------
+-----------------------------------
 
 Proper explainability often requires working with raw logits rather than softmax probabilities. SignXAI implements a utility to remove softmax:
 
@@ -263,7 +264,7 @@ Proper explainability often requires working with raw logits rather than softmax
         return model_copy
 
 Usage Example
------------
+-------------
 
 The following example demonstrates how to use SignXAI's TensorFlow implementation with iNNvestigate for generating LRP explanations:
 
@@ -304,7 +305,7 @@ The following example demonstrates how to use SignXAI's TensorFlow implementatio
     plt.show()
 
 Advanced iNNvestigate Configuration
----------------------------------
+-----------------------------------
 
 For advanced users, SignXAI exposes the ability to directly configure the iNNvestigate analyzer:
 
@@ -331,7 +332,7 @@ For advanced users, SignXAI exposes the ability to directly configure the iNNves
 This flexibility allows for very fine-grained control over the explanation process.
 
 Extending with New Methods
-------------------------
+--------------------------
 
 To add new methods based on iNNvestigate, you can create a wrapper function in ``signxai.tf_signxai.methods.wrappers.py``:
 
@@ -355,7 +356,7 @@ To add new methods based on iNNvestigate, you can create a wrapper function in `
         return result
 
 Performance Considerations
-------------------------
+--------------------------
 
 When using iNNvestigate through SignXAI, consider these performance tips:
 

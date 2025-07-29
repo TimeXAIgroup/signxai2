@@ -11,7 +11,7 @@ The ``signxai.utils`` module provides utility functions used by both the TensorF
    :depth: 2
 
 General Utilities
-----------------
+-----------------
 
 .. py:function:: load_image(path, target_size=(224, 224), preprocess=True)
 
@@ -74,7 +74,7 @@ General Utilities
    :raises: NotImplementedError: If the model framework is not supported
 
 Visualization Utilities
----------------------
+-----------------------
 
 .. py:function:: plot_relevancemap(relevance_map, ax=None, colorbar_ax=None, colorbar_kw=None, **kwargs)
 
@@ -110,7 +110,7 @@ Visualization Utilities
    :rtype: matplotlib.figure.Figure
 
 Data Handling
-------------
+-------------
 
 .. py:function:: batch_to_numpy(batch)
 
@@ -131,10 +131,10 @@ Data Handling
    :rtype: numpy.ndarray
 
 Framework-Specific Utilities
---------------------------
+----------------------------
 
 TensorFlow Utilities
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. py:function:: calculate_explanation_innvestigate(model, x, method, **kwargs)
 
@@ -151,7 +151,7 @@ TensorFlow Utilities
    :rtype: numpy.ndarray
 
 PyTorch Utilities
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 .. py:function:: numpy_to_torch(array, requires_grad=True)
 

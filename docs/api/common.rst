@@ -9,7 +9,7 @@ The ``signxai.common`` module contains framework-agnostic utilities and function
    :depth: 2
 
 Visualization Tools
-------------------
+-------------------
 
 .. py:module:: signxai.common.visualization
 
@@ -79,7 +79,7 @@ The visualization module provides utilities for visualizing and displaying expla
    :rtype: matplotlib.figure.Figure
 
 Common Validation Functions
---------------------------
+---------------------------
 
 .. py:module:: signxai.common.validation
 
@@ -108,7 +108,7 @@ The validation module contains utility functions for validating inputs and ensur
    :raises: ValueError: If the input tensor is not valid for the model/backend
    
 Framework Detection
------------------
+-------------------
 
 .. py:module:: signxai.common
 

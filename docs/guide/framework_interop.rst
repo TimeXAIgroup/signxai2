@@ -7,7 +7,7 @@ Framework Interoperability
    :depth: 2
 
 Introduction
------------
+------------
 
 SignXAI offers a unique advantage by supporting both TensorFlow and PyTorch frameworks with a consistent API. This guide explains how to:
 
@@ -17,7 +17,7 @@ SignXAI offers a unique advantage by supporting both TensorFlow and PyTorch fram
 4. Convert models between frameworks
 
 Framework Detection
------------------
+-------------------
 
 SignXAI automatically detects which framework is being used based on the model type:
 
@@ -35,7 +35,7 @@ SignXAI automatically detects which framework is being used based on the model t
     # and use the appropriate implementation
 
 Framework-Agnostic API
---------------------
+----------------------
 
 The framework-agnostic API provides a consistent interface regardless of which framework you're using:
 
@@ -58,7 +58,7 @@ The framework-agnostic API provides a consistent interface regardless of which f
     )
 
 Method Consistency Across Frameworks
-----------------------------------
+------------------------------------
 
 SignXAI ensures that the same method produces comparable results across frameworks:
 
@@ -78,7 +78,7 @@ Method                          TensorFlow         PyTorch
 =============================== ================== ==================
 
 Implementation Differences
-------------------------
+--------------------------
 
 While SignXAI strives for consistent results, there are some implementation differences to be aware of:
 
@@ -98,12 +98,12 @@ While SignXAI strives for consistent results, there are some implementation diff
    - The core methods provide consistent results, but custom configurations may differ
 
 Framework-Specific Workflow
--------------------------
+---------------------------
 
 If you prefer to work directly with a specific framework's implementation:
 
 TensorFlow-Specific Workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -130,7 +130,7 @@ TensorFlow-Specific Workflow
     plt.show()
 
 PyTorch-Specific Workflow
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -170,12 +170,12 @@ PyTorch-Specific Workflow
     plt.show()
 
 Converting Models Between Frameworks
----------------------------------
+------------------------------------
 
 If you need to compare the exact same model across frameworks, SignXAI provides utilities for model conversion.
 
 ONNX-Based Conversion
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 ONNX (Open Neural Network Exchange) provides a standard format for model conversion:
 
@@ -192,7 +192,7 @@ ONNX (Open Neural Network Exchange) provides a standard format for model convers
     torch_explanation = signxai.torch_signxai.calculate_relevancemap(pytorch_model, torch_x, method="lrp_z")
 
 Direct Conversion
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 For some simpler models, direct conversion without ONNX is possible:
 
@@ -204,7 +204,7 @@ For some simpler models, direct conversion without ONNX is possible:
     pytorch_model = convert_tf_to_torch_direct(tensorflow_model)
 
 Comparing Results Across Frameworks
----------------------------------
+-----------------------------------
 
 To ensure consistency, you may want to compare explanation results from both frameworks:
 
@@ -239,7 +239,7 @@ To ensure consistency, you may want to compare explanation results from both fra
     plt.show()
 
 Framework-Agnostic Visualization
-------------------------------
+--------------------------------
 
 SignXAI provides framework-agnostic visualization utilities:
 
@@ -266,7 +266,7 @@ SignXAI provides framework-agnostic visualization utilities:
     plt.show()
 
 Framework Differences in LRP Implementation
-----------------------------------------
+-------------------------------------------
 
 Due to using different backend libraries (iNNvestigate vs. Zennit), there are some subtle differences in LRP implementations:
 
@@ -282,7 +282,7 @@ Computation approach        Graph-based                       Hook-based
 Despite these implementation differences, SignXAI ensures that the core algorithms produce comparable results.
 
 Tips for Seamless Framework Integration
--------------------------------------
+---------------------------------------
 
 1. **Consistent Input Format**
    
@@ -305,7 +305,7 @@ Tips for Seamless Framework Integration
    - Use framework-agnostic visualization functions
 
 Case Study: Analyzing the Same Model Across Frameworks
----------------------------------------------------
+------------------------------------------------------
 
 This example demonstrates analyzing the same model architecture (VGG16) in both frameworks:
 
@@ -363,6 +363,6 @@ This example demonstrates analyzing the same model architecture (VGG16) in both 
     print(f"Correlation between TensorFlow and PyTorch explanations: {correlation:.4f}")
 
 Conclusion
----------
+----------
 
 SignXAI provides a powerful toolkit for explainable AI that works seamlessly across both TensorFlow and PyTorch. Whether you're working exclusively with one framework or need to compare results across both, SignXAI offers a consistent experience with comparable results.

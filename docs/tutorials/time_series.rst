@@ -9,7 +9,7 @@ This tutorial demonstrates how to use SignXAI2 for explaining time series models
    :depth: 2
 
 Introduction
------------
+------------
 
 Time series data presents unique challenges for explainability. In this tutorial, we'll use SignXAI2 to explain predictions from ECG classification models built with both TensorFlow and PyTorch.
 
@@ -59,7 +59,7 @@ Let's download a sample ECG record from PhysioNet:
     np.save('ecg_segment.npy', segment)
 
 TensorFlow ECG Model
-------------------
+--------------------
 
 Let's build a simple CNN model for ECG classification with TensorFlow:
 
@@ -211,7 +211,7 @@ Now let's use SignXAI to explain the ECG model's predictions:
     plt.show()
 
 PyTorch ECG Model
----------------
+-----------------
 
 Now let's implement a similar model in PyTorch:
 
@@ -431,7 +431,7 @@ Now let's use SignXAI to explain the PyTorch ECG model:
     plt.show()
 
 Advanced Analysis
----------------
+-----------------
 
 Let's perform a more detailed analysis focusing on characteristic ECG features:
 
@@ -520,7 +520,7 @@ Let's perform a more detailed analysis focusing on characteristic ECG features:
     plt.show()
 
 Conclusion
----------
+----------
 
 In this tutorial, we've demonstrated how SignXAI can be used to explain time series models, specifically:
 
@@ -534,7 +534,7 @@ Time series explainability offers unique insights that can be particularly valua
 The methods we've seen can be applied to other time series data types such as financial data, sensor readings, or any sequential data where understanding the model's focus is important.
 
 Interactive Notebooks
---------------------
+---------------------
 
 For hands-on experience with time series explanations using ECG data, check out these interactive Jupyter notebooks:
 

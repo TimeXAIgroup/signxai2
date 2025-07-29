@@ -11,7 +11,7 @@ The ``signxai.tf_signxai`` module provides explainability methods for TensorFlow
    :depth: 2
 
 Main Functions
--------------
+--------------
 
 .. py:function:: calculate_relevancemap(method, input_tensor, model, **kwargs)
 
@@ -42,14 +42,14 @@ Main Functions
    :rtype: numpy.ndarray
 
 Gradient-Based Methods
----------------------
+----------------------
 
 .. py:module:: signxai.tf_signxai.methods.wrappers
 
 The methods module provides implementations of various explainability methods.
 
 Vanilla Gradient
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. py:function:: gradient(model_no_softmax, x, **kwargs)
 
@@ -64,7 +64,7 @@ Vanilla Gradient
    :rtype: numpy.ndarray
 
 Gradient x Input
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. py:function:: gradient_x_input(model_no_softmax, x, **kwargs)
 
@@ -79,7 +79,7 @@ Gradient x Input
    :rtype: numpy.ndarray
 
 Integrated Gradients
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. py:function:: integrated_gradients(model_no_softmax, x, **kwargs)
 
@@ -99,7 +99,7 @@ Integrated Gradients
    :rtype: numpy.ndarray
 
 SmoothGrad
-~~~~~~~~~
+~~~~~~~~~~
 
 .. py:function:: smoothgrad(model_no_softmax, x, **kwargs)
 
@@ -119,7 +119,7 @@ SmoothGrad
    :rtype: numpy.ndarray
 
 SIGN Methods
------------
+------------
 
 The Sign module provides implementations of the SIGN explainability methods.
 
@@ -138,7 +138,7 @@ The Sign module provides implementations of the SIGN explainability methods.
    :rtype: numpy.ndarray
 
 Gradient x SIGN
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 .. py:function:: gradient_x_sign(model_no_softmax, x, **kwargs)
 
@@ -167,7 +167,7 @@ Gradient x SIGN
    :rtype: numpy.ndarray
 
 Guided Backpropagation
----------------------
+----------------------
 
 .. py:module:: signxai.tf_signxai.methods.guided_backprop
 
@@ -198,7 +198,7 @@ Guided Backpropagation
    :rtype: numpy.ndarray
 
 Grad-CAM
--------
+--------
 
 .. py:module:: signxai.tf_signxai.methods.grad_cam
 
@@ -239,7 +239,7 @@ Grad-CAM
    :rtype: numpy.ndarray
 
 Layer-wise Relevance Propagation (LRP)
--------------------------------------
+--------------------------------------
 
 The iNNvestigate module provides LRP implementations for TensorFlow. This is the key integration point for iNNvestigate in SignXAI.
 
@@ -266,7 +266,7 @@ The iNNvestigate module provides LRP implementations for TensorFlow. This is the
    :rtype: numpy.ndarray
 
 LRP Variants
-~~~~~~~~~~~
+~~~~~~~~~~~~
 
 The module provides various LRP variants through iNNvestigate. Key implemented variants include:
 
@@ -277,7 +277,7 @@ The module provides various LRP variants through iNNvestigate. Key implemented v
 5. **LRP Composite**: Layer-specific LRP rules
 
 Utility Functions
----------------
+-----------------
 
 .. py:function:: remove_softmax(model)
 

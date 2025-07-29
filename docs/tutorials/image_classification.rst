@@ -9,7 +9,7 @@ This tutorial demonstrates how to use SignXAI2 for explaining image classificati
    :depth: 2
 
 Introduction
------------
+------------
 
 Image classification is one of the most common applications of deep learning, and understanding how these models make decisions is crucial. In this tutorial, we'll use SignXAI2 to explain predictions from image classification models built with both TensorFlow and PyTorch.
 
@@ -43,7 +43,7 @@ Let's also download a sample image to work with:
     urllib.request.urlretrieve(url, "dog.jpg")
 
 TensorFlow Implementation
------------------------
+-------------------------
 
 Let's use a pre-trained VGG16 model with TensorFlow:
 
@@ -135,7 +135,7 @@ Let's use a pre-trained VGG16 model with TensorFlow:
     plt.show()
 
 PyTorch Implementation
---------------------
+----------------------
 
 Now let's do the same with PyTorch:
 
@@ -218,7 +218,7 @@ Now let's do the same with PyTorch:
     plt.show()
 
 Advanced Analysis
----------------
+-----------------
 
 Let's compare class-specific explanations:
 
@@ -299,7 +299,7 @@ We can also highlight the positive and negative contributions separately:
     plt.show()
 
 Conclusion
----------
+----------
 
 In this tutorial, we've seen how to:
 
@@ -314,7 +314,7 @@ The explanations reveal which parts of the image influenced the model's predicti
 You can apply these techniques to your own image classification models to gain insights into their behavior and improve their performance and trustworthiness.
 
 Interactive Notebooks
---------------------
+---------------------
 
 For hands-on experience with image classification explanations, check out these interactive Jupyter notebooks:
 

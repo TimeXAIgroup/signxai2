@@ -11,12 +11,12 @@ The ``signxai.torch_signxai`` module provides explainability methods for PyTorch
    :depth: 2
 
 Main Functions
--------------
+--------------
 
 This module provides two API styles: a PyTorch-native style and a TensorFlow-compatible style.
 
 PyTorch-Native API
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. py:function:: calculate_relevancemap(model, input_tensor, method="gradients", **kwargs)
 
@@ -47,7 +47,7 @@ PyTorch-Native API
    :rtype: numpy.ndarray
 
 TensorFlow-Compatible API
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. py:module:: signxai.torch_signxai.methods.wrappers
 
@@ -80,7 +80,7 @@ TensorFlow-Compatible API
    :rtype: numpy.ndarray
 
 Zennit Integration
------------------
+------------------
 
 The module ``signxai.torch_signxai.methods.zennit_impl`` provides Zennit-based implementations of explanation methods.
 
@@ -267,7 +267,7 @@ The module ``signxai.torch_signxai.methods.zennit_impl`` provides Zennit-based i
       :rtype: numpy.ndarray
 
 Layer-wise Relevance Propagation (LRP)
--------------------------------------
+--------------------------------------
 
 The Zennit library is used to implement various LRP variants.
 
@@ -351,7 +351,7 @@ The Zennit library is used to implement various LRP variants.
       :rtype: numpy.ndarray
 
 SIGN Methods
------------
+------------
 
 The SIGN methods are implemented for PyTorch models as well.
 
@@ -369,7 +369,7 @@ The SIGN methods are implemented for PyTorch models as well.
    :rtype: torch.Tensor or numpy.ndarray (matches input type)
 
 Utility Functions
----------------
+-----------------
 
 .. py:module:: signxai.torch_signxai.utils
 

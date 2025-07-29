@@ -9,7 +9,7 @@ SignXAI provides a comprehensive list of explanation methods for both TensorFlow
    :depth: 2
 
 Library Attribution
-------------------
+-------------------
 
 SignXAI builds upon two powerful explainability libraries, each providing the backend implementation for various explanation methods:
 
@@ -28,7 +28,7 @@ SignXAI builds upon two powerful explainability libraries, each providing the ba
 The SIGN method, which is SignXAI's novel contribution, builds upon these libraries to provide improved explanations by reducing bias.
 
 Method Overview
---------------
+---------------
 
 The table below shows all available explanation methods in SignXAI. Methods are implemented as follows:
 
@@ -141,12 +141,12 @@ The table below shows all available explanation methods in SignXAI. Methods are 
      - ✓
 
 Gradient-Based Methods
----------------------
+----------------------
 
 *Implemented directly in SignXAI with framework-specific optimizations*
 
 Vanilla Gradient
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 Method name: ``gradient``
 
@@ -157,7 +157,7 @@ Computes the gradient of the target output with respect to the input, highlighti
 - ``neuron_selection``: Target output neuron (class) for which to compute the gradient (default: argmax)
 
 Gradient x Input
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 Method name: ``input_t_gradient`` or ``gradient_x_input``
 
@@ -168,7 +168,7 @@ Element-wise multiplication of the gradient with the input to reduce noise and i
 - ``neuron_selection``: Target output neuron (class) for which to compute the gradient (default: argmax)
 
 Gradient x SIGN
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 Method name: ``gradient_x_sign``
 
@@ -188,7 +188,7 @@ Includes a threshold parameter mu for more flexible sign thresholding.
 - ``neuron_selection``: Target output neuron (class) for which to compute the gradient (default: argmax)
 
 Integrated Gradients
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 Method name: ``integrated_gradients``
 
@@ -201,7 +201,7 @@ Computes gradients along a straight-line path from a baseline to the input to be
 - ``neuron_selection``: Target output neuron (class) for which to compute the gradient (default: argmax)
 
 SmoothGrad
-~~~~~~~~~
+~~~~~~~~~~
 
 Method name: ``smoothgrad``
 
@@ -227,7 +227,7 @@ Computes the variance of gradients across multiple noisy samples to identify uns
 - ``neuron_selection``: Target output neuron (class) for which to compute the gradient (default: argmax)
 
 Guided Backpropagation
----------------------
+----------------------
 
 *Implemented directly in SignXAI with framework-specific optimizations*
 
@@ -257,7 +257,7 @@ Includes a threshold parameter mu for more flexible sign thresholding.
 - ``neuron_selection``: Target output neuron (class) for which to compute the gradient (default: argmax)
 
 Grad-CAM
--------
+--------
 
 *Implemented directly in SignXAI with framework-specific optimizations*
 
@@ -282,12 +282,12 @@ Specialized version of Grad-CAM for time series data.
 - ``resize``: Whether to resize the output to match input dimensions (default: True)
 
 Layer-wise Relevance Propagation (LRP)
--------------------------------------
+--------------------------------------
 
 *TensorFlow implementation provided by iNNvestigate; PyTorch implementation provided by Zennit*
 
 LRP Base Methods
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 Method name: ``lrp_z``
 
@@ -307,7 +307,7 @@ LRP-Z with SIGN input layer rule.
 - ``neuron_selection``: Target output neuron (class) (default: argmax)
 
 LRP with Epsilon
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 Methods: ``lrp_epsilon_{value}`` (e.g., ``lrp_epsilon_0_1``, ``lrp_epsilon_1``, etc.)
 
@@ -336,7 +336,7 @@ LRP with epsilon proportional to the standard deviation of the input.
 - ``input_layer_rule``: Rule for the input layer (default: None)
 
 LRP with Alpha-Beta
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 Method name: ``lrp_alpha_1_beta_0``
 
@@ -356,7 +356,7 @@ LRP Alpha-Beta with SIGN input layer rule.
 - ``neuron_selection``: Target output neuron (class) (default: argmax)
 
 LRP Composite Rules
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 Method name: ``lrp_sequential_composite_a``
 
@@ -377,7 +377,7 @@ LRP with layer-specific rules (variant B).
 - ``input_layer_rule``: Rule for the input layer (default: None)
 
 Deep Taylor Decomposition
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Method name: ``deep_taylor``
 
@@ -389,25 +389,25 @@ Implements Deep Taylor decomposition using LRP epsilon as a proxy method.
 - ``neuron_selection``: Target output neuron (class) (default: argmax)
 
 Framework-Specific Parameters
----------------------------
+-----------------------------
 
 Some parameters have different meanings or implementations between TensorFlow and PyTorch.
 
 TensorFlow-Specific Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``model_no_softmax``: Model with softmax removed (done automatically)
 - ``input_layer_rule``: Input layer rule for LRP methods ('Z', 'SIGN', 'Bounded', 'WSquare', 'Flat')
 
 PyTorch-Specific Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``target_layer``: Target layer for Grad-CAM (auto-detected if None)
 - ``rule``: LRP rule in Zennit implementation ('epsilon', 'zplus', 'alphabeta')
 - ``rule_type``: Advanced LRP rule type ('alpha1beta0', 'epsilon', 'gamma', etc.)
 
 Common Parameters
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 - ``target_class``: Target class index (used in PyTorch implementation)
 - ``neuron_selection``: Target neuron/class (used in TensorFlow implementation)

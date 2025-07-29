@@ -3,6 +3,7 @@ PyTorch Implementation
 ===========================
 
 .. py:module:: signxai.torch_signxai
+   :no-index:
 
 This guide provides a detailed explanation of SignXAI's PyTorch implementation, with a focus on how the package integrates with Zennit for Layer-wise Relevance Propagation (LRP) methods.
 
@@ -11,12 +12,12 @@ This guide provides a detailed explanation of SignXAI's PyTorch implementation, 
    :depth: 2
 
 Overview
--------
+--------
 
 The PyTorch implementation in SignXAI provides powerful explainability methods for PyTorch models. It uses the Zennit library as the backend for Layer-wise Relevance Propagation (LRP) methods, providing state-of-the-art explanation capabilities with a clean API.
 
 Key Components
-------------
+--------------
 
 1. **Dual API styles** - Both PyTorch-native and TensorFlow-compatible interfaces
 2. **Gradient-based methods** - Vanilla gradient, Integrated gradients, SmoothGrad
@@ -26,12 +27,12 @@ Key Components
 6. **SIGN methods** - Novel methods that use sign information
 
 Zennit Integration
-----------------
+------------------
 
 The most powerful aspect of the PyTorch implementation is its integration with Zennit for LRP methods. This section explains how SignXAI leverages Zennit's capabilities.
 
 What is Zennit?
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 `Zennit <https://github.com/chr5tphr/zennit>`_ is a PyTorch library for interpreting neural networks through LRP and other relevance propagation methods, developed at TU Berlin by Christopher J. Anders and colleagues. It offers:
 
@@ -64,7 +65,7 @@ SignXAI integrates Zennit through a custom implementation in the ``signxai.torch
 3. Implementation of SignXAI-specific features
 
 How SignXAI Uses Zennit
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The integration happens primarily through the various analyzer classes in ``signxai.torch_signxai.methods.zennit_impl``:
 
@@ -158,12 +159,12 @@ The integration happens primarily through the various analyzer classes in ``sign
 This function combines Zennit's powerful LRP implementation with SignXAI's consistent interface.
 
 LRP Methods in Detail
-------------------
+---------------------
 
 SignXAI provides several LRP variants through Zennit:
 
 LRP-Epsilon
-~~~~~~~~~~
+~~~~~~~~~~~
 
 Adds a small epsilon value to stabilize the division operation:
 
@@ -177,7 +178,7 @@ Adds a small epsilon value to stabilize the division operation:
     explanation = analyzer.analyze(input_tensor, target_class=class_idx)
 
 LRP-AlphaBeta
-~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 Separates positive and negative contributions with different weights:
 
@@ -191,7 +192,7 @@ Separates positive and negative contributions with different weights:
     explanation = analyzer.analyze(input_tensor, target_class=class_idx)
 
 Advanced LRP Rules
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 For more complex LRP configurations, the ``AdvancedLRPAnalyzer`` can be used:
 
@@ -215,7 +216,7 @@ For more complex LRP configurations, the ``AdvancedLRPAnalyzer`` can be used:
     explanation = analyzer.analyze(input_tensor, target_class=class_idx)
 
 LRP Composite Rules
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 Applies different LRP rules to different layers of the network:
 
@@ -241,12 +242,12 @@ Applies different LRP rules to different layers of the network:
     explanation = analyzer.analyze(input_tensor, target_class=class_idx)
 
 Implementation of Other Methods
------------------------------
+-------------------------------
 
 In addition to LRP methods, SignXAI provides Zennit-based implementations of other explainability techniques:
 
 Vanilla Gradient
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -307,7 +308,7 @@ Vanilla Gradient
             return attribution.detach().cpu().numpy()
 
 Integrated Gradients
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -345,7 +346,7 @@ Integrated Gradients
             return attribution
 
 SmoothGrad
-~~~~~~~~~
+~~~~~~~~~~
 
 .. code-block:: python
 
@@ -383,7 +384,7 @@ SmoothGrad
             return smoothgrad
 
 Removing Softmax for Explainability
----------------------------------
+-----------------------------------
 
 Proper explainability often requires working with raw logits rather than softmax probabilities. SignXAI provides a wrapper to remove softmax from PyTorch models:
 
@@ -445,7 +446,7 @@ Proper explainability often requires working with raw logits rather than softmax
             return output
 
 Dual API Styles
--------------
+---------------
 
 SignXAI provides two API styles for PyTorch users:
 
@@ -470,7 +471,7 @@ SignXAI provides two API styles for PyTorch users:
 This dual API allows for easier migration between frameworks and preference-based usage.
 
 Usage Example
------------
+-------------
 
 The following example demonstrates how to use SignXAI's PyTorch implementation with Zennit for generating LRP explanations:
 
@@ -539,7 +540,7 @@ The following example demonstrates how to use SignXAI's PyTorch implementation w
     plt.show()
 
 Advanced Zennit Configuration
----------------------------
+-----------------------------
 
 For advanced users, SignXAI exposes more detailed Zennit configurations:
 
@@ -566,7 +567,7 @@ For advanced users, SignXAI exposes more detailed Zennit configurations:
 This flexibility allows for very fine-grained control over the explanation process.
 
 SIGN Methods
-----------
+------------
 
 SignXAI implements the novel SIGN methods for PyTorch models:
 
@@ -584,12 +585,12 @@ SignXAI implements the novel SIGN methods for PyTorch models:
 This can be used with any of the analyzers to create SIGN variants of the methods.
 
 Additional Analyzer Classes
--------------------------
+---------------------------
 
 The following analyzer classes were added to provide comprehensive XAI method coverage:
 
 Gradient × Sign Analyzer
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -623,7 +624,7 @@ Gradient × Sign Analyzer
             return attribution
 
 Gradient × Input Analyzer
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -643,7 +644,7 @@ Gradient × Input Analyzer
             return attribution
 
 VarGrad Analyzer
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -671,7 +672,7 @@ VarGrad Analyzer
             return attribution
 
 Deep Taylor Analyzer
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -697,7 +698,7 @@ Deep Taylor Analyzer
             return attribution
 
 Performance Considerations
-------------------------
+--------------------------
 
 When using Zennit through SignXAI, consider these performance tips:
 
@@ -708,7 +709,7 @@ When using Zennit through SignXAI, consider these performance tips:
 5. **Parallelization** - Use DataParallel for multi-GPU setups
 
 Extending with New Methods
-------------------------
+--------------------------
 
 To add new methods, you can create a new analyzer class in ``signxai.torch_signxai.methods.zennit_impl.py``:
 

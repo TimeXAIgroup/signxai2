@@ -1,6 +1,6 @@
-=============
+==============
 Advanced Usage
-=============
+==============
 
 This guide covers advanced usage patterns and features of SignXAI.
 
@@ -9,12 +9,12 @@ This guide covers advanced usage patterns and features of SignXAI.
    :depth: 2
 
 Advanced LRP Configuration
-------------------------
+--------------------------
 
 Layer-wise Relevance Propagation (LRP) is highly configurable. Here's how to use advanced settings:
 
 TensorFlow Advanced LRP
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -79,7 +79,7 @@ TensorFlow Advanced LRP
     )
 
 PyTorch Advanced LRP
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -141,12 +141,12 @@ PyTorch Advanced LRP
     lrp_sequential = analyzer_sequential.analyze(input_tensor)
 
 Custom Target Class Selection
----------------------------
+-----------------------------
 
 By default, explanations target the class with the highest predicted probability, but you can specify any class:
 
 TensorFlow Custom Target
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -185,7 +185,7 @@ TensorFlow Custom Target
     plt.show()
 
 PyTorch Custom Target
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -226,12 +226,12 @@ PyTorch Custom Target
     plt.show()
 
 Working with Time Series Data
----------------------------
+-----------------------------
 
 SignXAI supports time series data such as ECG signals:
 
 TensorFlow Time Series
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -287,7 +287,7 @@ TensorFlow Time Series
     plt.show()
 
 PyTorch Time Series
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -358,12 +358,12 @@ PyTorch Time Series
     plt.show()
 
 Custom SIGN Methods
-----------------
+-------------------
 
 The SIGN method is a key innovation in SignXAI. Here's how to use it with custom parameters:
 
 TensorFlow SIGN
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -389,7 +389,7 @@ TensorFlow SIGN
     gradient_sign_mu = calculate_relevancemap('gradient_x_sign_mu', input_tensor, model, mu=0.5)
 
 PyTorch SIGN
-~~~~~~~~~~
+~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -415,12 +415,12 @@ PyTorch SIGN
     gradient_sign_neg = gradient * sign_neg
 
 Integrating with Other Libraries
-------------------------------
+--------------------------------
 
 SignXAI can be used alongside other explainability libraries:
 
 SHAP Integration
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -450,7 +450,7 @@ SHAP Integration
     plt.show()
 
 Captum Integration
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -484,12 +484,12 @@ Captum Integration
     plt.show()
 
 Advanced Visualization Techniques
--------------------------------
+---------------------------------
 
 SignXAI provides advanced visualization options:
 
 Overlay with Transparency
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -529,7 +529,7 @@ Overlay with Transparency
     plt.show()
 
 Positive and Negative Contributions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -573,12 +573,12 @@ Positive and Negative Contributions
     plt.show()
 
 Performance Optimization
-----------------------
+------------------------
 
 For large models or datasets, consider these performance optimizations:
 
 TensorFlow Performance
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -607,7 +607,7 @@ TensorFlow Performance
         return np.concatenate(all_explanations, axis=0)
 
 PyTorch Performance
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -648,7 +648,7 @@ PyTorch Performance
         return np.concatenate(all_explanations, axis=0)
 
 Next Steps
----------
+----------
 
 After exploring these advanced techniques, you may want to:
 
