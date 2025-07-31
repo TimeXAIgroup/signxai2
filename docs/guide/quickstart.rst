@@ -137,8 +137,8 @@ Here's a complete example using PyTorch:
     # Step 6: Normalize and visualize
     # Convert back to numpy for visualization
     explanation_np = explanation.detach().cpu().numpy() if hasattr(explanation, 'detach') else explanation
-    # Sum over channels to create 2D heatmap  
-    heatmap = explanation_np[0].sum(axis=0)
+    # Sum over channels to create 2D heatmap
+    heatmap = explanation_np.sum(axis=0)
     abs_max = np.max(np.abs(heatmap))
     if abs_max > 0:
         normalized = heatmap / abs_max
