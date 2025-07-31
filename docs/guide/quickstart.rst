@@ -212,7 +212,7 @@ Compare different explanation methods for the same input:
     
     for i, (method, expl) in enumerate(zip(methods, explanations)):
         # Sum over channels and normalize
-        heatmap = expl[0].sum(axis=0)  # PyTorch format: (C, H, W)
+        heatmap = expl.sum(axis=0)  # PyTorch format: (C, H, W)
         abs_max = np.max(np.abs(heatmap))
         if abs_max > 0:
             normalized = heatmap / abs_max
@@ -255,7 +255,7 @@ Layer-wise Relevance Propagation (LRP) has several variants:
     # Visualize LRP variants
     fig, axs = plt.subplots(1, len(lrp_methods), figsize=(12, 3))
     for i, (method, expl) in enumerate(zip(lrp_methods, lrp_explanations)):
-        heatmap = expl[0].sum(axis=0)
+        heatmap = expl.sum(axis=0)
         abs_max = np.max(np.abs(heatmap))
         if abs_max > 0:
             normalized = heatmap / abs_max
