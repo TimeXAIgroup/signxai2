@@ -30,8 +30,8 @@ import zennit.composites as zcomposites
 from .stdx_rule import StdxEpsilon
 from .sign_rule import SIGNRule, SIGNmuRule
 
-# Import the advanced LRP analyzers from lrp_variants.py
-from .lrp_variants import AdvancedLRPAnalyzer, LRPSequential, BoundedLRPAnalyzer, DeepLiftAnalyzer, LRPStdxEpsilonAnalyzer
+# Import the advanced LRP analyzers from analyzers.py
+from .analyzers import AdvancedLRPAnalyzer, LRPSequential, BoundedLRPAnalyzer, DeepLiftAnalyzer, LRPStdxEpsilonAnalyzer
 
 # SUPPORTED_ZENNIT_METHODS dictionary
 SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase for correct type hint

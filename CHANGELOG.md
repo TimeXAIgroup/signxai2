@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.13.7] - 2025-07-31
+## [0.13.8] - 2025-08-05
 
 ### Changed
+- Cleaned up Code structure of torch implementation by removing corrected_hooks.py, innvestigate_compatible_hooks.py, lrp_variants.py, and tf_exact_epsilon_hook.py and incorporating them into analyzers.py and hooks.py
 - Edited quickstart guide pytorch example
 - **BREAKING CHANGE**: Installation now requires explicit framework selection
   - `pip install signxai2` alone is no longer supported
@@ -98,4 +99,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Built upon [Zennit](https://github.com/chr5tphr/zennit) for PyTorch LRP implementations
 - SIGN method represents the novel contribution of the SignXAI project
 
-[0.13.7]: https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md
+[0.13.8]: https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md

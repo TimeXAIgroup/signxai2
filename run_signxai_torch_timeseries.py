@@ -273,7 +273,7 @@ def compute_relevance_map_pytorch(method_name: str, input_tensor: torch.Tensor,
         if method_name == 'lrp_alpha_1_beta_0':
             # Use AdvancedLRPAnalyzer for alpha-beta LRP
             try:
-                from signxai.torch_signxai.methods.zennit_impl.lrp_variants import AdvancedLRPAnalyzer
+                from signxai.torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
                 alpha = method_params.get('alpha', 1.0)
                 beta = method_params.get('beta', 0.0)
                 analyzer = AdvancedLRPAnalyzer(model, alpha=alpha, beta=beta)
