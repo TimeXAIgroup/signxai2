@@ -252,7 +252,10 @@ def calculate_relevancemap(
         "lrp.alpha_2_beta_1": "lrp.alphabeta",
         "lrp.sequential_composite_a": "lrp_sequential",
         "lrp.sequential_composite_b": "lrp_sequential",
-        "deep_taylor": "deeptaylor"
+        "deep_taylor": "deeptaylor",
+        # Add non-underscored versions as canonical
+        "integratedgradients": "integrated_gradients",
+        "gradcam": "grad_cam"
     }
     
     if method_lower in method_mapping:
