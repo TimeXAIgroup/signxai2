@@ -13,33 +13,33 @@ class SmoothGrad:
     https://arxiv.org/abs/1706.03825
     """
     
-    def __init__(self, model, num_samples=50, noise_level=0.2):
+    def __init__(self, model, num_samples=16, noise_scale=1.0):
         """Initialize SmoothGrad.
         
         Args:
             model: PyTorch model
-            num_samples: Number of noisy samples to use
-            noise_level: Level of noise to add as a fraction of the input range
+            num_samples: Number of noisy samples to use (matches TF default 16)
+            noise_scale: Standard deviation of noise to add (matches TF behavior, default 1.0)
         """
         self.model = model
         self.num_samples = num_samples
-        self.noise_level = noise_level
+        self.noise_scale = noise_scale
         
-    def attribute(self, inputs, target=None, num_samples=None, noise_level=None):
+    def attribute(self, inputs, target=None, num_samples=None, noise_scale=None):
         """Calculate SmoothGrad attribution.
         
         Args:
             inputs: Input tensor
             target: Target class index (None for argmax)
             num_samples: Override the number of samples (optional)
-            noise_level: Override the noise level (optional)
+            noise_scale: Override the noise scale (optional)
             
         Returns:
             Attribution tensor of the same shape as inputs
         """
         # Get parameters (use instance defaults if not provided)
         num_samples = num_samples if num_samples is not None else self.num_samples
-        noise_level = noise_level if noise_level is not None else self.noise_level
+        noise_scale = noise_scale if noise_scale is not None else self.noise_scale
         
         # Ensure input is a tensor
         if not isinstance(inputs, torch.Tensor):
@@ -48,9 +48,8 @@ class SmoothGrad:
         # Clone inputs to avoid modifying the original
         inputs = inputs.clone().detach()
         
-        # Calculate input range for noise scaling
-        input_range = inputs.max() - inputs.min()
-        noise_std = noise_level * input_range
+        # Use fixed noise standard deviation (matches TensorFlow behavior)
+        noise_std = noise_scale
         
         # Store original model mode
         original_mode = self.model.training
@@ -60,8 +59,8 @@ class SmoothGrad:
         accumulated_gradients = torch.zeros_like(inputs)
         
         for i in range(num_samples):
-            # Generate noisy input
-            noise = torch.normal(0, noise_std.item(), size=inputs.shape, device=inputs.device)
+            # Generate noisy input (matches TensorFlow's np.random.normal behavior)
+            noise = torch.normal(0, noise_std, size=inputs.shape, device=inputs.device)
             noisy_input = inputs + noise
             noisy_input.requires_grad_(True)
             
@@ -112,20 +111,20 @@ class SmoothGradXInput(SmoothGrad):
     visually appealing attributions by focusing on the important input features.
     """
     
-    def attribute(self, inputs, target=None, num_samples=None, noise_level=None):
+    def attribute(self, inputs, target=None, num_samples=None, noise_scale=None):
         """Calculate SmoothGrad × Input attribution.
         
         Args:
             inputs: Input tensor
             target: Target class index (None for argmax)
             num_samples: Override the number of samples (optional)
-            noise_level: Override the noise level (optional)
+            noise_scale: Override the noise scale (optional)
             
         Returns:
             Attribution tensor of the same shape as inputs
         """
         # Get smooth gradients
-        smooth_gradients = super().attribute(inputs, target, num_samples, noise_level)
+        smooth_gradients = super().attribute(inputs, target, num_samples, noise_scale)
         
         # Ensure input is a tensor
         if not isinstance(inputs, torch.Tensor):
@@ -144,33 +143,33 @@ class SmoothGradXSign(SmoothGrad):
     which can emphasize both positive and negative contributions.
     """
     
-    def __init__(self, model, num_samples=50, noise_level=0.2, mu=0.0):
+    def __init__(self, model, num_samples=16, noise_scale=1.0, mu=0.0):
         """Initialize SmoothGradXSign.
         
         Args:
             model: PyTorch model
-            num_samples: Number of noisy samples to use
-            noise_level: Level of noise to add as a fraction of the input range
+            num_samples: Number of noisy samples to use (matches TF default 16)
+            noise_scale: Standard deviation of noise to add (matches TF behavior, default 1.0)
             mu: Threshold value for the sign function
         """
-        super().__init__(model, num_samples, noise_level)
+        super().__init__(model, num_samples, noise_scale)
         self.mu = mu
         
-    def attribute(self, inputs, target=None, num_samples=None, noise_level=None, mu=None):
+    def attribute(self, inputs, target=None, num_samples=None, noise_scale=None, mu=None):
         """Calculate SmoothGrad × Sign attribution.
         
         Args:
             inputs: Input tensor
             target: Target class index (None for argmax)
             num_samples: Override the number of samples (optional)
-            noise_level: Override the noise level (optional)
+            noise_scale: Override the noise scale (optional)
             mu: Override the threshold value (optional)
             
         Returns:
             Attribution tensor of the same shape as inputs
         """
         # Get smooth gradients
-        smooth_gradients = super().attribute(inputs, target, num_samples, noise_level)
+        smooth_gradients = super().attribute(inputs, target, num_samples, noise_scale)
         
         # Ensure input is a tensor
         if not isinstance(inputs, torch.Tensor):
@@ -188,7 +187,7 @@ class SmoothGradXSign(SmoothGrad):
         return attribution
 
 
-def smoothgrad(model, inputs, target=None, num_samples=50, noise_level=0.2):
+def smoothgrad(model, inputs, target=None, num_samples=16, noise_scale=1.0):
     """Calculate SmoothGrad attribution (functional API).
     
     Args:
@@ -196,16 +195,16 @@ def smoothgrad(model, inputs, target=None, num_samples=50, noise_level=0.2):
         inputs: Input tensor
         target: Target class index (None for argmax)
         num_samples: Number of noisy samples to use
-        noise_level: Level of noise to add as a fraction of the input range
+        noise_scale: Standard deviation of noise to add
         
     Returns:
         Attribution tensor of the same shape as inputs
     """
     # Create SmoothGrad instance and calculate attribution
-    return SmoothGrad(model, num_samples, noise_level).attribute(inputs, target)
+    return SmoothGrad(model, num_samples, noise_scale).attribute(inputs, target)
 
 
-def smoothgrad_x_input(model, inputs, target=None, num_samples=50, noise_level=0.2):
+def smoothgrad_x_input(model, inputs, target=None, num_samples=16, noise_scale=1.0):
     """Calculate SmoothGrad × Input attribution (functional API).
     
     Args:
@@ -213,16 +212,16 @@ def smoothgrad_x_input(model, inputs, target=None, num_samples=50, noise_level=0
         inputs: Input tensor
         target: Target class index (None for argmax)
         num_samples: Number of noisy samples to use
-        noise_level: Level of noise to add as a fraction of the input range
+        noise_scale: Standard deviation of noise to add
         
     Returns:
         Attribution tensor of the same shape as inputs
     """
     # Create SmoothGradXInput instance and calculate attribution
-    return SmoothGradXInput(model, num_samples, noise_level).attribute(inputs, target)
+    return SmoothGradXInput(model, num_samples, noise_scale).attribute(inputs, target)
 
 
-def smoothgrad_x_sign(model, inputs, target=None, num_samples=50, noise_level=0.2, mu=0.0):
+def smoothgrad_x_sign(model, inputs, target=None, num_samples=16, noise_scale=1.0, mu=0.0):
     """Calculate SmoothGrad × Sign attribution (functional API).
     
     Args:
@@ -230,11 +229,11 @@ def smoothgrad_x_sign(model, inputs, target=None, num_samples=50, noise_level=0.
         inputs: Input tensor
         target: Target class index (None for argmax)
         num_samples: Number of noisy samples to use
-        noise_level: Level of noise to add as a fraction of the input range
+        noise_scale: Standard deviation of noise to add
         mu: Threshold value for the sign function
         
     Returns:
         Attribution tensor of the same shape as inputs
     """
     # Create SmoothGradXSign instance and calculate attribution
-    return SmoothGradXSign(model, num_samples, noise_level, mu).attribute(inputs, target)
+    return SmoothGradXSign(model, num_samples, noise_scale, mu).attribute(inputs, target)

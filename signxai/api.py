@@ -31,7 +31,7 @@ def explain(
         method_name: Name of the XAI method to apply. Supported methods include:
             - Gradient-based: 'gradient', 'smoothgrad', 'integrated_gradients', 'vargrad'
             - Backprop methods: 'guided_backprop', 'deconvnet'
-            - Feature methods: 'grad_cam'
+            - Feature methods: 'gradcam'
             - LRP methods: 'lrp_epsilon', 'lrp_alpha_1_beta_0', 'lrp_alpha_2_beta_1'
             - And many more (see documentation for full list)
         target_class: Target class index for explanation. If None, uses predicted class.
@@ -59,7 +59,7 @@ def explain(
         >>> explanation = explain(model, image, 'integrated_gradients', steps=100)
         
         Grad-CAM on specific layer:
-        >>> explanation = explain(model, image, 'grad_cam', layer_name='block5_conv3')
+        >>> explanation = explain(model, image, 'gradcam', layer_name='block5_conv3')
         
         LRP with epsilon rule:
         >>> explanation = explain(model, image, 'lrp_epsilon', epsilon=0.1)
@@ -221,7 +221,7 @@ METHOD_PRESETS = {
     'vargrad': {'num_samples': 25, 'noise_level': 0.2},
     'guided_backprop': {},
     'deconvnet': {},
-    'grad_cam': {},  # Requires layer_name
+    'gradcam': {},  # Requires layer_name
     'lrp_epsilon': {'epsilon': 0.1},
     'lrp_alpha_1_beta_0': {'alpha': 1.0, 'beta': 0.0},
     'lrp_alpha_2_beta_1': {'alpha': 2.0, 'beta': 1.0},

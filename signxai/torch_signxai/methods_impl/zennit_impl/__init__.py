@@ -253,7 +253,7 @@ def calculate_relevancemap(
         "lrp.sequential_composite_a": "lrp_sequential",
         "lrp.sequential_composite_b": "lrp_sequential",
         "deep_taylor": "deeptaylor",
-        # Add non-underscored versions as canonical
+        # Add underscored versions as fallback
         "integratedgradients": "integrated_gradients",
         "gradcam": "grad_cam"
     }
@@ -439,30 +439,30 @@ def calculate_relevancemap(
     # Handle TF-exact implementations
     if analyzer_class == "tf_exact_vargrad_x_input":
         print(f"🔧 Using TF-exact VarGrad x Input implementation for {method}")
-        from .hooks import create_tf_exact_vargrad_x_input_analyzer
+        from .hooks import vargrad_x_input_analyzer
         
         # Create analyzer with kwargs
-        analyzer = create_tf_exact_vargrad_x_input_analyzer(model, **kwargs)
+        analyzer = vargrad_x_input_analyzer(model, **kwargs)
         
         # Call analyze method
         return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
     
     elif analyzer_class == "tf_exact_vargrad_x_input_x_sign":
         print(f"🔧 Using TF-exact VarGrad x Input x Sign implementation for {method}")
-        from .hooks import create_tf_exact_vargrad_x_input_x_sign_analyzer
+        from .hooks import vargrad_x_input_x_sign_analyzer
         
         # Create analyzer with kwargs
-        analyzer = create_tf_exact_vargrad_x_input_x_sign_analyzer(model, **kwargs)
+        analyzer = vargrad_x_input_x_sign_analyzer(model, **kwargs)
         
         # Call analyze method
         return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
     
     elif analyzer_class == "tf_exact_vargrad_x_sign":
         print(f"🔧 Using TF-exact VarGrad x Sign implementation for {method}")
-        from .hooks import create_tf_exact_vargrad_x_sign_analyzer
+        from .hooks import vargrad_x_sign_analyzer
         
         # Create analyzer with kwargs
-        analyzer = create_tf_exact_vargrad_x_sign_analyzer(model, **kwargs)
+        analyzer = vargrad_x_sign_analyzer(model, **kwargs)
         
         # Call analyze method
         return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)

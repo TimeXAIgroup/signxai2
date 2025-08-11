@@ -75,7 +75,7 @@ The table below shows all available explanation methods in SignXAI. Methods are 
      - Guided backpropagation multiplied by sign with threshold mu
      - ✓
      - ✓
-   * - ``integrated_gradients``
+   * - ``integratedgradients``
      - Integrated gradients
      - ✓
      - ✓
@@ -95,11 +95,11 @@ The table below shows all available explanation methods in SignXAI. Methods are 
      - DeconvNet
      - ✓
      - ✓
-   * - ``grad_cam``
+   * - ``gradcam``
      - Grad-CAM
      - ✓
      - ✓
-   * - ``grad_cam_timeseries``
+   * - ``gradcam_timeseries``
      - Grad-CAM for time series data
      - ✓
      - ✓
@@ -190,7 +190,7 @@ Includes a threshold parameter mu for more flexible sign thresholding.
 Integrated Gradients
 ~~~~~~~~~~~~~~~~~~~~
 
-Method name: ``integrated_gradients``
+Method name: ``integratedgradients``
 
 Computes gradients along a straight-line path from a baseline to the input to better attribute feature importance.
 
@@ -261,7 +261,7 @@ Grad-CAM
 
 *Implemented directly in SignXAI with framework-specific optimizations*
 
-Method name: ``grad_cam``
+Method name: ``gradcam``
 
 Generates a localization map highlighting important regions by using the gradients flowing into the final convolutional layer.
 
@@ -271,7 +271,7 @@ Generates a localization map highlighting important regions by using the gradien
 - ``neuron_selection``: Target output neuron (class) (default: argmax)
 - ``resize``: Whether to resize the output to match input dimensions (default: True)
 
-Method name: ``grad_cam_timeseries``
+Method name: ``gradcam_timeseries``
 
 Specialized version of Grad-CAM for time series data.
 

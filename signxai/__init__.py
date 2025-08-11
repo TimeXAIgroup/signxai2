@@ -147,7 +147,7 @@ def _map_parameters(method_name, framework, **kwargs):
             'tensorflow': {'augment_by_n': 'num_samples', 'noise_scale': 'noise_level'},
             'pytorch': {'num_samples': 'augment_by_n', 'noise_level': 'noise_scale'}
         },
-        'grad_cam': {
+        'gradcam': {
             'tensorflow': {'layer_name': 'layer_name'},
             'pytorch': {'target_layer': 'layer_name'}
         }
