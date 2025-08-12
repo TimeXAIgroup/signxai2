@@ -385,166 +385,53 @@ def calculate_relevancemap(
     analyzer_class = SUPPORTED_ZENNIT_METHODS[method_lower]
     
     
-    # Handle special wrapper delegation for methods that work in wrapper but not in Zennit
+    # Handle special methods that need direct implementation
     if analyzer_class == "WrapperDelegation":
-        print(f"🔧 Using wrapper delegation for {method} (proven working implementation)")
+        print(f"🔧 Using direct implementation for {method}")
+        from .analyzers import AdvancedLRPAnalyzer, LRPAnalyzer
         
-        if method_lower == "flatlrp_alpha_1_beta_0":
-            from ..wrappers import flatlrp_alpha_1_beta_0
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_alpha_1_beta_0(model, input_np)
-        elif method_lower == "w2lrp_alpha_1_beta_0":
-            from ..wrappers import w2lrp_alpha_1_beta_0
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return w2lrp_alpha_1_beta_0(model, input_np, **kwargs)
-        elif method_lower == "flatlrp_epsilon_0_1":
-            from ..wrappers import flatlrp_epsilon_0_1
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_0_1(model, input_np)
-        elif method_lower == "flatlrp_epsilon_0_01":
-            from ..wrappers import flatlrp_epsilon_0_01
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_0_01(model, input_np)
-        elif method_lower == "flatlrp_epsilon_0_1_std_x":
-            from ..wrappers import flatlrp_epsilon_0_1_std_x
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_0_1_std_x(model, input_np)
-        elif method_lower == "flatlrp_epsilon_0_5_std_x":
-            from ..wrappers import flatlrp_epsilon_0_5_std_x
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_0_5_std_x(model, input_np)
-        elif method_lower == "flatlrp_epsilon_0_25_std_x":
-            from ..wrappers import flatlrp_epsilon_0_25_std_x
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_0_25_std_x(model, input_np)
-        elif method_lower == "flatlrp_epsilon_1":
-            from ..wrappers import flatlrp_epsilon_1
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_1(model, input_np)
-        elif method_lower == "flatlrp_epsilon_10":
-            from ..wrappers import flatlrp_epsilon_10
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_10(model, input_np)
-        elif method_lower == "flatlrp_epsilon_20":
-            from ..wrappers import flatlrp_epsilon_20
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_20(model, input_np)
-        elif method_lower == "flatlrp_epsilon_100":
-            from ..wrappers import flatlrp_epsilon_100
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_epsilon_100(model, input_np)
-        elif method_lower == "flatlrp_sequential_composite_a":
-            from ..wrappers import flatlrp_sequential_composite_a
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_sequential_composite_a(model, input_np)
-        elif method_lower == "flatlrp_sequential_composite_b":
-            from ..wrappers import flatlrp_sequential_composite_b
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_sequential_composite_b(model, input_np)
-        elif method_lower == "flatlrp_z":
-            from ..wrappers import flatlrp_z
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return flatlrp_z(model, input_np)
-        elif method_lower == "lrp_alpha_1_beta_0":
-            from ..wrappers import lrp_alpha_1_beta_0
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrp_alpha_1_beta_0(model, input_np)
-        elif method_lower == "lrpsign_alpha_1_beta_0":
-            from ..wrappers import lrpsign_alpha_1_beta_0
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrpsign_alpha_1_beta_0(model, input_np, target_class=actual_target_class)
-        elif method_lower == "lrpsign_epsilon_0_1":
-            from ..wrappers import lrpsign_epsilon_0_1
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrpsign_epsilon_0_1(model, input_np, target_class=actual_target_class)
-        elif method_lower == "lrpsign_epsilon_1":
-            from ..wrappers import lrpsign_epsilon_1
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrpsign_epsilon_1(model, input_np, target_class=actual_target_class)
-        elif method_lower == "lrpsign_epsilon_1_std_x":
-            from ..wrappers import lrpsign_epsilon_1_std_x
-            # Call the working wrapper implementation directly with tensor
-            return lrpsign_epsilon_1_std_x(model, input_tensor, target_class=actual_target_class)
-        elif method_lower == "lrp_alpha_2_beta_1":
-            from ..wrappers import lrp_alpha_2_beta_1
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrp_alpha_2_beta_1(model, input_np)
-        elif method_lower == "lrp_alpha_2_beta_1_x_input":
-            from ..wrappers import lrp_alpha_2_beta_1_x_input
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrp_alpha_2_beta_1_x_input(model, input_np)
-        elif method_lower == "lrp_alpha_2_beta_1_x_input_x_sign":
-            from ..wrappers import lrp_alpha_2_beta_1_x_input_x_sign
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrp_alpha_2_beta_1_x_input_x_sign(model, input_np)
-        elif method_lower == "lrp_alpha_2_beta_1_x_sign":
-            from ..wrappers import lrp_alpha_2_beta_1_x_sign
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrp_alpha_2_beta_1_x_sign(model, input_np)
-        elif method_lower == "lrpsign_sequential_composite_a":
-            from ..wrappers import lrpsign_sequential_composite_a
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrpsign_sequential_composite_a(model, input_np, target_class=actual_target_class)
+        # FlatLRP methods
+        if method_lower.startswith("flatlrp"):
+            analyzer = AdvancedLRPAnalyzer(model, variant='flat', **kwargs)
+            return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
+        
+        # W2LRP methods
+        elif method_lower.startswith("w2lrp"):
+            analyzer = AdvancedLRPAnalyzer(model, variant='wsquare', **kwargs)
+            return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
+        
+        # LRP alpha-beta methods
+        elif method_lower.startswith("lrp_alpha") or method_lower.startswith("lrpsign_alpha"):
+            analyzer = LRPAnalyzer(model, 'alpha_beta', alpha=kwargs.get('alpha', 1.0), beta=kwargs.get('beta', 0.0))
+            return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
+        
+        # LRPSign epsilon methods
+        elif method_lower.startswith("lrpsign_epsilon"):
+            analyzer = AdvancedLRPAnalyzer(model, variant='epsilon', epsilon=kwargs.get('epsilon', 0.01), **kwargs)
+            return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
+        
+        # LRPSign sequential composites
+        elif method_lower.startswith("lrpsign_sequential"):
+            from .analyzers import LRPSequential
+            if 'composite_a' in method_lower:
+                analyzer = LRPSequential(model, first_layer_rule_name='SIGN', middle_layer_rule_name='Alpha1Beta0', last_layer_rule_name='Epsilon')
+            else:
+                analyzer = LRPSequential(model, first_layer_rule_name='SIGN', middle_layer_rule_name='Alpha2Beta1', last_layer_rule_name='Epsilon')
+            return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
+        
+        # LRPSign Z methods
         elif method_lower == "lrpsign_z":
-            from ..wrappers import lrpsign_z
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrpsign_z(model, input_np, target_class=actual_target_class)
-        elif method_lower == "lrpz_alpha_1_beta_0":
-            from ..wrappers import lrpz_alpha_1_beta_0
-            # Convert tensor to numpy for wrapper
-            input_np = input_tensor.detach().cpu().numpy()
-            # Call the working wrapper implementation
-            return lrpz_alpha_1_beta_0(model, input_np, target_class=actual_target_class)
+            analyzer = LRPAnalyzer(model, 'zplus')
+            return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
+        
+        # LRPZ methods
+        elif method_lower.startswith("lrpz"):
+            analyzer = AdvancedLRPAnalyzer(model, variant='epsilon', epsilon=kwargs.get('epsilon', 0.01), **kwargs)
+            return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
         else:
-            raise ValueError(f"Wrapper delegation not implemented for {method}")
+            # Fallback to basic LRP for unknown methods
+            analyzer = LRPAnalyzer(model, 'epsilon', epsilon=0.01)
+            return analyzer.analyze(input_tensor, target_class=actual_target_class, **kwargs)
     
     # Handle TF-exact implementations
     if analyzer_class == "tf_exact_vargrad_x_input":
@@ -710,25 +597,16 @@ def calculate_relevancemap(
             if p_name in analyze_method_kwargs:
                 analyzer_constructor_kwargs[p_name] = analyze_method_kwargs.pop(p_name)
 
-    # Check for wrapper delegation (for methods we know work in wrapper but not in Zennit)
-    if analyzer_constructor_kwargs.get('use_wrapper_delegation', False):
-        print("🔧 Delegating to wrapper function for proven working implementation")
-        # Import the working wrapper function
-        from ..wrappers import flatlrp_alpha_1_beta_0
-        
-        # Convert tensor to numpy for wrapper
-        input_np = input_tensor.detach().cpu().numpy()
-        
-        # Call the working wrapper implementation
-        relevance_map = flatlrp_alpha_1_beta_0(model, input_np)
-        
-        return relevance_map
 
     # Instantiate the analyzer
     analyzer = analyzer_class(model, **analyzer_constructor_kwargs)
 
     # Call the analyze method
-    relevance_map = analyzer.analyze(input_tensor, target_class=actual_target_class, **analyze_method_kwargs)
+    # Some analyzers expect target_class in kwargs instead of as a named parameter
+    if actual_target_class is not None:
+        analyze_method_kwargs['target_class'] = actual_target_class
+    
+    relevance_map = analyzer.analyze(input_tensor, **analyze_method_kwargs)
 
     return relevance_map
 
