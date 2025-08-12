@@ -369,7 +369,7 @@ class PathIntegrator(AugmentReduceBase):
                     # X is only repeated _augment_by_n times by superclass method --> difference is the same each time
                     self.difference[ins[j].name] = difference
                     step_size = difference / (self._augment_by_n - 1)
-                    ret[-1].append(self._reference_inputs + step_size * j)
+                    ret[-1].append(reference + step_size * j)
 
         return ret
 
