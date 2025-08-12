@@ -1,11 +1,31 @@
 """PyTorch implementation of explanation methods."""
-from .wrappers import _calculate_relevancemap
+# Wrappers no longer exist - using Method Family Architecture
+try:
+    from .wrappers import _calculate_relevancemap
+except ImportError:
+    # If wrappers don't exist, use zennit_impl
+    from .zennit_impl import calculate_relevancemap as _calculate_relevancemap
 
-# Import the base classes
-from .base import BaseGradient, InputXGradient, GradientXSign
-from .integrated import IntegratedGradients, IntegratedGradientsXInput, IntegratedGradientsXSign
-from .smoothgrad import SmoothGrad, SmoothGradXInput, SmoothGradXSign
-from .vargrad import VarGrad, VarGradXInput, VarGradXSign
+# Import the base classes (these may not exist either)
+try:
+    from .base import BaseGradient, InputXGradient, GradientXSign
+    from .integrated import IntegratedGradients, IntegratedGradientsXInput, IntegratedGradientsXSign
+    from .smoothgrad import SmoothGrad, SmoothGradXInput, SmoothGradXSign
+    from .vargrad import VarGrad, VarGradXInput, VarGradXSign
+except ImportError:
+    # If these don't exist, define placeholders
+    BaseGradient = None
+    InputXGradient = None
+    GradientXSign = None
+    IntegratedGradients = None
+    IntegratedGradientsXInput = None
+    IntegratedGradientsXSign = None
+    SmoothGrad = None
+    SmoothGradXInput = None
+    SmoothGradXSign = None
+    VarGrad = None
+    VarGradXInput = None
+    VarGradXSign = None
 
 # Define PyTorch-style API
 def calculate_relevancemap(model, input_tensor, method="gradients", **kwargs):

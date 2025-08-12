@@ -351,17 +351,21 @@ class PathIntegrator(AugmentReduceBase):
         if len(ins) == 1:
             ret = []
             for i, x in enumerate(X):
-                difference = (np.array(x) - self._reference_inputs)
+                # Use zeros as baseline if reference_inputs is None
+                reference = self._reference_inputs if self._reference_inputs is not None else np.zeros_like(x)
+                difference = (np.array(x) - reference)
                 # X is only repeated _augment_by_n times by superclass method --> difference is the same each time
                 self.difference[ins[0].name] = difference
                 step_size = difference / (self._augment_by_n - 1)
-                ret.append(self._reference_inputs + step_size * i)
+                ret.append(reference + step_size * i)
         else:
             ret = []
             for i, x_ins in enumerate(X):
                 ret.append([])
                 for j, x in enumerate(x_ins):
-                    difference = (x - self._reference_inputs)
+                    # Use zeros as baseline if reference_inputs is None
+                    reference = self._reference_inputs if self._reference_inputs is not None else np.zeros_like(x)
+                    difference = (x - reference)
                     # X is only repeated _augment_by_n times by superclass method --> difference is the same each time
                     self.difference[ins[j].name] = difference
                     step_size = difference / (self._augment_by_n - 1)

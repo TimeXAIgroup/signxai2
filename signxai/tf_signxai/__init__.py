@@ -1,19 +1,19 @@
 import numpy as np
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Check if we should use the new Method Family Architecture
+USE_METHOD_FAMILIES = os.environ.get('SIGNXAI_USE_METHOD_FAMILIES', 'true').lower() == 'true'
 
 # Attempt to import common validation, handle if not found for robustness
 try:
     from ..common.validation import validate_input
-    # If validate_input is successfully imported, you might want to log or know.
-    # print("Successfully imported 'validate_input' from signxai.common.validation")
 except ImportError:
-    # This block executes if 'validate_input' cannot be imported from signxai.common.validation
-    # Define a dummy validate_input if the real one isn't found or needed immediately
     def validate_input(*args, **kwargs):  # pragma: no cover
         """Dummy validate_input function. Does nothing."""
-        # You can add a print here to confirm the dummy is being used:
-        # print("Warning: 'validate_input' not found in signxai.common.validation. Using dummy placeholder.")
         pass
-    # print("Defined dummy 'validate_input' due to ImportError.")
 
 # Define supported methods (ensure this list is comprehensive for your package)
 SUPPORTED_METHODS = [
@@ -45,8 +45,23 @@ def calculate_relevancemap(method: str,
     Raises:
         ValueError: If the method is not supported or if inputs are invalid.
     """
-    # If you intend to use validate_input, ensure it's called appropriately.
-    # For now, its call is commented out as its definition might be a dummy.
+    
+    # Use Method Family Architecture if enabled
+    if USE_METHOD_FAMILIES:
+        try:
+            from .methods_family import calculate_relevancemap_with_families
+            logger.info(f"Using Method Family Architecture for method: {method}")
+            return calculate_relevancemap_with_families(
+                method=method,
+                x=x,
+                model=model,
+                neuron_selection=neuron_selection,
+                **kwargs
+            )
+        except Exception as e:
+            logger.warning(f"Method Family failed, falling back to original: {e}")
+            # Continue with original implementation below
+    
     # validate_input(x, model)
 
     # Check if method string is recognized, but allow to proceed if not strictly in list for flexibility

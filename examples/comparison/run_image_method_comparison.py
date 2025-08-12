@@ -35,11 +35,11 @@ except ImportError:
 try:
     from signxai.utils.utils import load_image as signxai_load_tf_image
     from signxai.utils.utils import remove_softmax as tf_remove_softmax
-    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap as tf_calculate_relevancemap
+    from signxai.tf_signxai import calculate_relevancemap as tf_calculate_relevancemap
     from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
     from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
     from signxai.torch_signxai.utils import decode_predictions as decode_predictions_pytorch
-    import signxai.torch_signxai.methods.wrappers as torch_wrappers
+    # Wrappers no longer needed - using Method Family Architecture
 except ImportError as e:
     print(f"ERROR: Failed to import SignXAI components: {e}")
     print("Please ensure SignXAI2 is installed with both frameworks:")
@@ -68,15 +68,9 @@ IMAGENET_CLASSES_PATH = None
 import importlib
 
 def call_pytorch_method(method_name, model, input_tensor, target_class, **kwargs):
-    """Call PyTorch method with improved error handling and method routing."""
-    if method_name == 'w2lrp_epsilon_0_1':
-        return torch_wrappers.w2lrp_epsilon_0_1(model, input_tensor, **kwargs)
-    elif method_name == 'w2lrp_sequential_composite_b':
-        return torch_wrappers.w2lrp_sequential_composite_b(model, input_tensor, **kwargs)
-    elif method_name == 'w2lrp_sequential_composite_a':
-        return torch_wrappers.w2lrp_sequential_composite_a(model, input_tensor, **kwargs)
-    elif method_name == 'w2lrp_z':
-        return torch_wrappers.w2lrp_z(model, input_tensor, **kwargs)
+    """Call PyTorch method using the unified API."""
+    # All methods now go through the unified calculate_relevancemap
+    # which uses Method Family Architecture
     print(f"Calling PyTorch method: {method_name}")
     print(f"Input tensor shape: {input_tensor.shape}, target class: {target_class}")
     print(f"Method kwargs: {kwargs}")
@@ -89,35 +83,8 @@ def call_pytorch_method(method_name, model, input_tensor, target_class, **kwargs
         input_tensor = input_tensor.clone().detach().requires_grad_(True)
     
     try:
-        # Try wrapper function first (preferred for compatibility)
-        if hasattr(torch_wrappers, method_name):
-            wrapper_func = getattr(torch_wrappers, method_name)
-            if callable(wrapper_func):
-                print(f"Using wrapper function for {method_name}")
-                
-                # Adjust kwargs for wrapper function if needed
-                wrapper_kwargs = kwargs.copy()
-                
-                # Some wrapper functions expect different parameter names
-                if 'layer_name' in wrapper_kwargs:
-                    # Convert layer name to actual layer object if needed
-                    layer_name = wrapper_kwargs.pop('layer_name')
-                    if hasattr(model, layer_name):
-                        wrapper_kwargs['target_layer'] = getattr(model, layer_name)
-                    else:
-                        print(f"Warning: Layer {layer_name} not found in model")
-                
-                result = wrapper_func(model, input_tensor, **wrapper_kwargs)
-                print(f"Wrapper function succeeded, result shape: {result.shape if hasattr(result, 'shape') else 'no shape'}")
-                return result
-    
-    except Exception as wrapper_error:
-        print(f"Wrapper function failed: {wrapper_error}")
-        print("Falling back to Zennit implementation")
-    
-    try:
-        # Fall back to the regular Zennit-based implementation
-        print(f"Using Zennit implementation for {method_name}")
+        # Use the unified calculate_relevancemap API with Method Family Architecture
+        print(f"Using Method Family Architecture for {method_name}")
         
         # Prepare kwargs for Zennit implementation
         zennit_kwargs = kwargs.copy()
@@ -178,89 +145,45 @@ def call_pytorch_method(method_name, model, input_tensor, target_class, **kwargs
 
 
 def discover_all_methods():
-    """Dynamically discover all available methods from both frameworks with improved filtering."""
-    tf_methods = []
-    pt_methods = []
+    """Discover all available methods using Method Family Registry architecture."""
     
-    # Import TensorFlow wrapper module
+    print("=== METHOD DISCOVERY USING METHOD FAMILY REGISTRY ===")
+    
     try:
-        tf_wrapper_module = importlib.import_module('signxai.tf_signxai.methods.wrappers')
+        from signxai.common.method_families import get_registry
+        registry = get_registry()
         
-        def is_valid_tf_method(name, obj):
-            if not inspect.isfunction(obj) or name.startswith('_'):
-                return False
-            # Exclude utility functions
-            if name.startswith('calculate_native') or name.startswith('calculate_grad_cam'):
-                return False
-            # Exclude wrapper utility functions
-            if name.endswith('_wrapper') or name in ['calculate_relevancemap', 'calculate_relevancemaps']:
-                return False
-            return True
+        # Get ACTUAL common methods that work in BOTH frameworks
+        common_methods = list(registry.get_supported_methods())
+        common_methods.sort()
         
-        tf_methods = [name for name, obj in inspect.getmembers(tf_wrapper_module) 
-                     if is_valid_tf_method(name, obj)]
-        print(f"Discovered {len(tf_methods)} TensorFlow methods")
-        print(f"TF methods sample: {tf_methods[:10]}")
+        print(f"\nMethod Family Registry Results:")
+        print(f"- Common methods (both frameworks): {len(common_methods)}")
+        print(f"- Sample methods: {common_methods[:10]}")
+        
+        # For the comparison script, we need separate TF and PT lists
+        # But since we only want to test methods that work in both, we use the common list for both
+        tf_methods = common_methods.copy()
+        pt_methods = common_methods.copy()
+        
+        print(f"\nFinal Results:")
+        print(f"- TensorFlow methods: {len(tf_methods)}")
+        print(f"- PyTorch methods: {len(pt_methods)}")
+        print(f"- Common methods: {len(common_methods)}")
+        
+        return tf_methods, pt_methods, common_methods
+        
     except Exception as e:
-        print(f"Error discovering TensorFlow methods: {e}")
-    
-    # Import PyTorch wrapper module  
-    try:
-        pt_wrapper_module = importlib.import_module('signxai.torch_signxai.methods.wrappers')
+        print(f"Error using Method Family Registry: {e}")
+        print("Falling back to minimal method set")
         
-        def is_valid_pt_method(name, obj):
-            if not inspect.isfunction(obj) or name.startswith('_'):
-                return False
-            
-            # Exclude utility functions
-            if name in ['_calculate_relevancemap', 'calculate_relevancemap', 'calculate_relevancemaps']:
-                return False
-            if name.endswith('_wrapper'):
-                return False
-            
-            # Check function signature to handle methods with required parameters properly
-            try:
-                sig = inspect.signature(obj)
-                required_params = [p for p in sig.parameters.values() 
-                                 if p.default == inspect.Parameter.empty and 
-                                 p.name not in ['model_no_softmax', 'x', 'model', 'input_tensor', 'args', 'kwargs']]
-                
-                # Allow methods with mu if they have wrapper versions without mu
-                if any(p.name in ['mu'] for p in required_params):
-                    # Check if there's a wrapper version without mu
-                    wrapper_name = f"{name}_wrapper"
-                    if hasattr(pt_wrapper_module, wrapper_name):
-                        return False  # Skip this, use wrapper instead
-                    else:
-                        return False  # Skip methods that require mu without wrapper
-                
-                # Allow other required parameters that are commonly provided
-                allowed_required = ['target_class', 'neuron_selection', 'baseline', 'target_layer']
-                remaining_required = [p for p in required_params if p.name not in allowed_required]
-                if remaining_required:
-                    return False
-                    
-            except Exception as sig_error:
-                print(f"Error checking signature for {name}: {sig_error}")
-                return True  # Include if we can't check signature
-            
-            return True
+        # Fallback to a small set of methods we know work
+        fallback_methods = [
+            'gradient', 'guided_backprop', 'deconvnet', 
+            'smoothgrad', 'integrated_gradients', 'grad_cam'
+        ]
         
-        pt_methods = [name for name, obj in inspect.getmembers(pt_wrapper_module) 
-                     if is_valid_pt_method(name, obj)]
-        print(f"Discovered {len(pt_methods)} PyTorch methods")
-        print(f"PT methods sample: {pt_methods[:10]}")
-    except Exception as e:
-        print(f"Error discovering PyTorch methods: {e}")
-    
-    # Find common methods
-    common_methods = list(set(tf_methods) & set(pt_methods))
-    common_methods.sort()
-    
-    print(f"Found {len(common_methods)} common methods between frameworks")
-    print(f"Common methods sample: {common_methods[:10]}")
-    
-    return tf_methods, pt_methods, common_methods
+        return fallback_methods, fallback_methods, fallback_methods
 
 
 def categorize_methods(methods):

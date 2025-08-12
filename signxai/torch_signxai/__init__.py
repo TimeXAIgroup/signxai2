@@ -1,15 +1,38 @@
 # signxai/torch_signxai/__init__.py
 
-# Import the Zennit-based implementation which is the preferred default
-from .methods.zennit_impl import calculate_relevancemap as calculate_relevancemap_zennit_api
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Check if we should use the new Method Family Architecture
+USE_METHOD_FAMILIES = os.environ.get('SIGNXAI_USE_METHOD_FAMILIES', 'true').lower() == 'true'
+
+if USE_METHOD_FAMILIES:
+    # Use the new Method Family Architecture by default
+    logger.info("Using Method Family Architecture for PyTorch")
+    from .methods_family import calculate_relevancemap_with_families as calculate_relevancemap
+else:
+    # Fallback to original implementation
+    logger.info("Using original wrapper implementation for PyTorch")
+    from .methods.zennit_impl import calculate_relevancemap as calculate_relevancemap
 
 # Import utilities that are commonly used
-# Make sure signxai/torch_signxai/utils.py defines these top-level functions
 from .utils import remove_softmax, decode_predictions, NoSoftmaxWrapper
 
-# Expose the PyTorch native API (Zennit-based) as the default 'calculate_relevancemap'
-# This is the most important part for run_gradient_comparison.py
-calculate_relevancemap = calculate_relevancemap_zennit_api
+# Import individual method functions for compatibility
+try:
+    from .methods.wrappers import (
+        integrated_gradients,
+        grad_cam,
+    )
+except ImportError:
+    # If wrappers are removed, define stub functions
+    def integrated_gradients(*args, **kwargs):
+        return calculate_relevancemap(method='integrated_gradients', *args, **kwargs)
+
+    def grad_cam(*args, **kwargs):
+        return calculate_relevancemap(method='grad_cam', *args, **kwargs)
 
 # Define what gets imported with "from signxai.torch_signxai import *" for clarity
 __all__ = [
@@ -17,4 +40,7 @@ __all__ = [
     "remove_softmax",
     "decode_predictions",
     "NoSoftmaxWrapper",
+    # Individual methods for API compatibility
+    "integrated_gradients",
+    "grad_cam",
 ]
