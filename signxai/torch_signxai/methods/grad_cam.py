@@ -25,7 +25,9 @@ class GradCAM:
             target_layer: Target layer for Grad-CAM. If None, will try to 
                          automatically find the last convolutional layer.
         """
-        self.model = model
+        # Wrap model to avoid inplace operations if needed
+        self.model = self._wrap_model_no_inplace(model)
+        self.original_model = model  # Keep reference to original
         self.target_layer = target_layer
         self.gradients = None
         self.activations = None
@@ -33,7 +35,7 @@ class GradCAM:
         
         # If target_layer is not provided, try to find the last convolutional layer
         if self.target_layer is None:
-            self.target_layer = self._find_target_layer(model)
+            self.target_layer = self._find_target_layer(self.model)
             
         # Check if target_layer was found or provided
         if self.target_layer is None:
@@ -42,6 +44,53 @@ class GradCAM:
         
         # Register hooks
         self._register_hooks()
+    
+    def _wrap_model_no_inplace(self, model):
+        """Wrap model to replace inplace operations that can cause issues with hooks."""
+        import copy
+        
+        class NoInplaceWrapper(nn.Module):
+            def __init__(self, model):
+                super().__init__()
+                # Use deepcopy to avoid modifying the original model
+                self.model = copy.deepcopy(model)
+                self._replace_inplace_relu(self.model)
+            
+            def _replace_inplace_relu(self, module):
+                """Recursively replace inplace ReLUs."""
+                for name, child in module.named_children():
+                    if isinstance(child, nn.ReLU) and child.inplace:
+                        setattr(module, name, nn.ReLU(inplace=False))
+                    else:
+                        self._replace_inplace_relu(child)
+            
+            def forward(self, x):
+                return self.model(x)
+            
+            def __getattr__(self, name):
+                # Delegate attribute access to the wrapped model
+                try:
+                    return super().__getattr__(name)
+                except AttributeError:
+                    return getattr(self.model, name)
+        
+        # Check if model has inplace operations
+        has_inplace = False
+        
+        def check_inplace(module):
+            nonlocal has_inplace
+            for child in module.children():
+                if isinstance(child, nn.ReLU) and child.inplace:
+                    has_inplace = True
+                    return
+                check_inplace(child)
+        
+        check_inplace(model)
+        
+        # Only wrap if there are inplace operations
+        if has_inplace:
+            return NoInplaceWrapper(model)
+        return model
     
     def _find_target_layer(self, model):
         """Find the last convolutional layer in the model.
@@ -83,10 +132,12 @@ class GradCAM:
         self.hooks = []
         
         def forward_hook(module, input, output):
-            self.activations = output.detach()
+            # Clone to avoid inplace modification issues
+            self.activations = output.clone().detach()
         
         def backward_hook(module, grad_input, grad_output):
-            self.gradients = grad_output[0].detach()
+            # Clone to avoid inplace modification issues
+            self.gradients = grad_output[0].clone().detach()
         
         # Register hooks
         forward_handle = self.target_layer.register_forward_hook(forward_hook)
@@ -127,10 +178,12 @@ class GradCAM:
         # Select target class
         if target_class is None:
             target_class = output.argmax(dim=1)
-        elif isinstance(target_class, int):
-            target_class = torch.tensor([target_class], device=output.device)
+        elif isinstance(target_class, (int, np.integer)):
+            target_class = torch.tensor([int(target_class)], device=output.device)
         elif isinstance(target_class, (list, tuple)):
             target_class = torch.tensor(target_class, device=output.device)
+        elif isinstance(target_class, np.ndarray):
+            target_class = torch.from_numpy(target_class).to(output.device)
         
         # Create one-hot encoding
         if output.dim() == 2:  # Batch output
@@ -177,11 +230,9 @@ class GradCAM:
         epsilon = 1e-7
         cam = cam / (torch.max(cam) + epsilon)
         
-        # Resize if needed (for images)
-        if cam.dim() == 2 and x.dim() == 4:  # Image case
-            cam = cam.unsqueeze(0).unsqueeze(0)
-            cam = F.interpolate(cam, size=x.shape[2:], mode='bilinear', align_corners=False)
-            cam = cam.squeeze(0).squeeze(0)
+        # Don't resize here - we'll resize in calculate_grad_cam_relevancemap
+        # This avoids double resizing and keeps the raw CAM output
+        pass
         
         # Clean up hooks
         for hook in self.hooks:
@@ -221,7 +272,7 @@ class GradCAM:
         return cam
 
 
-def calculate_grad_cam_relevancemap(model, input_tensor, target_layer=None, target_class=None):
+def calculate_grad_cam_relevancemap(model, input_tensor, target_layer=None, target_class=None, layer_name=None, **kwargs):
     """Calculate Grad-CAM relevance map for images.
     
     This function provides a convenient interface compatible with grad_cam.py.
@@ -231,10 +282,26 @@ def calculate_grad_cam_relevancemap(model, input_tensor, target_layer=None, targ
         input_tensor: Input tensor
         target_layer: Target layer for Grad-CAM (None to auto-detect)
         target_class: Target class index (None for argmax)
+        layer_name: Alternative name for target_layer (for compatibility)
+        **kwargs: Additional parameters (ignored)
         
     Returns:
         Grad-CAM relevance map as numpy array
     """
+    # Use layer_name if target_layer not provided (for compatibility)
+    if target_layer is None and layer_name is not None:
+        # Get the actual layer from the model using the layer name
+        # Handle both dot notation and indexed access
+        parts = layer_name.split('.')
+        target_layer = model
+        for part in parts:
+            if part.isdigit():
+                # Numeric index
+                target_layer = target_layer[int(part)]
+            else:
+                # Attribute access
+                target_layer = getattr(target_layer, part)
+    
     # Initialize Grad-CAM
     grad_cam = GradCAM(model, target_layer)
     
@@ -246,14 +313,45 @@ def calculate_grad_cam_relevancemap(model, input_tensor, target_layer=None, targ
     if isinstance(cam, torch.Tensor):
         cam = cam.detach().cpu().numpy()
         
+    # Resize CAM to input size for consistency with TensorFlow
+    input_shape = input_tensor.shape
+    if input_tensor.dim() == 4:  # Batch input (B, C, H, W)
+        target_size = (input_shape[2], input_shape[3])  # (H, W)
+    else:  # Single input (C, H, W)
+        target_size = (input_shape[1], input_shape[2])  # (H, W)
+    
+    # Resize if necessary
+    if cam.shape[-2:] != target_size:
+        try:
+            import cv2
+            # cv2 expects (W, H) for resize
+            cv2_size = (target_size[1], target_size[0])
+            if cam.ndim == 2:
+                cam = cv2.resize(cam, cv2_size)
+            elif cam.ndim == 3:  # Batch of CAMs
+                resized_cams = []
+                for i in range(cam.shape[0]):
+                    resized_cams.append(cv2.resize(cam[i], cv2_size))
+                cam = np.stack(resized_cams, axis=0)
+        except ImportError:
+            # Fallback to scipy if cv2 is not available
+            from scipy.ndimage import zoom
+            if cam.ndim == 2:
+                zoom_factors = (target_size[0] / cam.shape[0], target_size[1] / cam.shape[1])
+                cam = zoom(cam, zoom_factors, order=1)
+            elif cam.ndim == 3:
+                zoom_factors = (1, target_size[0] / cam.shape[1], target_size[1] / cam.shape[2])
+                cam = zoom(cam, zoom_factors, order=1)
+    
     # Handle batch dimension if present
     if hasattr(input_tensor, 'dim') and input_tensor.dim() == 4:  # Batch
         # Return with batch dimension
         if cam.ndim == 2:  # Single CAM without batch
             cam = np.expand_dims(cam, axis=0)
     else:  # Single input
-        # Remove any extra dimensions
-        cam = np.squeeze(cam)
+        # Remove any extra dimensions if input is single
+        if cam.ndim == 3 and cam.shape[0] == 1:
+            cam = cam[0]
     
     return cam
 

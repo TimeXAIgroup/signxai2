@@ -1228,6 +1228,9 @@ class GuidedFamily(MethodFamily):
     def can_handle(self, method_name: str) -> bool:
         """Check if this is a guided method."""
         method_lower = method_name.lower()
+        # Exclude guided_grad_cam methods - they should be handled by CAMFamily
+        if 'guided_grad_cam' in method_lower or 'grad_cam' in method_lower:
+            return False
         return any(method_lower.startswith(m) for m in ['guided', 'deconvnet'])
     
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
@@ -1395,6 +1398,7 @@ class CAMFamily(MethodFamily):
                 calculate_grad_cam_relevancemap_timeseries
             )
             import torch
+            import numpy as np
             
             # Remove target_class from kwargs to avoid duplicate
             kwargs_copy = kwargs.copy()
@@ -1413,8 +1417,49 @@ class CAMFamily(MethodFamily):
             # Handle guided_grad_cam
             if 'guided' in method_name.lower():
                 # Guided Grad-CAM combines Grad-CAM with guided backprop
-                # For now, just use regular Grad-CAM
-                pass
+                # Calculate regular Grad-CAM first
+                if x.dim() <= 3 or 'timeseries' in method_name.lower():
+                    grad_cam_result = calculate_grad_cam_relevancemap_timeseries(
+                        model, x,
+                        target_class=target_class,
+                        **kwargs_copy
+                    )
+                else:
+                    grad_cam_result = calculate_grad_cam_relevancemap(
+                        model, x,
+                        target_class=target_class,
+                        **kwargs_copy
+                    )
+                
+                # Calculate guided backpropagation
+                from ..torch_signxai.methods.guided import GuidedBackprop
+                guided_bp = GuidedBackprop(model)
+                guided_result = guided_bp.attribute(x, target=target_class)
+                
+                # Convert to numpy if tensor
+                if isinstance(guided_result, torch.Tensor):
+                    guided_result = guided_result.detach().cpu().numpy()
+                
+                # Element-wise multiplication (this is the core of Guided Grad-CAM)
+                # Resize grad_cam to match guided_result shape if needed
+                if grad_cam_result.shape != guided_result.shape:
+                    # For image inputs, grad_cam is typically (H, W) while guided is (C, H, W)
+                    if len(guided_result.shape) == 3 and len(grad_cam_result.shape) == 2:
+                        # Expand grad_cam to match channels
+                        grad_cam_result = np.expand_dims(grad_cam_result, axis=0)
+                        grad_cam_result = np.repeat(grad_cam_result, guided_result.shape[0], axis=0)
+                    elif len(guided_result.shape) == 4 and len(grad_cam_result.shape) == 3:
+                        # Batch case: expand grad_cam to match batch and channels
+                        grad_cam_result = np.expand_dims(grad_cam_result, axis=1)
+                        grad_cam_result = np.repeat(grad_cam_result, guided_result.shape[1], axis=1)
+                
+                # Element-wise multiplication
+                result = grad_cam_result * guided_result
+                
+                if isinstance(result, torch.Tensor):
+                    result = result.detach().cpu().numpy()
+                
+                return result
             
             # Determine if timeseries or image
             if x.dim() <= 3 or 'timeseries' in method_name.lower():

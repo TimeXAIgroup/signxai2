@@ -787,6 +787,12 @@ class AdvancedLRPAnalyzer(AnalyzerBase):
             self.composite = self._create_w2lrp_composite()
         elif variant == "zblrp":
             self.composite = self._create_zblrp_composite()
+        elif variant == "composite_a":
+            # LRPZ Sequential Composite A
+            self.composite = self._create_lrpz_sequential_composite_a()
+        elif variant == "composite_b":
+            # LRPZ Sequential Composite B
+            self.composite = self._create_lrpz_sequential_composite_b()
         else:
             raise ValueError(f"Unknown LRP variant: {variant}")
         
@@ -1040,6 +1046,18 @@ class AdvancedLRPAnalyzer(AnalyzerBase):
         # Use custom iNNvestigate-compatible ZBox hooks
         from .hooks import create_innvestigate_zbox_composite
         return create_innvestigate_zbox_composite(low=low, high=high)
+    
+    def _create_lrpz_sequential_composite_a(self) -> Composite:
+        """Create LRPZ Sequential Composite A."""
+        from .hooks import lrpz_sequential_composite_a
+        epsilon = self.kwargs.get("epsilon", 0.1)
+        return lrpz_sequential_composite_a(epsilon=epsilon)
+    
+    def _create_lrpz_sequential_composite_b(self) -> Composite:
+        """Create LRPZ Sequential Composite B."""
+        from .hooks import lrpz_sequential_composite_b
+        epsilon = self.kwargs.get("epsilon", 0.1)
+        return lrpz_sequential_composite_b(epsilon=epsilon)
 
 
 class LRPSequential(AnalyzerBase): # This class also uses the custom NamedModule logic

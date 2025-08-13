@@ -31,7 +31,7 @@ from .stdx_rule import StdxEpsilon
 from .sign_rule import SIGNRule, SIGNmuRule
 
 # Import the advanced LRP analyzers from analyzers.py
-from .analyzers import AdvancedLRPAnalyzer, LRPSequential, BoundedLRPAnalyzer, DeepLiftAnalyzer, LRPStdxEpsilonAnalyzer
+from .analyzers import AdvancedLRPAnalyzer, LRPAnalyzer, LRPSequential, BoundedLRPAnalyzer, DeepLiftAnalyzer, LRPStdxEpsilonAnalyzer
 
 # SUPPORTED_ZENNIT_METHODS dictionary
 SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase for correct type hint
@@ -48,7 +48,7 @@ SUPPORTED_ZENNIT_METHODS: Dict[str, Type[AnalyzerBase]] = { # Use AnalyzerBase f
     "lrp": LRPAnalyzer, # Basic LRP
     # The following specific LRP methods will now use AdvancedLRPAnalyzer
     # by passing the 'variant' parameter.
-    "lrp.epsilon": LRPAnalyzer,
+    "lrp.epsilon": AdvancedLRPAnalyzer,
     "lrp_epsilon": AdvancedLRPAnalyzer,  # For epsilon methods called without dot
     # Specific LRP epsilon variants
     "lrp_epsilon_0_001": AdvancedLRPAnalyzer,

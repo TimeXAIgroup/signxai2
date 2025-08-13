@@ -38,8 +38,8 @@ def calculate_relevancemap_with_families(model,
             
             registry = get_registry()
             
-            # Add target_class to kwargs for compatibility
-            if target_class is not None:
+            # Add target_class to kwargs for compatibility (only if not already present)
+            if target_class is not None and 'target_class' not in kwargs:
                 kwargs['target_class'] = target_class
             
             logger.info(f"Attempting to execute {method} with Method Family Architecture")
@@ -59,25 +59,17 @@ def calculate_relevancemap_with_families(model,
             logger.warning(f"Method Family execution failed for {method}: {e}")
             logger.info("Falling back to original implementation")
     
-    # Fallback to original implementation
-    try:
-        from .methods.wrappers import calculate_relevancemap as original_calculate
-        
-        return original_calculate(
+    # Fallback to zennit_impl
+    from .methods.zennit_impl import calculate_relevancemap as zennit_calculate
+    
+    # Remove target_class from kwargs if present to avoid duplicate
+    fallback_kwargs = kwargs.copy()
+    fallback_kwargs.pop('target_class', None)
+    
+    return zennit_calculate(
             model=model,
             input_tensor=input_tensor,
             method=method,
             target_class=target_class,
-            **kwargs
-        )
-    except ImportError:
-        # If wrappers don't exist, try zennit_impl
-        from .methods.zennit_impl import calculate_relevancemap as zennit_calculate
-        
-        return zennit_calculate(
-            model=model,
-            input_tensor=input_tensor,
-            method=method,
-            target_class=target_class,
-            **kwargs
+            **fallback_kwargs
         )

@@ -89,6 +89,9 @@ def call_pytorch_method(method_name, model, input_tensor, target_class, **kwargs
         # Prepare kwargs for Zennit implementation
         zennit_kwargs = kwargs.copy()
         
+        # Remove target_class from kwargs since we pass it explicitly
+        zennit_kwargs.pop('target_class', None)
+        
         # Map parameter names if needed
         if 'num_samples' in zennit_kwargs and 'noise_level' in zennit_kwargs:
             # SmoothGrad parameters
