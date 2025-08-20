@@ -87,9 +87,9 @@ class LrpBaseHook(Hook):
         raise NotImplementedError
 
 
-class CorrectedAlphaBetaHook(Hook):
+class AlphaBetaHook(Hook):
     """
-    Corrected Alpha-Beta hook that exactly matches TensorFlow iNNvestigate's AlphaBeta rule.
+    Alpha-Beta hook that exactly matches TensorFlow iNNvestigate's AlphaBeta rule.
 
     The Alpha-Beta rule separates positive and negative contributions:
     - Positive inputs get weighted by alpha
@@ -688,9 +688,6 @@ class LrpSignEpsilonStdXMuHook(SignEpsilonHook):
     def __init__(self, epsilon: float = 0.0, stdfactor: float = 0.0, mu: float = 0.0, is_input_layer: bool = False):
         super().__init__(epsilon=epsilon, stdfactor=stdfactor, mu=mu, input_layer_rule='sign_mu', is_input_layer=is_input_layer)
 
-class LrpSignEpsilonStdXMuImprovedHook(LrpSignEpsilonStdXMuHook):
-    """Improved version of the StdX mu hook."""
-    pass
 
 # Alias for backward compatibility
 LrpSignEpsilonStdXHook = SignEpsilonHook
@@ -1011,8 +1008,9 @@ def lrpsign_epsilon_std_x_mu(epsilon: float = 0.0, stdfactor: float = 0.0, mu: f
     return LRPSignEpsilonStdXMuComposite()
 
 def lrpsign_epsilon_std_x_mu_improved(epsilon: float = 0.0, stdfactor: float = 0.0, mu: float = 0.0, **kwargs) -> Callable:
-    """Creates a composite for LRP SIGN epsilon with StdX and mu (improved version)."""
-    class LRPSignEpsilonStdXMuImprovedComposite:
+    """Creates a composite for LRP SIGN epsilon with StdX and mu."""
+    # Just use the regular LrpSignEpsilonStdXMuHook
+    class LRPSignEpsilonStdXMuComposite:
         def __init__(self):
             self.epsilon = epsilon
             self.stdfactor = stdfactor
@@ -1022,7 +1020,7 @@ def lrpsign_epsilon_std_x_mu_improved(epsilon: float = 0.0, stdfactor: float = 0
         def context(self, model):
             first_layer = _find_first_layer(model)
             handles = []
-            hook = LrpSignEpsilonStdXMuImprovedHook(epsilon=self.epsilon, stdfactor=self.stdfactor, mu=self.mu)
+            hook = LrpSignEpsilonStdXMuHook(epsilon=self.epsilon, stdfactor=self.stdfactor, mu=self.mu)
             for name, module in model.named_modules():
                 if isinstance(module, (nn.Conv2d, nn.Linear)):
                     hook.is_input_layer = (module == first_layer)
@@ -1033,7 +1031,7 @@ def lrpsign_epsilon_std_x_mu_improved(epsilon: float = 0.0, stdfactor: float = 0
         def __call__(self, model):
             return self.context(model)
 
-    return LRPSignEpsilonStdXMuImprovedComposite()
+    return LRPSignEpsilonStdXMuComposite()
 
 def lrpz_epsilon(epsilon: float = 0.1) -> Composite:
     """Creates a composite for LRP-Z + Epsilon."""
@@ -1227,7 +1225,7 @@ def zblrp_vgg16_composite(rule_name: str = "epsilon", epsilon: float = 0.1, alph
             if rule_name == "epsilon":
                 return Epsilon(epsilon=epsilon)
             elif rule_name == "alphabeta" or rule_name == "alpha_beta":
-                return CorrectedAlphaBetaHook(alpha=alpha, beta=beta)
+                return AlphaBetaHook(alpha=alpha, beta=beta)
             else:
                 return Epsilon(epsilon=epsilon)
         return None
@@ -1254,7 +1252,7 @@ def sequential_composite(epsilon: float = 0.1, alpha: float = 2.0, beta: float =
                 elif 'features.0' in name or name.endswith('.0'):
                     return ZPlus()
                 else:
-                    return CorrectedAlphaBetaHook(alpha=alpha, beta=beta)
+                    return AlphaBetaHook(alpha=alpha, beta=beta)
 
             # Find layer position
             conv_linear_layers = []
@@ -1270,7 +1268,7 @@ def sequential_composite(epsilon: float = 0.1, alpha: float = 2.0, beta: float =
             elif layer_idx >= total_layers - 2:  # Last 2 layers
                 return Epsilon(epsilon=epsilon)
             else:  # Middle layers
-                return CorrectedAlphaBetaHook(alpha=alpha, beta=beta)
+                return AlphaBetaHook(alpha=alpha, beta=beta)
         return None
 
     return Composite(module_map=module_map)
@@ -1288,10 +1286,10 @@ def sequential_composite_b(epsilon: float = 0.1) -> Composite:
 # ============================================================================
 
 def alphabeta_composite(alpha: float = 2.0, beta: float = 1.0) -> Composite:
-    """Creates alpha-beta composite using corrected implementation."""
+    """Creates alpha-beta composite."""
     def module_map(ctx: dict, name: str, module: nn.Module):
         if isinstance(module, (Convolution, Linear)):
-            return CorrectedAlphaBetaHook(alpha=alpha, beta=beta)
+            return AlphaBetaHook(alpha=alpha, beta=beta)
         return None
 
     return Composite(module_map=module_map)
@@ -1430,7 +1428,6 @@ __all__ = [
     'LrpSignEpsilonMuHook',
     'LrpSignEpsilonStdXHook',
     'LrpSignEpsilonStdXMuHook',
-    'LrpSignEpsilonStdXMuImprovedHook',
     'WSquareHook',
     'SignHook',
     'SignMuHook',

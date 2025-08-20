@@ -1572,6 +1572,9 @@ class MethodFamilyRegistry:
         self.families = []
         self.fallback_handler = None
         self._initialize_families()
+        # Initialize the method parser for dynamic parameter extraction
+        from .method_parser import MethodParser
+        self.parser = MethodParser()
     
     def _initialize_families(self):
         """Initialize method families based on environment configuration."""
@@ -1610,10 +1613,30 @@ class MethodFamilyRegistry:
         Execute a method by finding the appropriate family.
         Falls back to original wrappers if no family can handle it.
         """
-        # Try each family in order
+        # Parse the method name to extract parameters and modifiers
+        parsed = self.parser.parse(method_name)
+        base_method = parsed['base_method']
+        extracted_params = parsed['params']
+        modifiers = parsed['modifiers']
+        
+        # Merge extracted parameters with kwargs (kwargs take precedence)
+        for key, value in extracted_params.items():
+            if key not in kwargs:
+                kwargs[key] = value
+        
+        # Add modifiers to kwargs for families to use
+        if modifiers:
+            kwargs['_modifiers'] = modifiers
+        
+        # Log parsed information for debugging
+        logger.debug(f"Parsed method '{method_name}': base='{base_method}', params={extracted_params}, modifiers={modifiers}")
+        
+        # Try each family in order with the base method
         for family in self.families:
-            if family.can_handle(method_name):
+            # Check if family can handle either original name or base method
+            if family.can_handle(method_name) or family.can_handle(base_method):
                 try:
+                    # Pass original method name so families can do their own parsing if needed
                     return family.execute(model, x, method_name, framework, **kwargs)
                 except Exception as e:
                     logger.info(f"Family {family.__class__.__name__} failed, trying next: {e}")

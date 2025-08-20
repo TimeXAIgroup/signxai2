@@ -63,6 +63,70 @@ def calculate_relevancemap(method: str,
             # Continue with original implementation below
     
     # validate_input(x, model)
+    
+    import re
+    
+    # First check for dynamic parameter parsing in method names
+    original_method = method
+    
+    # Parse dynamic LRP alpha-beta methods (e.g., lrp_alpha_3_beta_2)
+    alpha_beta_match = re.match(r'(lrp|lrpsign)_alpha_(\d+)_beta_(\d+)', method)
+    if alpha_beta_match:
+        prefix = alpha_beta_match.group(1)
+        alpha = int(alpha_beta_match.group(2))
+        beta = int(alpha_beta_match.group(3))
+        
+        # Use the closest predefined method or default to alpha_beta
+        if alpha == 1 and beta == 0:
+            method = "lrp.alpha_1_beta_0"
+        elif alpha == 2 and beta == 1:
+            method = "lrp.alpha_2_beta_1"
+        else:
+            # For other alpha-beta combinations, use the general alpha_beta
+            method = "lrp.alpha_beta"
+            # Pass alpha and beta as kwargs
+            kwargs['alpha'] = float(alpha)
+            kwargs['beta'] = float(beta)
+    
+    # Parse dynamic epsilon values (e.g., lrp_epsilon_0_1 means epsilon=0.1)
+    epsilon_match = re.match(r'(lrp|lrpsign)_epsilon_(\d+)(?:_(\d+))?(?:_std_x)?', method)
+    if epsilon_match and not alpha_beta_match:
+        whole_part = int(epsilon_match.group(2))
+        decimal_part = int(epsilon_match.group(3)) if epsilon_match.group(3) else 0
+        
+        # Convert to decimal (e.g., 0_1 -> 0.1, 0_25 -> 0.25)
+        if decimal_part > 0:
+            epsilon_value = float(f"{whole_part}.{decimal_part}")
+        else:
+            epsilon_value = float(whole_part)
+        
+        method = "lrp.epsilon"
+        kwargs['epsilon'] = epsilon_value
+        
+        # Check for std_x variant
+        if '_std_x' in original_method:
+            method = "lrp.stdxepsilon"
+    
+    # Static mappings for other methods
+    method_mapping = {
+        "lrp_alpha_1_beta_0": "lrp.alpha_1_beta_0",
+        "lrp_alpha_2_beta_1": "lrp.alpha_2_beta_1",
+        "lrpsign_alpha_1_beta_0": "lrp.alpha_1_beta_0",  
+        "lrp_sequential_composite_a": "lrp.sequential_composite_a",
+        "lrp_sequential_composite_b": "lrp.sequential_composite_b",
+        "lrpsign_sequential_composite_a": "lrp.sequential_composite_a",
+        "lrpsign_sequential_composite_b": "lrp.sequential_composite_b",
+        "lrp_epsilon": "lrp.epsilon",
+        "lrp_z": "lrp.z",
+        "lrpsign_z": "lrp.z",
+        "lrp_gamma": "lrp.gamma",
+        "lrp_flat": "lrp.flat",
+        "lrp_w_square": "lrp.w_square",
+    }
+    
+    # Apply static mapping if no dynamic parsing was done
+    if method == original_method and method in method_mapping:
+        method = method_mapping[method]
 
     # Check if method string is recognized, but allow to proceed if not strictly in list for flexibility
     if not isinstance(method, str):  # pragma: no cover
@@ -131,6 +195,7 @@ def calculate_relevancemap(method: str,
                 from ..utils.utils import calculate_explanation_innvestigate
                 # The 'model' passed to calculate_explanation_innvestigate is expected to be
                 # the model without softmax by that utility's internal logic for iNNvestigate.
+                
                 relevancemap = calculate_explanation_innvestigate(method=method, x=x, model=model,
                                                                   neuron_selection=neuron_selection, **kwargs)
             except ImportError:  # pragma: no cover
