@@ -738,11 +738,8 @@ class SpecializedLRPFamily(MethodFamily):
             self.supported_methods.add(f'lrpz_epsilon_{eps.replace(".", "_")}')
             self.supported_methods.add(f'lrpz_epsilon_{eps.replace(".", "_")}_std_x')
         
-        for alpha, beta in alpha_beta_pairs:
-            alpha_clean = alpha.replace(".", "_")
-            beta_clean = beta.replace(".", "_")
-            self.supported_methods.add(f'lrpz_alpha_{alpha_clean}_beta_{beta_clean}')
-            self.supported_methods.add(f'lrpz_alpha_{alpha_clean}_beta_{beta_clean}_std_x')
+        # Note: lrpz_alpha_beta combinations don't work with softmax layers
+        # so we don't include them
         
         # Sequential composite variations for lrpz
         self.supported_methods.update([
@@ -777,11 +774,8 @@ class SpecializedLRPFamily(MethodFamily):
             self.supported_methods.add(f'zblrp_epsilon_{eps.replace(".", "_")}')
             self.supported_methods.add(f'zblrp_epsilon_{eps.replace(".", "_")}_std_x')
         
-        for alpha, beta in alpha_beta_pairs:
-            alpha_clean = alpha.replace(".", "_")
-            beta_clean = beta.replace(".", "_")
-            self.supported_methods.add(f'zblrp_alpha_{alpha_clean}_beta_{beta_clean}')
-            self.supported_methods.add(f'zblrp_alpha_{alpha_clean}_beta_{beta_clean}_std_x')
+        # Note: zblrp_alpha_beta combinations don't work with softmax layers
+        # so we don't include them
         
         # Sequential composite variations for zblrp
         self.supported_methods.update([
@@ -1333,7 +1327,7 @@ class CAMFamily(MethodFamily):
         self.supported_methods = {
             'grad_cam', 'gradcam', 'grad_cam_timeseries',
             'scorecam', 'layercam', 'xgradcam',
-            'grad_cam_VGG16ILSVRC', 'guided_grad_cam_VGG16ILSVRC'
+            'grad_cam_VGG16ILSVRC'
         }
     
     def can_handle(self, method_name: str) -> bool:
@@ -1763,9 +1757,20 @@ class MethodFamilyRegistry:
                 # DeepLift - commented out as it doesn't work properly
                 # 'deep_lift', 'deeplift',
                 
-                # LRP core methods that work in both frameworks
-                'lrp_epsilon', 'lrp_z', 'lrp_gamma', 'lrp_flat', 'lrp_w_square',
+                # LRP core methods that work in both frameworks - INCLUDING ALL MODIFIERS
+                'lrp', 'lrp_epsilon', 'lrp_z', 'lrp_gamma', 'lrp_flat', 'lrp_w_square',
                 'lrp_alpha_1_beta_0', 'lrp_alpha_2_beta_1',
+                
+                # LRP methods with x_input, x_sign, x_input_x_sign modifiers
+                'lrp_x_input', 'lrp_x_sign', 'lrp_x_input_x_sign',
+                'lrp_epsilon_x_input', 'lrp_epsilon_x_sign', 'lrp_epsilon_x_input_x_sign',
+                'lrp_z_x_input', 'lrp_z_x_sign', 'lrp_z_x_input_x_sign',
+                'lrp_gamma_x_input', 'lrp_gamma_x_sign', 'lrp_gamma_x_input_x_sign',
+                'lrp_flat_x_input', 'lrp_flat_x_sign', 'lrp_flat_x_input_x_sign',
+                'lrp_w_square_x_input', 'lrp_w_square_x_sign', 'lrp_w_square_x_input_x_sign',
+                'lrp_alpha_1_beta_0_x_input', 'lrp_alpha_1_beta_0_x_sign', 'lrp_alpha_1_beta_0_x_input_x_sign',
+                'lrp_alpha_2_beta_1_x_input', 'lrp_alpha_2_beta_1_x_sign', 'lrp_alpha_2_beta_1_x_input_x_sign',
+                'lrp_z_plus_x_input', 'lrp_z_plus_x_sign', 'lrp_z_plus_x_input_x_sign',
                 
                 # All LRP epsilon variations
                 'lrp_epsilon_0_001', 'lrp_epsilon_0_01', 'lrp_epsilon_0_1', 'lrp_epsilon_0_2',
@@ -1793,19 +1798,19 @@ class MethodFamilyRegistry:
                 'lrpz_epsilon_20', 'lrpz_epsilon_50', 'lrpz_epsilon_75', 'lrpz_epsilon_100',
                 'lrpz_epsilon_0_1_std_x', 'lrpz_epsilon_0_25_std_x', 'lrpz_epsilon_0_5_std_x',
                 'lrpz_epsilon_1_std_x', 'lrpz_epsilon_2_std_x', 'lrpz_epsilon_3_std_x',
-                'lrpz_alpha_1_beta_0', 'lrpz_sequential_composite_a', 'lrpz_sequential_composite_b',
+                'lrpz_sequential_composite_a', 'lrpz_sequential_composite_b',
                 
                 # Flat LRP variations
                 'flatlrp_z', 'flatlrp_epsilon_0_01', 'flatlrp_epsilon_0_1', 'flatlrp_epsilon_1',
                 'flatlrp_epsilon_10', 'flatlrp_epsilon_20', 'flatlrp_epsilon_100',
                 'flatlrp_epsilon_0_1_std_x', 'flatlrp_epsilon_0_25_std_x', 'flatlrp_epsilon_0_5_std_x',
-                'flatlrp_alpha_1_beta_0', 'flatlrp_sequential_composite_a', 'flatlrp_sequential_composite_b',
+                'flatlrp_sequential_composite_a', 'flatlrp_sequential_composite_b',
                 
                 # W2 LRP variations
                 'w2lrp_z', 'w2lrp_epsilon_0_01', 'w2lrp_epsilon_0_1', 'w2lrp_epsilon_1',
                 'w2lrp_epsilon_10', 'w2lrp_epsilon_20', 'w2lrp_epsilon_100',
                 'w2lrp_epsilon_0_1_std_x', 'w2lrp_epsilon_0_25_std_x', 'w2lrp_epsilon_0_5_std_x',
-                'w2lrp_alpha_1_beta_0', 'w2lrp_sequential_composite_a', 'w2lrp_sequential_composite_b',
+                'w2lrp_sequential_composite_a', 'w2lrp_sequential_composite_b',
                 
                 # VGG16ILSVRC specific (ZB-LRP with ImageNet bounds)
                 'zblrp_z_VGG16ILSVRC', 'zblrp_epsilon_0_001_VGG16ILSVRC', 'zblrp_epsilon_0_01_VGG16ILSVRC',
@@ -1813,7 +1818,7 @@ class MethodFamilyRegistry:
                 'zblrp_epsilon_1_VGG16ILSVRC', 'zblrp_epsilon_5_VGG16ILSVRC', 'zblrp_epsilon_10_VGG16ILSVRC',
                 'zblrp_epsilon_20_VGG16ILSVRC', 'zblrp_epsilon_100_VGG16ILSVRC',
                 'zblrp_epsilon_0_1_std_x_VGG16ILSVRC', 'zblrp_epsilon_0_25_std_x_VGG16ILSVRC',
-                'zblrp_epsilon_0_5_std_x_VGG16ILSVRC', 'zblrp_alpha_1_beta_0_VGG16ILSVRC',
+                'zblrp_epsilon_0_5_std_x_VGG16ILSVRC',
                 'zblrp_sequential_composite_a_VGG16ILSVRC', 'zblrp_sequential_composite_b_VGG16ILSVRC',
                 
                 # LRP with dot notation (for iNNvestigate compatibility)
@@ -1827,7 +1832,7 @@ class MethodFamilyRegistry:
                 
                 # CAM methods
                 'grad_cam', 'grad_cam_x_input', 'grad_cam_x_sign', 'grad_cam_x_input_x_sign',
-                'grad_cam_VGG16ILSVRC', 'guided_grad_cam_VGG16ILSVRC',
+                'grad_cam_VGG16ILSVRC',
                 'grad_cam_timeseries',
                 
                 # Others that work
@@ -1922,26 +1927,26 @@ class MethodFamilyRegistry:
             'lrpz_epsilon_20', 'lrpz_epsilon_50', 'lrpz_epsilon_75', 'lrpz_epsilon_100',
             'lrpz_epsilon_0_1_std_x', 'lrpz_epsilon_0_25_std_x', 'lrpz_epsilon_0_5_std_x',
             'lrpz_epsilon_1_std_x', 'lrpz_epsilon_2_std_x', 'lrpz_epsilon_3_std_x',
-            'lrpz_alpha_1_beta_0', 'lrpz_sequential_composite_a', 'lrpz_sequential_composite_b',
+            'lrpz_sequential_composite_a', 'lrpz_sequential_composite_b',
             
             # Flat LRP variations
             'flatlrp_z', 'flatlrp_epsilon_0_01', 'flatlrp_epsilon_0_1', 'flatlrp_epsilon_1',
             'flatlrp_epsilon_10', 'flatlrp_epsilon_20', 'flatlrp_epsilon_100',
             'flatlrp_epsilon_0_1_std_x', 'flatlrp_epsilon_0_25_std_x', 'flatlrp_epsilon_0_5_std_x',
-            'flatlrp_alpha_1_beta_0', 'flatlrp_sequential_composite_a', 'flatlrp_sequential_composite_b',
+            'flatlrp_sequential_composite_a', 'flatlrp_sequential_composite_b',
             
             # W2 LRP variations
             'w2lrp_z', 'w2lrp_epsilon_0_01', 'w2lrp_epsilon_0_1', 'w2lrp_epsilon_1',
             'w2lrp_epsilon_10', 'w2lrp_epsilon_20', 'w2lrp_epsilon_100',
             'w2lrp_epsilon_0_1_std_x', 'w2lrp_epsilon_0_25_std_x', 'w2lrp_epsilon_0_5_std_x',
-            'w2lrp_alpha_1_beta_0', 'w2lrp_sequential_composite_a', 'w2lrp_sequential_composite_b'
+            'w2lrp_sequential_composite_a', 'w2lrp_sequential_composite_b'
         }
         
         # Add custom SignXAI TensorFlow implementations  
         custom_tf_methods = {
             'grad_cam', 'grad_cam_timeseries', 'occlusion',
             'grad_cam_x_input', 'grad_cam_x_sign', 'grad_cam_x_input_x_sign',
-            'grad_cam_VGG16ILSVRC', 'guided_grad_cam_VGG16ILSVRC',
+            'grad_cam_VGG16ILSVRC',
             'random_uniform'
         }
         
@@ -1952,7 +1957,7 @@ class MethodFamilyRegistry:
             'zblrp_epsilon_1_VGG16ILSVRC', 'zblrp_epsilon_5_VGG16ILSVRC', 'zblrp_epsilon_10_VGG16ILSVRC',
             'zblrp_epsilon_20_VGG16ILSVRC', 'zblrp_epsilon_100_VGG16ILSVRC',
             'zblrp_epsilon_0_1_std_x_VGG16ILSVRC', 'zblrp_epsilon_0_25_std_x_VGG16ILSVRC',
-            'zblrp_epsilon_0_5_std_x_VGG16ILSVRC', 'zblrp_alpha_1_beta_0_VGG16ILSVRC',
+            'zblrp_epsilon_0_5_std_x_VGG16ILSVRC',
             'zblrp_sequential_composite_a_VGG16ILSVRC', 'zblrp_sequential_composite_b_VGG16ILSVRC'
         }
         
@@ -1960,13 +1965,26 @@ class MethodFamilyRegistry:
         # These are modifiers we can apply to base methods
         implementable_variations = set()
         
-        # Apply x_input, x_sign modifiers to methods that support them
+        # Apply x_input, x_sign modifiers to ALL attribution methods that support them
+        # This includes gradient methods, LRP methods, and other attribution methods
         base_methods_for_modifiers = {
-            'gradient', 'guided_backprop', 'deconvnet', 'smoothgrad', 'vargrad'
+            # Gradient-based methods
+            'gradient', 'guided_backprop', 'deconvnet', 'smoothgrad', 'vargrad',
+            'integrated_gradients',
+            
+            # Core LRP methods - these should ALL support modifiers
+            'lrp', 'lrp_z', 'lrp_gamma', 'lrp_epsilon', 'lrp_flat', 'lrp_w_square',
+            'lrp_alpha_1_beta_0', 'lrp_alpha_2_beta_1',
+            
+            # LRP z variations
+            'lrp_z_plus',
+            
+            # GradCAM
+            'grad_cam'
         }
         
         for base_method in base_methods_for_modifiers:
-            if base_method in innvestigate_analyzers:
+            if base_method in innvestigate_analyzers or base_method in custom_tf_methods:
                 implementable_variations.add(f'{base_method}_x_input')
                 implementable_variations.add(f'{base_method}_x_sign')
                 implementable_variations.add(f'{base_method}_x_input_x_sign')

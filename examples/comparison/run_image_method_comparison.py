@@ -940,10 +940,21 @@ def main():
         'guided_backprop_x_sign_mu_wrapper', 'lrp_epsilon_wrapper',
         'deeplift_method',
         # Exclude deeplift methods as they're not properly implemented
-        'deeplift_x_input', 'deeplift_x_input_x_sign', 'deeplift_x_sign'
+        'deeplift_x_input', 'deeplift_x_input_x_sign', 'deeplift_x_sign',
+        # Exclude occlusion if not implemented
+        'occlusion',
+        # Exclude model-specific methods that don't work with generic VGG16
+        'grad_cam_timeseries', 'grad_cam_MNISTCNN', 'grad_cam_VGG16MITPL365',
+        'guided_grad_cam_MNISTCNN', 'guided_grad_cam_VGG16MITPL365'
     }
+    
+    # Filter out:
+    # 1. Methods in excluded_methods
+    # 2. Methods starting with calculate_ or _
+    # 3. Methods with dot notation (lrp.epsilon, etc) - only keep underscore versions
     common_methods = [m for m in common_methods if m not in excluded_methods and 
-                     not m.startswith('calculate_') and not m.startswith('_')]
+                     not m.startswith('calculate_') and not m.startswith('_') and
+                     '.' not in m]  # Exclude dot notation methods
     
     # Apply method filter if provided
     if args.method_filter:
