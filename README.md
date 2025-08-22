@@ -1,140 +1,94 @@
-# SIGNed explanations: Unveiling relevant features by reducing bias
+# SignXAI2
 
-This repository and python package is an extended version of the published python package of the following journal article:
-https://doi.org/10.1016/j.inffus.2023.101883
+Cross-framework (TensorFlow + PyTorch) implementation of state-of-the-art XAI methods with dynamic method parsing.
 
-If you use the code from this repository in your work, please cite:
-```bibtex
- @article{Gumpfer2023SIGN,
-    title = {SIGNed explanations: Unveiling relevant features by reducing bias},
-    author = {Nils Gumpfer and Joshua Prim and Till Keller and Bernhard Seeger and Michael Guckert and Jennifer Hannig},
-    journal = {Information Fusion},
-    pages = {101883},
-    year = {2023},
-    issn = {1566-2535},
-    doi = {https://doi.org/10.1016/j.inffus.2023.101883},
-    url = {https://www.sciencedirect.com/science/article/pii/S1566253523001999}
-}
-```
+## Key Features
 
-<img src="https://ars.els-cdn.com/content/image/1-s2.0-S1566253523001999-ga1_lrg.jpg" title="Graphical Abstract" width="900px"/>
+✨ **Dynamic Method Parsing**: Parameters embedded in method names  
+🔄 **Unified API**: Same interface for TensorFlow and PyTorch  
+🚀 **No Wrappers**: Direct method calls for better performance  
+📊 **Time Series Support**: Full ECG and time series visualization  
 
-## Documentation
-
-The documentation for SignXAI2 is available at:
-https://irislaboratory.github.io/signxai2/index.html
-
-## Requirements
-
-- Python 3.9 or 3.10 (Python 3.11+ is not supported)
-- TensorFlow >=2.8.0,<=2.12.1
-- PyTorch >=1.10.0
-- NumPy, Matplotlib, SciPy
-
-## 🚀 Installation
-
-SignXAI2 requires you to explicitly choose which deep learning framework(s) to install. This ensures you only install what you need.
-
-### Install from PyPI
-
-**For TensorFlow users:**
-```bash
-pip install signxai2[tensorflow]
-```
-
-**For PyTorch users:**
-```bash
-pip install signxai2[pytorch]
-```
-
-**For both frameworks:**
-```bash
-pip install signxai2[all]
-```
-
-**For development (includes all frameworks + dev tools):**
-```bash
-pip install signxai2[dev]
-```
-
-**Note:** Installing `pip install signxai2` alone is not supported. You must specify at least one framework.
-
-### Install from source
+## Installation
 
 ```bash
-git clone https://github.com/IRISlaboratory/signxai2.git
-cd signxai2
-
-# Choose your installation:
-pip install -e .[tensorflow]    # TensorFlow only
-pip install -e .[pytorch]       # PyTorch only  
-pip install -e .[all]           # Both frameworks
-pip install -e .[dev]           # Development (all frameworks + tools)
+pip install signxai2[all]  # Install with both frameworks
+# OR
+pip install signxai2[tensorflow]  # TensorFlow only
+pip install signxai2[pytorch]  # PyTorch only
 ```
 
-## Setup of Git LFS
+## Quick Start
 
-Before you get started please set up [Git LFS](https://git-lfs.github.com/) to download the large files in this repository. This is required to access the pre-trained models and example data.
+### Image Classification
 
-```bash
-git lfs install
+```python
+from signxai.api import explain
+
+# Basic gradient
+explanation = explain(model, image, method_name="gradient")
+
+# SmoothGrad with custom parameters
+explanation = explain(model, image, method_name="smoothgrad_noise_0_3_samples_50")
+
+# Complex combination
+explanation = explain(model, image, method_name="gradient_x_input_x_sign_mu_neg_0_5")
 ```
 
-## 📦 Load Data and Documentation
+### Time Series (ECG)
 
-After installation, run the setup script to download documentation, examples, and sample data:
+```python
+from signxai.api import explain
+from utils.ecg_visualization import plot_ecg
 
-```bash
-bash ./prepare.sh
+# Generate explanation for ECG
+explanation = explain(model, ecg_data, method_name="gradient_x_input")
+
+# Visualize with 12-lead plot
+plot_ecg(ecg_data, explanation)
 ```
 
-This will download:
-- 📚 Full documentation (viewable at `docs/index.html`)
-- 📝 Example scripts and notebooks (`examples/`)  
-- 📊 Sample ECG data and images (`examples/data/`)
+## Dynamic Method Parsing
 
+Parameters are embedded directly in method names:
+
+| Method Name | Description |
+|------------|-------------|
+| `gradient` | Basic gradient |
+| `gradient_x_input` | Gradient × Input |
+| `smoothgrad_noise_0_3_samples_50` | SmoothGrad (noise=0.3, samples=50) |
+| `integrated_gradients_steps_100` | Integrated Gradients (100 steps) |
+| `lrp_epsilon_0_25` | LRP (ε=0.25) |
+| `gradient_x_input_x_sign_mu_neg_0_5` | Complex combination |
+
+## Supported Methods
+
+### Gradient-based
+- gradient, smoothgrad, integrated_gradients, vargrad
+
+### Backpropagation
+- guided_backprop, deconvnet
+
+### LRP Family
+- lrp_epsilon, lrp_alpha_beta, lrp_gamma, lrp_z
+
+### Feature Methods
+- grad_cam, grad_cam++
 
 ## Examples
 
-To get started with SignXAI2 Methods, please follow the example tutorials ('examples/tutorials/').
+See the `quickstart_*.py` files for complete examples:
+- `quickstart_tf_images.py` - TensorFlow image classification
+- `quickstart_tf_timeseries.py` - TensorFlow ECG analysis
+- `quickstart_torch_images.py` - PyTorch image classification
+- `quickstart_torch_timeseries.py` - PyTorch ECG analysis
 
-## Features
+## Documentation
 
-- Support for **TensorFlow** and **PyTorch** models
-- Consistent API across frameworks
-- Wide range of explanation methods:
-  - Gradient-based: Vanilla gradient, Integrated gradients, SmoothGrad
-  - Class activation maps: Grad-CAM
-  - Guided backpropagation
-  - Layer-wise Relevance Propagation (LRP)
-  - Sign-based thresholding for binary relevance maps
+- [API Reference](API_REFERENCE.md)
+- [Changelog](CHANGELOG.md)
+- [Tutorials](examples/tutorials/)
 
+## License
 
-### Development version
-
-To install with development dependencies for testing and documentation:
-
-```shell
-pip install signxai2[dev]
-```
-
-Or from source:
-```shell
-git clone https://github.com/IRISlaboratory/signxai2.git
-cd signxai2
-pip install -e ".[dev]"
-```
-
-##  Project Structure
-
-  - signxai/: Main package with unified API and framework detection
-  - signxai/tf_signxai/: TensorFlow implementation using modified iNNvestigate
-  - signxai/torch_signxai/: PyTorch implementation using zennit with custom hooks
-  - examples/tutorials/: Tutorials for both frameworks covering images and time series
-  - examples/comparison/: Implementation for reproducing results from the paper
-  - utils/: Helper scripts for model conversion (tf -> torch) and data preprocessing
-
-
-## Usage
-
-Please follow the example tutorials in the `examples/tutorials/` directory to get started with SignXAI2 methods. The examples cover various use cases, including images and time series analysis.
+MIT License - See LICENSE file for details.
