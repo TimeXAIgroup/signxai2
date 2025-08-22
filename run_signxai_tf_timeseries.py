@@ -27,8 +27,8 @@ if project_root not in sys.path:
 
 # --- Import SignXAI and Utility Functions ---
 try:
-    # Import the correct method from the wrappers module
-    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap as tf_calculate_relevancemap
+    # Use the unified API as the primary interface
+    from signxai.api import explain
     from signxai.utils.utils import remove_softmax as tf_remove_softmax
 except ImportError as e:
     print(f"Error importing SignXAI components: {e}. Ensure SignXAI is installed and in PYTHONPATH.")
@@ -57,7 +57,8 @@ GRAD_CAM_LAYERS_TF = {
 ECG_FRIENDLY_METHODS = [
     'gradient', 'integrated_gradients', 'smoothgrad', 'grad_cam_timeseries',  # Using grad_cam_timeseries for time series data
     'guided_backprop', 'gradient_x_sign', 'input_t_gradient',
-    'lrp_alpha_1_beta_0', 'lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x'
+    'lrp_alpha_1_beta_0', 'lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x',
+    'lrp_epsilon_50_x_input_x_sign'  # Added the complex method with modifiers
 ]
 
 
@@ -964,12 +965,13 @@ def execute_single_ecg_explanation(
     try:
         print(f"  Attempting to compute relevance map using method '{method_name}'...")
         
-        # Update to match the wrappers.py interface which expects: m, x, model_no_softmax, **kwargs
-        relevance_map_tf = tf_calculate_relevancemap(
-            m=method_name, 
-            x=tf_input_data, 
-            model_no_softmax=model_tf_no_softmax,
-            neuron_selection=target_class, 
+        # Use the unified API's explain function
+        relevance_map_tf = explain(
+            model=model_tf_no_softmax,
+            x=tf_input_data,
+            method_name=method_name,
+            target_class=target_class,
+            framework='tensorflow',
             **tf_xai_params
         )
         
@@ -985,11 +987,12 @@ def execute_single_ecg_explanation(
         if method_name != 'gradient' and method_name not in ['input_t_gradient', 'gradient_x_sign']:
             print("\n  --- Attempting FALLBACK to basic 'gradient' method ---")
             try:
-                fallback_relevance_map = tf_calculate_relevancemap(
-                    m='gradient', 
-                    x=tf_input_data, 
-                    model_no_softmax=model_tf_no_softmax,
-                    neuron_selection=target_class
+                fallback_relevance_map = explain(
+                    model=model_tf_no_softmax,
+                    x=tf_input_data,
+                    method_name='gradient',
+                    target_class=target_class,
+                    framework='tensorflow'
                 )
                 print(f"  SUCCESS with fallback method 'gradient'. Shape: {fallback_relevance_map.shape}")
                 relevance_map_tf = fallback_relevance_map
@@ -1263,8 +1266,9 @@ def parse_arguments() -> argparse.Namespace:
                         help='Add side-by-side comparison with original ECG image if available.')
 
     method_group = parser.add_mutually_exclusive_group(required=True)
-    method_group.add_argument('--method_name', type=str, choices=ECG_FRIENDLY_METHODS,
-                              help=f'XAI method to apply. Choices: {", ".join(ECG_FRIENDLY_METHODS)}')
+    method_group.add_argument('--method_name', type=str, default='lrp_epsilon_50_x_input_x_sign',
+                              choices=ECG_FRIENDLY_METHODS,
+                              help=f'XAI method to apply. Default: lrp_epsilon_50_x_input_x_sign. Choices: {", ".join(ECG_FRIENDLY_METHODS)}')
     method_group.add_argument('--list_available_methods', action='store_true',
                               help='List curated ECG-friendly XAI methods and exit.')
     method_group.add_argument('--run_all_ecg_methods', action='store_true',

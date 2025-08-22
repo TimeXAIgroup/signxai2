@@ -88,6 +88,22 @@ class MethodParser:
                     elif parts[1] == 'sequential':
                         # Already handled above
                         pass
+                    elif parts[1] in ['epsilon', 'gamma'] and len(parts) > 2:
+                        # Extract parameter value for epsilon/gamma methods
+                        base_method = f"{parts[0]}_{parts[1]}"
+                        # Try to extract the parameter value
+                        param_parts = []
+                        i = 2
+                        while i < len(parts) and parts[i] not in ['x', 'times', 'std', 'ib', 'timeseries']:
+                            param_parts.append(parts[i])
+                            i += 1
+                        if param_parts:
+                            # Convert underscores back to decimal points
+                            param_str = '_'.join(param_parts)
+                            if len(param_parts) == 1:
+                                params[parts[1]] = float(param_parts[0])
+                            elif len(param_parts) == 2:
+                                params[parts[1]] = float(f"{param_parts[0]}.{param_parts[1]}")
                     else:
                         base_method = f"{parts[0]}_{parts[1]}"
             elif parts[0] == 'integrated' and len(parts) > 1 and parts[1] == 'gradients':

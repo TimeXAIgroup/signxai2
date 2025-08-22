@@ -137,44 +137,38 @@ def calculate_relevancemap(method: str,
     if not isinstance(x, np.ndarray):  # pragma: no cover
         raise ValueError("Input x must be a NumPy array.")
 
+    # Instead of importing wrappers, use the new methods module directly
     try:
-        from .methods import wrappers as tf_method_wrappers
+        from . import methods as tf_methods
+        from ..common.method_parser import MethodParser
+        tf_method_available = True
     except ImportError:  # pragma: no cover
-        tf_method_wrappers = None
+        tf_method_available = False
         print(
-            "Warning: Could not import signxai.tf_signxai.methods.wrappers. TF-specific wrapped methods may not be available.")
+            "Warning: Could not import signxai.tf_signxai.methods. TF-specific methods may not be available.")
 
     relevancemap = None
-    # Method dispatch using specific wrappers if available
+    # Use the new methods module directly
     specific_wrapper_used = False
-    if tf_method_wrappers:
-        if method == 'gradient':
-            # This wrapper likely expects model_no_softmax directly, as it was working
-            relevancemap = tf_method_wrappers.gradient(x=x, model_no_softmax=model, neuron_selection=neuron_selection, **kwargs)
+    if tf_method_available:
+        try:
+            # Parse the method name to extract components
+            parser = MethodParser()
+            parsed_method = parser.parse(method)
+            
+            # Execute using the new methods module
+            relevancemap = tf_methods.execute(
+                model=model,
+                x=x,
+                parsed_method=parsed_method,
+                target_class=neuron_selection,
+                neuron_selection=neuron_selection,
+                **kwargs
+            )
             specific_wrapper_used = True
-        elif method == 'smoothgrad':
-            # Corrected: pass 'model' as 'model_no_softmax'
-            relevancemap = tf_method_wrappers.smoothgrad(x=x, model_no_softmax=model, neuron_selection=neuron_selection, **kwargs)
-            specific_wrapper_used = True
-        elif method == 'integrated_gradients':
-            # Corrected: pass 'model' as 'model_no_softmax'
-            relevancemap = tf_method_wrappers.integrated_gradients(x=x, model_no_softmax=model, neuron_selection=neuron_selection,
-                                                                   **kwargs)
-            specific_wrapper_used = True
-        elif method == 'guided_backprop':
-            # Corrected: pass 'model' as 'model_no_softmax'
-            relevancemap = tf_method_wrappers.guided_backprop(x=x, model_no_softmax=model, neuron_selection=neuron_selection,
-                                                              **kwargs)
-            specific_wrapper_used = True
-        elif method == 'grad_cam':
-            # Corrected: pass 'model' as 'model_no_softmax'
-            relevancemap = tf_method_wrappers.grad_cam(x=x, model_no_softmax=model, neuron_selection=neuron_selection, **kwargs)
-            specific_wrapper_used = True
-        elif method == 'occlusion':
-            # Corrected: pass 'model' as 'model_no_softmax' (assuming it follows the same pattern)
-            relevancemap = tf_method_wrappers.occlusion(x=x, model_no_softmax=model, neuron_selection=neuron_selection, **kwargs)
-            specific_wrapper_used = True
-        # Add other specific tf_method_wrappers calls here if you have them, ensuring to use model_no_softmax=model
+        except Exception as e:
+            logger.warning(f"Direct method execution failed for {method}: {e}")
+            # Fall through to iNNvestigate handler below
 
     # If not handled by a specific TF wrapper, or if wrappers failed to import,
     # try the generic iNNvestigate handler for methods it supports.

@@ -27,8 +27,8 @@ if project_root not in sys.path:
 
 # --- Import SignXAI and Utility Functions ---
 try:
-    # Import the correct method from the wrappers module
-    from signxai.torch_signxai.methods.wrappers import calculate_relevancemap as torch_calculate_relevancemap
+    # Use the unified API as the primary interface
+    from signxai.api import explain
     from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
 except ImportError as e:
     print(f"Error importing SignXAI components: {e}. Ensure SignXAI is installed and in PYTHONPATH.")
@@ -74,7 +74,8 @@ GRAD_CAM_LAYERS_PT = {
 ECG_FRIENDLY_METHODS = [
     'gradient', 'integrated_gradients', 'smoothgrad', 'grad_cam_timeseries',
     'guided_backprop', 'gradient_x_sign', 'input_t_gradient',
-    'lrp_alpha_1_beta_0', 'lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x'
+    'lrp_alpha_1_beta_0', 'lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x',
+    'lrp_epsilon_50_x_input_x_sign'  # Added the complex method with modifiers
 ]
 
 
@@ -260,11 +261,12 @@ def compute_relevance_map_pytorch(method_name: str, input_tensor: torch.Tensor,
             else:
                 print(f"  Warning: Layer '{target_layer_name}' not found in model")
                 
-        return torch_calculate_relevancemap(
-            'grad_cam_timeseries', 
-            input_tensor,
-            model,
-            neuron_selection=target_class, 
+        return explain(
+            model=model,
+            x=input_tensor,
+            method_name='grad_cam_timeseries',
+            target_class=target_class,
+            framework='pytorch',
             **clean_params
         )
         
@@ -280,8 +282,13 @@ def compute_relevance_map_pytorch(method_name: str, input_tensor: torch.Tensor,
                 return analyzer.analyze(input_tensor, target_class)
             except Exception as e:
                 print(f"  WARNING: Direct LRP failed ({e}), using wrapper")
-                return torch_calculate_relevancemap(
-                    method_name, input_tensor, model, neuron_selection=target_class, **method_params
+                return explain(
+                    model=model,
+                    x=input_tensor,
+                    method_name=method_name,
+                    target_class=target_class,
+                    framework='pytorch',
+                    **method_params
                 )
             
         elif method_name in ['lrp_epsilon_0_5_std_x', 'lrpsign_epsilon_0_5_std_x']:
@@ -302,11 +309,12 @@ def compute_relevance_map_pytorch(method_name: str, input_tensor: torch.Tensor,
     # Fallback to wrapper (may have batch issues)
     else:
         print(f"  WARNING: Using wrapper for '{method_name}' - may have batch dimension issues")
-        return torch_calculate_relevancemap(
-            method_name, 
-            input_tensor,
-            model,
-            neuron_selection=target_class, 
+        return explain(
+            model=model,
+            x=input_tensor,
+            method_name=method_name,
+            target_class=target_class,
+            framework='pytorch',
             **method_params
         )
 
@@ -818,8 +826,9 @@ def parse_arguments() -> argparse.Namespace:
                         help='ECG record ID from examples/data/timeseries/ (e.g., 03509_hr).')
 
     method_group = parser.add_mutually_exclusive_group(required=True)
-    method_group.add_argument('--method_name', type=str, choices=ECG_FRIENDLY_METHODS,
-                              help=f'XAI method to apply. Choices: {", ".join(ECG_FRIENDLY_METHODS)}')
+    method_group.add_argument('--method_name', type=str, default='lrp_epsilon_50_x_input_x_sign',
+                              choices=ECG_FRIENDLY_METHODS,
+                              help=f'XAI method to apply. Default: lrp_epsilon_50_x_input_x_sign. Choices: {", ".join(ECG_FRIENDLY_METHODS)}')
     method_group.add_argument('--list_available_methods', action='store_true',
                               help='List curated ECG-friendly XAI methods and exit.')
     method_group.add_argument('--run_all_ecg_methods', action='store_true',

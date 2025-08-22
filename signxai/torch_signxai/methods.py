@@ -8,15 +8,15 @@ import torch.nn as nn
 import numpy as np
 from typing import Dict, Any, List
 
-from .zennit_impl import (
+from signxai.torch_signxai.methods_impl.zennit_impl import (
     GradientAnalyzer, IntegratedGradientsAnalyzer, SmoothGradAnalyzer,
     GuidedBackpropAnalyzer, GradCAMAnalyzer, LRPAnalyzer, AdvancedLRPAnalyzer,
     LRPSequential, BoundedLRPAnalyzer, DeepLiftAnalyzer, LRPStdxEpsilonAnalyzer
 )
-from .signed import calculate_sign_mu
-from .grad_cam import calculate_grad_cam_relevancemap, calculate_grad_cam_relevancemap_timeseries
-from ..common.method_parser import MethodParser
-from ..common.method_normalizer import MethodNormalizer
+from signxai.torch_signxai.methods_impl.signed import calculate_sign_mu
+from signxai.torch_signxai.methods_impl.grad_cam import calculate_grad_cam_relevancemap, calculate_grad_cam_relevancemap_timeseries
+from signxai.common.method_parser import MethodParser
+from signxai.common.method_normalizer import MethodNormalizer
 
 # A registry to map base method names to their core implementation functions.
 METHOD_IMPLEMENTATIONS = {}
@@ -62,7 +62,7 @@ def _guided_backprop(model, x, **kwargs):
 
 @register_method("deconvnet")
 def _deconvnet(model, x, **kwargs):
-    from .zennit_impl.analyzers import DeconvNetAnalyzer
+    from signxai.torch_signxai.methods_impl.zennit_impl.analyzers import DeconvNetAnalyzer
     analyzer = DeconvNetAnalyzer(model)
     return analyzer.analyze(x, kwargs.get('target_class'))
 
@@ -123,15 +123,23 @@ def _apply_modifiers(relevance_map: np.ndarray, x: np.ndarray, modifiers: List[s
         x = x.detach().cpu().numpy()
 
     for modifier in modifiers:
-        if modifier == 'input':
+        if modifier == 'x_input' or modifier == 'input':
             modified_map *= x
-        elif modifier == 'sign':
-            s = np.nan_to_num(x / np.abs(x), nan=1.0)
-            modified_map *= s
-        elif modifier == 'signmu':
-            mu = params.get('mu', 0.0)
-            modified_map *= calculate_sign_mu(modified_map, mu)
-        # Add other modifiers as needed
+        elif modifier == 'x_sign' or modifier == 'sign':
+            # Check if there's a mu parameter for sign
+            if 'mu' in params:
+                mu = params.get('mu', 0.0)
+                # Debug output
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.debug(f"Applying sign with mu={mu}")
+                modified_map *= calculate_sign_mu(x, mu)
+            else:
+                s = np.nan_to_num(x / np.abs(x), nan=1.0)
+                modified_map *= s
+        elif modifier == 'std_x':
+            # Standard deviation normalization
+            pass  # Implementation needed if used
 
     return modified_map
 
@@ -183,7 +191,12 @@ def execute(model: nn.Module, x: torch.Tensor, parsed_method: Dict[str, Any], **
     relevance_map_tensor = core_method_func(model, input_tensor, **all_params)
 
     # Convert to numpy and remove batch dimension if it was added
-    relevance_map_np = relevance_map_tensor.detach().cpu().numpy()
+    if isinstance(relevance_map_tensor, torch.Tensor):
+        relevance_map_np = relevance_map_tensor.detach().cpu().numpy()
+    else:
+        # Already numpy array (from method families)
+        relevance_map_np = relevance_map_tensor
+        
     if needs_batch_dim and relevance_map_np.shape[0] == 1:
         relevance_map_np = relevance_map_np[0]
 

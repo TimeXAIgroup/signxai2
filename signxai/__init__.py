@@ -163,31 +163,75 @@ def _map_parameters(method_name, framework, **kwargs):
 
 
 def _call_tensorflow_method(model, x, method_name, target_class, **kwargs):
-    """Call TensorFlow implementation."""
+    """Call TensorFlow implementation using the new architecture."""
     tf_module = _load_tf_signxai()
     if not tf_module:
         _check_framework_availability()
-    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap
-
-    # Handle neuron_selection parameter
-    return calculate_relevancemap(
-        method_name, x, model,
-        neuron_selection=target_class,
-        **kwargs
-    )
+    
+    # Use the new method family architecture
+    from signxai.common.method_families import get_registry
+    from signxai.common.method_parser import MethodParser
+    
+    # Try method families first
+    try:
+        registry = get_registry()
+        return registry.execute(
+            model=model,
+            x=x,
+            method_name=method_name,
+            framework='tensorflow',
+            target_class=target_class,
+            neuron_selection=target_class,
+            **kwargs
+        )
+    except Exception as e:
+        # Fallback to direct execution
+        from signxai.tf_signxai.methods import execute as tf_execute
+        parser = MethodParser()
+        parsed_method = parser.parse(method_name)
+        return tf_execute(
+            model=model,
+            x=x,
+            parsed_method=parsed_method,
+            target_class=target_class,
+            neuron_selection=target_class,
+            **kwargs
+        )
 
 
 def _call_pytorch_method(model, x, method_name, target_class, **kwargs):
-    """Call PyTorch implementation."""
+    """Call PyTorch implementation using the new architecture."""
     torch_module = _load_torch_signxai()
     if not torch_module:
         _check_framework_availability()
-    from signxai.torch_signxai import calculate_relevancemap
-
-    return calculate_relevancemap(
-        model=model, input_tensor=x, method=method_name,
-        target_class=target_class, **kwargs
-    )
+    
+    # Use the new method family architecture
+    from signxai.common.method_families import get_registry
+    from signxai.common.method_parser import MethodParser
+    
+    # Try method families first
+    try:
+        registry = get_registry()
+        return registry.execute(
+            model=model,
+            x=x,
+            method_name=method_name,
+            framework='pytorch',
+            target_class=target_class,
+            **kwargs
+        )
+    except Exception as e:
+        # Fallback to direct execution
+        from signxai.torch_signxai.methods import execute as pt_execute
+        parser = MethodParser()
+        parsed_method = parser.parse(method_name)
+        return pt_execute(
+            model=model,
+            x=x,
+            parsed_method=parsed_method,
+            target_class=target_class,
+            **kwargs
+        )
 
 
 # Legacy framework-specific imports (for backwards compatibility)

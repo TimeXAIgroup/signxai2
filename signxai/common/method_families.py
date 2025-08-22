@@ -100,17 +100,10 @@ class SimpleGradientFamily(MethodFamily):
                 result = result * x
             
             if '_x_sign' in method_lower or 'sign' in modifiers:
-                if 'mu' in method_lower or 'mu' in kwargs:
-                    # Extract mu value
+                # Use mu from kwargs if available (parsed by MethodParser)
+                if 'mu' in kwargs:
                     mu = kwargs.get('mu', 0.0)
-                    if 'mu_' in method_lower:
-                        parts = method_lower.split('mu_')
-                        if len(parts) > 1:
-                            try:
-                                mu = float(parts[1].replace('_', '.'))
-                            except:
-                                pass
-                    from ..tf_signxai.methods.signed import calculate_sign_mu
+                    from ..tf_signxai.methods_impl.signed import calculate_sign_mu
                     result = result * calculate_sign_mu(x, mu)
                 else:
                     # Simple sign
@@ -132,7 +125,7 @@ class SimpleGradientFamily(MethodFamily):
         """Execute gradient methods for PyTorch."""
         try:
             import torch
-            from ..torch_signxai.methods.zennit_impl.analyzers import GradientAnalyzer
+            from ..torch_signxai.methods_impl.zennit_impl.analyzers import GradientAnalyzer
             
             # Get base gradient
             analyzer = GradientAnalyzer(model)
@@ -150,16 +143,10 @@ class SimpleGradientFamily(MethodFamily):
                 gradient_tensor = gradient_tensor * x_tensor
             
             if 'sign' in method_lower:
-                if 'mu' in method_lower:
+                # Use mu from kwargs if available (parsed by MethodParser)
+                if 'mu' in kwargs:
                     mu = kwargs.get('mu', 0.0)
-                    if 'mu_' in method_lower:
-                        parts = method_lower.split('mu_')
-                        if len(parts) > 1:
-                            try:
-                                mu = float(parts[1].replace('_', '.'))
-                            except:
-                                pass
-                    from ..torch_signxai.methods.signed import calculate_sign_mu
+                    from ..torch_signxai.methods_impl.signed import calculate_sign_mu
                     sign_mu = calculate_sign_mu(x_tensor.detach().cpu().numpy(), mu)
                     gradient_tensor = gradient_tensor * torch.from_numpy(sign_mu)
                 else:
@@ -272,16 +259,10 @@ class StochasticMethodFamily(MethodFamily):
                 result = result * x
             
             if '_x_sign' in method_lower or 'sign' in modifiers:
-                if 'mu' in method_lower or 'mu' in kwargs:
+                # Use mu from kwargs if available (parsed by MethodParser)
+                if 'mu' in kwargs:
                     mu = kwargs.get('mu', 0.0)
-                    if 'mu_' in method_lower:
-                        parts = method_lower.split('mu_')
-                        if len(parts) > 1:
-                            try:
-                                mu = float(parts[1].replace('_', '.'))
-                            except:
-                                pass
-                    from ..tf_signxai.methods.signed import calculate_sign_mu
+                    from ..tf_signxai.methods_impl.signed import calculate_sign_mu
                     result = result * calculate_sign_mu(x, mu)
                 else:
                     result = result * np.sign(x)
@@ -307,19 +288,19 @@ class StochasticMethodFamily(MethodFamily):
             base_method = method_lower.split('_')[0]
             
             if base_method == 'smoothgrad':
-                from ..torch_signxai.methods.zennit_impl.analyzers import SmoothGradAnalyzer
+                from ..torch_signxai.methods_impl.zennit_impl.analyzers import SmoothGradAnalyzer
                 noise_level = kwargs.get('noise_level', kwargs.get('noise_scale', 0.1))
                 num_samples = kwargs.get('num_samples', kwargs.get('augment_by_n', 50))
                 analyzer = SmoothGradAnalyzer(model, noise_level, num_samples)
                 
             elif base_method == 'vargrad':
-                from ..torch_signxai.methods.zennit_impl.analyzers import VarGradAnalyzer
+                from ..torch_signxai.methods_impl.zennit_impl.analyzers import VarGradAnalyzer
                 noise_level = kwargs.get('noise_level', kwargs.get('noise_scale', 0.1))
                 num_samples = kwargs.get('num_samples', kwargs.get('augment_by_n', 50))
                 analyzer = VarGradAnalyzer(model, noise_level, num_samples)
                 
             elif base_method in ['integrated', 'integratedgradients']:
-                from ..torch_signxai.methods.zennit_impl.analyzers import IntegratedGradientsAnalyzer
+                from ..torch_signxai.methods_impl.zennit_impl.analyzers import IntegratedGradientsAnalyzer
                 steps = kwargs.get('ig_steps', kwargs.get('steps', 64))
                 baseline = kwargs.get('baseline', kwargs.get('reference_inputs'))
                 analyzer = IntegratedGradientsAnalyzer(model, steps, baseline)
@@ -338,7 +319,13 @@ class StochasticMethodFamily(MethodFamily):
                 result = result * x_np
             if 'sign' in method_lower:
                 x_np = x.detach().cpu().numpy() if isinstance(x, torch.Tensor) else x
-                result = result * np.sign(x_np)
+                # Use mu from kwargs if available (parsed by MethodParser)
+                if 'mu' in kwargs:
+                    mu = kwargs.get('mu', 0.0)
+                    from ..torch_signxai.methods_impl.signed import calculate_sign_mu
+                    result = result * calculate_sign_mu(x_np, mu)
+                else:
+                    result = result * np.sign(x_np)
             
             return result
             
@@ -366,34 +353,19 @@ class LRPBasicFamily(MethodFamily):
             'lrp_alpha_1_beta_0', 'lrp_alpha_2_beta_1'  # Common alpha-beta combinations
         ])
         
-        # Epsilon variations with common values
-        epsilon_values = ['0.001', '0.01', '0.1', '0.25', '0.5', '1', '2', '5', '10', '20']
-        for eps in epsilon_values:
-            self.supported_methods.add(f'lrp_epsilon_{eps.replace(".", "_")}')
-            # With std_x variations
-            self.supported_methods.add(f'lrp_epsilon_{eps.replace(".", "_")}_std_x')
+        # Base LRP methods - parameters will be extracted dynamically by MethodParser
+        self.supported_methods.add('lrp_epsilon')  # Dynamic parameter extraction
+        self.supported_methods.add('lrp_alpha_beta')  # Dynamic parameter extraction
+        # Common presets for compatibility
+        self.supported_methods.add('lrp_alpha_1_beta_0')
+        self.supported_methods.add('lrp_alpha_2_beta_1')
         
-        # Alpha-beta variations
-        alpha_beta_combinations = [
-            ('1', '0'), ('2', '1'), ('3', '2'), ('4', '3'), ('0.5', '0'), ('1.5', '0.5')
-        ]
-        for alpha, beta in alpha_beta_combinations:
-            method_name = f'lrp_alpha_{alpha.replace(".", "_")}_beta_{beta.replace(".", "_")}'
-            self.supported_methods.add(method_name)
-            # With std_x variations
-            self.supported_methods.add(f'{method_name}_std_x')
-        
-        # Flat and W-square variations
+        # Flat and W-square base methods
         for rule in ['flat', 'w_square']:
             self.supported_methods.add(f'lrp_{rule}')
-            # With epsilon
-            for eps in ['0.01', '0.1', '0.25', '0.5', '1']:
-                self.supported_methods.add(f'lrp_{rule}_epsilon_{eps.replace(".", "_")}')
         
-        # Gamma variations
-        gamma_values = ['0.1', '0.25', '0.5', '1', '2']
-        for gamma in gamma_values:
-            self.supported_methods.add(f'lrp_gamma_{gamma.replace(".", "_")}')
+        # Gamma base method (parameters handled dynamically)
+        self.supported_methods.add('lrp_gamma')
     
     def can_handle(self, method_name: str) -> bool:
         """Check if this is a basic LRP method."""
@@ -607,7 +579,7 @@ class LRPBasicFamily(MethodFamily):
         try:
             import torch
             import numpy as np
-            from ..torch_signxai.methods.zennit_impl.analyzers import LRPAnalyzer
+            from ..torch_signxai.methods_impl.zennit_impl.analyzers import LRPAnalyzer
             
             method_lower = method_name.lower()
             
@@ -644,7 +616,7 @@ class LRPBasicFamily(MethodFamily):
                 # For gamma, we use epsilon rule with gamma parameter if available
                 # or fall back to a composite rule
                 try:
-                    from ..torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
+                    from ..torch_signxai.methods_impl.zennit_impl.analyzers import AdvancedLRPAnalyzer
                     analyzer = AdvancedLRPAnalyzer(
                         model, 'gamma',
                         gamma=rule_params.get('gamma', 0.25)
@@ -655,7 +627,7 @@ class LRPBasicFamily(MethodFamily):
                     
             elif rule_type == 'flat':
                 try:
-                    from ..torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
+                    from ..torch_signxai.methods_impl.zennit_impl.analyzers import AdvancedLRPAnalyzer
                     analyzer = AdvancedLRPAnalyzer(model, 'flat')
                 except ImportError:
                     # Fallback to epsilon
@@ -663,7 +635,7 @@ class LRPBasicFamily(MethodFamily):
                     
             elif rule_type in ['w_square', 'w']:
                 try:
-                    from ..torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
+                    from ..torch_signxai.methods_impl.zennit_impl.analyzers import AdvancedLRPAnalyzer
                     analyzer = AdvancedLRPAnalyzer(model, 'wsquare')
                 except ImportError:
                     # Fallback to epsilon
@@ -715,73 +687,30 @@ class SpecializedLRPFamily(MethodFamily):
             'pattern_attribution', 'pattern_net'
         ])
         
-        # Generate all sign variations dynamically
-        epsilon_values = ['0.001', '0.01', '0.1', '0.25', '0.5', '1', '2', '5', '10']
-        alpha_beta_pairs = [('1', '0'), ('2', '1'), ('3', '2')]
+        # Advanced LRP methods - parameters will be extracted dynamically by MethodParser
+        # LRP Sign variations
+        self.supported_methods.add('lrpsign_epsilon')  # Dynamic parameter extraction
+        self.supported_methods.add('lrpsign_alpha_beta')  # Dynamic parameter extraction
+        self.supported_methods.add('lrpsign_alpha_1_beta_0')  # Common preset
+        self.supported_methods.add('lrpsign_alpha_2_beta_1')  # Common preset
         
-        # LRP Sign variations (lrpsign_*)
-        for eps in epsilon_values:
-            self.supported_methods.add(f'lrpsign_epsilon_{eps.replace(".", "_")}')
-            self.supported_methods.add(f'lrpsign_epsilon_{eps.replace(".", "_")}_std_x')
-            # With mu modifiers
-            self.supported_methods.add(f'lrpsign_epsilon_{eps.replace(".", "_")}_mu_0_5')
-            self.supported_methods.add(f'lrpsign_epsilon_{eps.replace(".", "_")}_mu_neg_0_5')
+        # LRP Z variations
+        self.supported_methods.add('lrpz_epsilon')  # Dynamic parameter extraction
+        self.supported_methods.add('lrpz_sequential_composite_a')
+        self.supported_methods.add('lrpz_sequential_composite_b')
         
-        for alpha, beta in alpha_beta_pairs:
-            alpha_clean = alpha.replace(".", "_")
-            beta_clean = beta.replace(".", "_")
-            self.supported_methods.add(f'lrpsign_alpha_{alpha_clean}_beta_{beta_clean}')
-            self.supported_methods.add(f'lrpsign_alpha_{alpha_clean}_beta_{beta_clean}_std_x')
+        # Flat LRP variations
+        self.supported_methods.add('flatlrp_epsilon')  # Dynamic parameter extraction
+        self.supported_methods.add('flatlrp_alpha_beta')  # Dynamic parameter extraction
         
-        # LRP Z variations (lrpz_*)
-        for eps in epsilon_values:
-            self.supported_methods.add(f'lrpz_epsilon_{eps.replace(".", "_")}')
-            self.supported_methods.add(f'lrpz_epsilon_{eps.replace(".", "_")}_std_x')
+        # W-square LRP variations
+        self.supported_methods.add('w2lrp_epsilon')  # Dynamic parameter extraction
+        self.supported_methods.add('w2lrp_alpha_beta')  # Dynamic parameter extraction
         
-        # Note: lrpz_alpha_beta combinations don't work with softmax layers
-        # so we don't include them
-        
-        # Sequential composite variations for lrpz
-        self.supported_methods.update([
-            'lrpz_sequential_composite_a', 'lrpz_sequential_composite_b',
-            'lrpz_sequential_composite_a_std_x', 'lrpz_sequential_composite_b_std_x'
-        ])
-        
-        # Flat LRP variations (flatlrp_*)
-        for eps in epsilon_values:
-            self.supported_methods.add(f'flatlrp_epsilon_{eps.replace(".", "_")}')
-            self.supported_methods.add(f'flatlrp_epsilon_{eps.replace(".", "_")}_std_x')
-        
-        for alpha, beta in alpha_beta_pairs:
-            alpha_clean = alpha.replace(".", "_")
-            beta_clean = beta.replace(".", "_")
-            self.supported_methods.add(f'flatlrp_alpha_{alpha_clean}_beta_{beta_clean}')
-            self.supported_methods.add(f'flatlrp_alpha_{alpha_clean}_beta_{beta_clean}_std_x')
-        
-        # W-square LRP variations (w2lrp_*)
-        for eps in epsilon_values:
-            self.supported_methods.add(f'w2lrp_epsilon_{eps.replace(".", "_")}')
-            self.supported_methods.add(f'w2lrp_epsilon_{eps.replace(".", "_")}_std_x')
-        
-        for alpha, beta in alpha_beta_pairs:
-            alpha_clean = alpha.replace(".", "_")
-            beta_clean = beta.replace(".", "_")
-            self.supported_methods.add(f'w2lrp_alpha_{alpha_clean}_beta_{beta_clean}')
-            self.supported_methods.add(f'w2lrp_alpha_{alpha_clean}_beta_{beta_clean}_std_x')
-        
-        # Z-Box LRP variations (zblrp_*) - VGG16-specific but we'll support them
-        for eps in epsilon_values:
-            self.supported_methods.add(f'zblrp_epsilon_{eps.replace(".", "_")}')
-            self.supported_methods.add(f'zblrp_epsilon_{eps.replace(".", "_")}_std_x')
-        
-        # Note: zblrp_alpha_beta combinations don't work with softmax layers
-        # so we don't include them
-        
-        # Sequential composite variations for zblrp
-        self.supported_methods.update([
-            'zblrp_sequential_composite_a', 'zblrp_sequential_composite_b',
-            'zblrp_sequential_composite_a_std_x', 'zblrp_sequential_composite_b_std_x'
-        ])
+        # Z-Box LRP variations
+        self.supported_methods.add('zblrp_epsilon')  # Dynamic parameter extraction
+        self.supported_methods.add('zblrp_sequential_composite_a')
+        self.supported_methods.add('zblrp_sequential_composite_b')
     
     def can_handle(self, method_name: str) -> bool:
         """Check if this is a specialized LRP method."""
@@ -901,7 +830,7 @@ class SpecializedLRPFamily(MethodFamily):
             # Apply sign modifier
             if 'mu' in modifiers:
                 mu = modifiers['mu']
-                from ..tf_signxai.methods.signed import calculate_sign_mu
+                from ..tf_signxai.methods_impl.signed import calculate_sign_mu
                 result = result * calculate_sign_mu(x, mu)
             else:
                 result = result * np.sign(x)
@@ -1017,7 +946,7 @@ class SpecializedLRPFamily(MethodFamily):
             
             # Handle other complex methods - use original implementation
             else:
-                from ..torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
+                from ..torch_signxai.methods_impl.zennit_impl.analyzers import AdvancedLRPAnalyzer
                 
                 # Map to the appropriate analyzer
                 if 'flat' in method_lower:
@@ -1062,7 +991,7 @@ class SpecializedLRPFamily(MethodFamily):
         """Execute LRP sign variants for PyTorch."""
         import torch
         import numpy as np
-        from ..torch_signxai.methods.zennit_impl.analyzers import LRPAnalyzer
+        from ..torch_signxai.methods_impl.zennit_impl.analyzers import LRPAnalyzer
         
         # Parse the method components
         rule_type, rule_params, modifiers = self._parse_specialized_lrp_method(method_lower)
@@ -1084,7 +1013,7 @@ class SpecializedLRPFamily(MethodFamily):
         elif rule_type == 'lrpz':
             if 'sequential' in modifiers:
                 try:
-                    from ..torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
+                    from ..torch_signxai.methods_impl.zennit_impl.analyzers import AdvancedLRPAnalyzer
                     composite_type = 'composite_a' if 'composite_a' in modifiers else 'composite_b'
                     analyzer = AdvancedLRPAnalyzer(model, composite_type)
                 except ImportError:
@@ -1100,14 +1029,14 @@ class SpecializedLRPFamily(MethodFamily):
                 
         elif rule_type == 'flatlrp':
             try:
-                from ..torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
+                from ..torch_signxai.methods_impl.zennit_impl.analyzers import AdvancedLRPAnalyzer
                 analyzer = AdvancedLRPAnalyzer(model, 'flat')
             except ImportError:
                 analyzer = LRPAnalyzer(model, 'epsilon', 0.01)
                 
         elif rule_type == 'w2lrp':
             try:
-                from ..torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
+                from ..torch_signxai.methods_impl.zennit_impl.analyzers import AdvancedLRPAnalyzer
                 analyzer = AdvancedLRPAnalyzer(model, 'wsquare')
             except ImportError:
                 analyzer = LRPAnalyzer(model, 'epsilon', 0.01)
@@ -1116,7 +1045,7 @@ class SpecializedLRPFamily(MethodFamily):
             # Z-box is VGG16-specific, use regular LRP as fallback
             if 'sequential' in modifiers:
                 try:
-                    from ..torch_signxai.methods.zennit_impl.analyzers import AdvancedLRPAnalyzer
+                    from ..torch_signxai.methods_impl.zennit_impl.analyzers import AdvancedLRPAnalyzer
                     composite_type = 'composite_a' if 'composite_a' in modifiers else 'composite_b'
                     analyzer = AdvancedLRPAnalyzer(model, composite_type)
                 except ImportError:
@@ -1146,7 +1075,7 @@ class SpecializedLRPFamily(MethodFamily):
             x_np = x.detach().cpu().numpy() if isinstance(x, torch.Tensor) else x
             if 'mu' in modifiers:
                 mu = modifiers['mu']
-                from ..torch_signxai.methods.signed import calculate_sign_mu
+                from ..torch_signxai.methods_impl.signed import calculate_sign_mu
                 result = result * calculate_sign_mu(x_np, mu)
             else:
                 result = result * np.sign(x_np)
@@ -1192,7 +1121,7 @@ class DeepLiftFamily(MethodFamily):
     def execute_pytorch(self, model, x, method_name: str, **kwargs):
         """Execute DeepLift for PyTorch."""
         try:
-            from ..torch_signxai.methods.zennit_impl.analyzers import DeepLiftAnalyzer
+            from ..torch_signxai.methods_impl.zennit_impl.analyzers import DeepLiftAnalyzer
             import torch
             
             analyzer = DeepLiftAnalyzer(model)
@@ -1257,16 +1186,10 @@ class GuidedFamily(MethodFamily):
                 result = result * x
             
             if '_x_sign' in method_lower or 'sign' in modifiers:
-                if 'mu' in method_lower or 'mu' in kwargs:
+                # Use mu from kwargs if available (parsed by MethodParser)
+                if 'mu' in kwargs:
                     mu = kwargs.get('mu', 0.0)
-                    if 'mu_' in method_lower:
-                        parts = method_lower.split('mu_')
-                        if len(parts) > 1:
-                            try:
-                                mu = float(parts[1].replace('_', '.'))
-                            except:
-                                pass
-                    from ..tf_signxai.methods.signed import calculate_sign_mu
+                    from ..tf_signxai.methods_impl.signed import calculate_sign_mu
                     result = result * calculate_sign_mu(x, mu)
                 else:
                     result = result * np.sign(x)
@@ -1290,10 +1213,10 @@ class GuidedFamily(MethodFamily):
             method_lower = method_name.lower()
             
             if 'guided_backprop' in method_lower:
-                from ..torch_signxai.methods.zennit_impl.analyzers import GuidedBackpropAnalyzer
+                from ..torch_signxai.methods_impl.zennit_impl.analyzers import GuidedBackpropAnalyzer
                 analyzer = GuidedBackpropAnalyzer(model)
             elif 'deconvnet' in method_lower:
-                from ..torch_signxai.methods.zennit_impl.analyzers import DeconvNetAnalyzer
+                from ..torch_signxai.methods_impl.zennit_impl.analyzers import DeconvNetAnalyzer
                 analyzer = DeconvNetAnalyzer(model)
             else:
                 raise ValueError(f"Unknown guided method: {method_name}")
@@ -1306,7 +1229,13 @@ class GuidedFamily(MethodFamily):
                 result = result * x_np
             if 'x_sign' in method_lower:
                 x_np = x.detach().cpu().numpy() if isinstance(x, torch.Tensor) else x
-                result = result * np.sign(x_np)
+                # Use mu from kwargs if available (parsed by MethodParser)
+                if 'mu' in kwargs:
+                    mu = kwargs.get('mu', 0.0)
+                    from ..torch_signxai.methods_impl.signed import calculate_sign_mu
+                    result = result * calculate_sign_mu(x_np, mu)
+                else:
+                    result = result * np.sign(x_np)
             
             if isinstance(result, torch.Tensor):
                 result = result.detach().cpu().numpy()
@@ -1338,7 +1267,7 @@ class CAMFamily(MethodFamily):
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
         """Execute CAM methods for TensorFlow."""
         try:
-            from ..tf_signxai.methods.grad_cam import (
+            from ..tf_signxai.methods_impl.grad_cam import (
                 calculate_grad_cam_relevancemap,
                 calculate_grad_cam_relevancemap_timeseries
             )
@@ -1387,7 +1316,7 @@ class CAMFamily(MethodFamily):
     def execute_pytorch(self, model, x, method_name: str, **kwargs):
         """Execute CAM methods for PyTorch."""
         try:
-            from ..torch_signxai.methods.grad_cam import (
+            from ..torch_signxai.methods_impl.grad_cam import (
                 calculate_grad_cam_relevancemap,
                 calculate_grad_cam_relevancemap_timeseries
             )
@@ -1426,7 +1355,7 @@ class CAMFamily(MethodFamily):
                     )
                 
                 # Calculate guided backpropagation
-                from ..torch_signxai.methods.guided import GuidedBackprop
+                from ..torch_signxai.methods_impl.guided import GuidedBackprop
                 guided_bp = GuidedBackprop(model)
                 guided_result = guided_bp.attribute(x, target=target_class)
                 
@@ -1494,7 +1423,7 @@ class OcclusionFamily(MethodFamily):
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
         """Execute occlusion for TensorFlow."""
         try:
-            from ..tf_signxai.methods.occlusion import calculate_occlusion_relevancemap
+            from ..tf_signxai.methods_impl.occlusion import calculate_occlusion_relevancemap
             
             return calculate_occlusion_relevancemap(
                 x, model,
@@ -1508,7 +1437,7 @@ class OcclusionFamily(MethodFamily):
     def execute_pytorch(self, model, x, method_name: str, **kwargs):
         """Execute occlusion for PyTorch."""
         try:
-            from ..torch_signxai.methods.occlusion import calculate_occlusion_relevancemap
+            from ..torch_signxai.methods_impl.occlusion import calculate_occlusion_relevancemap
             import torch
             
             result = calculate_occlusion_relevancemap(
@@ -1645,7 +1574,7 @@ class MethodFamilyRegistry:
         
         if framework == 'tensorflow':
             try:
-                from ..tf_signxai.methods.wrappers import calculate_relevancemap
+                from ..tf_signxai.methods_impl.wrappers import calculate_relevancemap
                 # Remove target_class from kwargs since we pass it as neuron_selection
                 kwargs_copy = kwargs.copy()
                 target_class = kwargs_copy.pop('target_class', None)
@@ -1659,7 +1588,7 @@ class MethodFamilyRegistry:
                 raise NotImplementedError(f"Method '{method_name}' is not implemented for TensorFlow")
         elif framework == 'pytorch':
             try:
-                from ..torch_signxai.methods.wrappers import calculate_relevancemap
+                from ..torch_signxai.methods_impl.wrappers import calculate_relevancemap
                 # Remove target_class from kwargs since we pass it explicitly
                 kwargs_copy = kwargs.copy()
                 target_class = kwargs_copy.pop('target_class', None)
@@ -1671,7 +1600,7 @@ class MethodFamilyRegistry:
             except ImportError:
                 # Try zennit_impl as final fallback
                 try:
-                    from ..torch_signxai.methods.zennit_impl import calculate_relevancemap as zennit_calc
+                    from ..torch_signxai.methods_impl.zennit_impl import calculate_relevancemap as zennit_calc
                     kwargs_copy = kwargs.copy()
                     target_class = kwargs_copy.pop('target_class', None)
                     return zennit_calc(
@@ -1722,7 +1651,7 @@ class MethodFamilyRegistry:
         
         # Get core methods that are actually implemented in PyTorch/Zennit
         try:
-            from ..torch_signxai.methods.zennit_impl import SUPPORTED_ZENNIT_METHODS
+            from ..torch_signxai.methods_impl.zennit_impl import SUPPORTED_ZENNIT_METHODS
             all_zennit_methods = set(SUPPORTED_ZENNIT_METHODS.keys())
             
             # Filter out special markers and wrapper delegations
