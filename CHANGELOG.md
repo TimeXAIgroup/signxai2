@@ -10,7 +10,7 @@
 
 ### Changed
 - **Removed Wrapper Functions**: Direct method calls without intermediate wrappers
-- **Simplified API**: All methods now use the same unified interface
+- **Simplified API**: All methods use the same unified interface
 - **Improved Performance**: Optimized method parsing and execution
 
 ### Deprecated
