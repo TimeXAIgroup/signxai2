@@ -1,17 +1,36 @@
 #!/usr/bin/env python3
 """
-Time Series XAI Method Comparison Script for ECG Data
+Time Series XAI Method Comparison Script for ECG Data with Dynamic Method Parsing
 
 This script compares the outputs of TensorFlow and PyTorch implementations
-of XAI methods on ECG data and produces visualizations with highlighted areas.
+of XAI methods on ECG data using the unified SignXAI API with dynamic parameter parsing.
+Method parameters are now embedded directly in the method name.
 
 Usage:
     python examples/comparison/run_timeseries_method_comparison.py --pathology [MODEL] --method [METHOD] --record_id [RECORD_ID]
 
-Example:
-    python examples/comparison/run_timeseries_method_comparison.py --pathology AVB --method gradient --record_id 03509_hr
-    python examples/comparison/run_timeseries_method_comparison.py --pathology LBBB --method integrated_gradients
-    python examples/comparison/run_timeseries_method_comparison.py --method smoothgrad  # Uses default ECG model
+Examples with dynamic method parsing:
+    # Basic gradient
+    python examples/comparison/run_timeseries_method_comparison.py --method gradient --record_id 03509_hr
+    
+    # Gradient with transformations and parameters
+    python examples/comparison/run_timeseries_method_comparison.py --method gradient_x_input_x_sign_mu_neg_0_5 --record_id 03509_hr
+    
+    # SmoothGrad with custom parameters
+    python examples/comparison/run_timeseries_method_comparison.py --method smoothgrad_noise_0_3_samples_50 --record_id 03509_hr
+    
+    # Integrated Gradients with 100 steps
+    python examples/comparison/run_timeseries_method_comparison.py --method integrated_gradients_steps_100 --record_id 03509_hr
+    
+    # LRP with epsilon parameter
+    python examples/comparison/run_timeseries_method_comparison.py --method lrp_epsilon_0_25 --record_id 03509_hr
+    
+    # LRP with sign transformation
+    python examples/comparison/run_timeseries_method_comparison.py --method lrp_epsilon_50_x_sign --record_id 03509_hr
+    
+    # With pathology models
+    python examples/comparison/run_timeseries_method_comparison.py --pathology AVB --method gradient_x_input --record_id 03509_hr
+    python examples/comparison/run_timeseries_method_comparison.py --pathology LBBB --method integrated_gradients_steps_50
 """
 
 import numpy as np
@@ -58,9 +77,9 @@ from utils.ecg_visualization import plot_ecg
 
 # --- Import SignXAI packages after confirming frameworks are available ---
 try:
-    from signxai.tf_signxai import calculate_relevancemap as tf_calculate_relevancemap
+    # Import the unified SignXAI API for dynamic method parsing
+    from signxai.api import explain
     from signxai.utils.utils import remove_softmax as tf_remove_softmax
-    from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
     from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
 except ImportError as e:
     print(f"ERROR: Failed to import SignXAI components: {e}")
@@ -77,71 +96,12 @@ if ecg_model_dir not in sys.path:
 from ecg_model import ECG_PyTorch
 from pathology_ecg_model import Pathology_ECG_PyTorch
 
-# Configure method parameter mappings between TF and PyTorch
-METHOD_PARAM_MAPPING = {
-    'integrated_gradients': {
-        'tf_params': ['steps', 'reference_inputs'],
-        'pt_params': ['ig_steps', 'baseline']
-    },
-    'smoothgrad': {
-        'tf_params': ['num_samples', 'noise_level'],
-        'pt_params': ['num_samples', 'noise_level']
-    },
-    'grad_cam': {
-        'tf_params': ['last_conv_layer_name'],
-        'pt_params': ['target_layer']
-    }
-}
-
-# Define default parameters for methods
-DEFAULT_METHOD_PARAMS = {
-    'integrated_gradients': {
-        'steps': 50,
-        'reference_inputs': None  # Will be set to zeros dynamically
-    },
-    'smoothgrad': {
-        'augment_by_n': 25,  # TensorFlow parameter name
-        'noise_scale': 0.1   # TensorFlow parameter name
-    },
-    'grad_cam': {
-        'target_layer': None  # Will be set dynamically based on model
-    }
-}
-
-# Configure target layers for Grad-CAM based on model type
-GRAD_CAM_LAYERS = {
-    'ecg': {
-        'tf': 'last_conv',
-        'pt': 'conv3'  # This should match the attribute name in ECG_PyTorch
-    },
-    'pathology': {
-        'tf': 'conv1d_4',  # The final conv layer in pathology models
-        'pt': 'conv5'  # This should match the attribute name in Pathology_ECG_PyTorch
-    }
-}
-
-# Default LRP parameters for different methods
-DEFAULT_LRP_PARAMS = {
-    'lrp_epsilon': {
-        'epsilon': 0.1
-    },
-    'lrp_alpha_1_beta_0': {
-        'alpha': 1.0,
-        'beta': 0.0
-    },
-    'lrp_alpha_2_beta_1': {
-        'alpha': 2.0,
-        'beta': 1.0
-    },
-    'lrp_z': {
-        'rule_name': 'zplus',
-        'epsilon': 1e-7
-    },
-    'lrp_flat': {
-        'rule_name': 'flat',
-        'epsilon': 1e-7
-    }
-}
+# The new unified API handles method parameters dynamically
+# These are kept for reference but not actively used
+METHOD_PARAM_MAPPING = {}
+DEFAULT_METHOD_PARAMS = {}
+GRAD_CAM_LAYERS = {}
+DEFAULT_LRP_PARAMS = {}
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -152,10 +112,7 @@ def parse_arguments() -> argparse.Namespace:
                         help='Pathology-specific model (if not specified, uses default ECG model)')
 
     parser.add_argument('--method', type=str, required=True,
-                        choices=['gradient', 'integrated_gradients', 'smoothgrad', 'guided_backprop', 
-                                 'input_t_gradient', 'deconvnet', 'grad_cam', 'lrp_epsilon',
-                                 'lrp_alpha_1_beta_0', 'lrp_alpha_2_beta_1', 'lrp_z', 'lrp_flat'],
-                        help='XAI method to apply')
+                        help='XAI method to apply with dynamic parameter parsing (e.g., gradient, gradient_x_input_x_sign_mu_neg_0_5, smoothgrad_noise_0_3_samples_50, lrp_epsilon_0_25)')
                       
     parser.add_argument('--record_id', type=str, default='03509_hr',
                         help='ECG record ID to use (e.g., 03509_hr, 12131_hr, 14493_hr, 02906_hr)')
@@ -350,11 +307,11 @@ def load_ecg_data(record_id: str, model_info: Dict[str, Any]) -> np.ndarray:
         if not os.path.exists(data_file) or not os.path.exists(header_file):
             raise FileNotFoundError(f"ECG data files not found: {data_file} or {header_file}")
             
-        # Load ECG data using utility function (use 2000 to match model expectations)
+        # Load ECG data using utility function (use 3000 to match model expectations)
         ecg_data = load_and_preprocess_ecg(
             record_id=record_id,
             ecg_filters=['BWR', 'BLA', 'AC50Hz', 'LP40Hz'],
-            subsampling_window_size=2000,
+            subsampling_window_size=3000,
             subsample_start=0,
             src_dir=src_dir
         )
@@ -421,70 +378,20 @@ def prepare_ecg_data(ecg_data: np.ndarray) -> Tuple[np.ndarray, torch.Tensor]:
 def get_method_params(method: str, model_info: Dict[str, Any], tf_input: np.ndarray) -> Dict[str, Dict[str, Any]]:
     """
     Get parameters for the XAI method for both TensorFlow and PyTorch.
+    With the new unified API, parameters are embedded in the method name.
+    This function is kept for compatibility but returns empty dicts.
 
     Args:
-        method: XAI method name
+        method: XAI method name with embedded parameters
         model_info: Information about the model
         tf_input: TensorFlow input tensor (for reference values)
 
     Returns:
-        Dictionary with 'tf' and 'pt' keys containing parameters for each framework
+        Dictionary with 'tf' and 'pt' keys containing empty parameters
     """
-    params = {'tf': {}, 'pt': {}}
-
-    # Copy default parameters if available
-    if method in DEFAULT_METHOD_PARAMS:
-        for k, v in DEFAULT_METHOD_PARAMS[method].items():
-            params['tf'][k] = v
-
-    # Special handling for certain methods
-    if method == 'integrated_gradients':
-        # Create defaults for both frameworks to ensure consistency
-        if params['tf'].get('reference_inputs') is None:
-            params['tf']['reference_inputs'] = np.zeros_like(tf_input)
-        
-        if params['tf'].get('steps') is None:
-            params['tf']['steps'] = 50
-            
-        # Map TF parameters to PyTorch parameters with exactly matching values
-        params['pt']['ig_steps'] = params['tf']['steps']
-        
-        # PyTorch expects baseline as a tensor with correct dimension order
-        params['pt']['baseline'] = torch.zeros_like(torch.from_numpy(tf_input).permute(0, 2, 1).float())
-
-    elif method == 'grad_cam':
-        # Set appropriate target layers based on model type
-        model_type = model_info['model_type']  # 'ecg' or 'pathology'
-        if model_type in GRAD_CAM_LAYERS:
-            params['tf']['layer_name'] = GRAD_CAM_LAYERS[model_type]['tf']
-            params['pt']['target_layer'] = GRAD_CAM_LAYERS[model_type]['pt']
-
-    elif method == 'smoothgrad':
-        # Create defaults for both frameworks to ensure consistency
-        if params['tf'].get('augment_by_n') is None:
-            params['tf']['augment_by_n'] = 25
-        if params['tf'].get('noise_scale') is None:
-            params['tf']['noise_scale'] = 0.1
-            
-        # Map TF parameters to PyTorch parameters with exactly matching values
-        params['pt']['num_samples'] = params['tf']['augment_by_n']
-        params['pt']['noise_level'] = params['tf']['noise_scale']
-    
-    # Handle LRP methods with default parameters
-    elif method in DEFAULT_LRP_PARAMS:
-        # Some TF methods have built-in parameters, don't override them
-        if method in ['lrp_alpha_2_beta_1', 'lrp_alpha_1_beta_0', 'lrp_z', 'lrp_flat']:
-            # These TF methods have built-in parameters
-            # Only pass parameters to PyTorch
-            for k, v in DEFAULT_LRP_PARAMS[method].items():
-                params['pt'][k] = v
-        else:
-            # Add default LRP parameters for both frameworks
-            for k, v in DEFAULT_LRP_PARAMS[method].items():
-                params['tf'][k] = v
-                params['pt'][k] = v
-
-    return params
+    # The new unified API handles parameters dynamically from the method name
+    # No need to specify parameters separately
+    return {'tf': {}, 'pt': {}}
 
 
 def compute_relevance_maps(
@@ -499,82 +406,65 @@ def compute_relevance_maps(
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute relevance maps using the specified method for both frameworks.
+    Uses the unified SignXAI API with dynamic method parsing.
 
     Args:
-        method: XAI method name
+        method: XAI method name with embedded parameters (e.g., 'gradient_x_input_x_sign_mu_neg_0_5')
         tf_model: TensorFlow model with softmax removed
         pt_model: PyTorch model with softmax removed
         tf_input: TensorFlow input tensor
         pt_input: PyTorch input tensor
         target_class_tf: TensorFlow target class
         target_class_pt: PyTorch target class
-        method_params: Method parameters for both frameworks
+        method_params: Method parameters for both frameworks (unused with new API)
 
     Returns:
         Tuple of (tensorflow_relevance_map, pytorch_relevance_map)
     """
     print(f"\nComputing relevance maps using method: {method}")
+    print(f"Using dynamic method parsing from unified API")
 
-    # Add specific parameters for tensor dimension ordering for gradient-based methods
-    if method in ['gradient_x_sign', 'gradient_x_input'] and 'mu' not in method_params['tf']:
-        method_params['tf']['mu'] = 0.0  # Default mu value for sign thresholding
-
-    # Convert method name to format expected by each framework
-    tf_method_name = method
-    pt_method_name = method
-
-    # Some methods might have different names in different frameworks
-    method_name_mapping = {
-        'gradient': {'tf': 'gradient', 'pt': 'gradient'},
-        'integrated_gradients': {'tf': 'integrated_gradients', 'pt': 'integrated_gradients'},
-        'smoothgrad': {'tf': 'smoothgrad', 'pt': 'smoothgrad'},
-        'guided_backprop': {'tf': 'guided_backprop', 'pt': 'guided_backprop'},
-        'input_t_gradient': {'tf': 'input_t_gradient', 'pt': 'gradient_x_input'},
-        'deconvnet': {'tf': 'deconvnet', 'pt': 'deconvnet'},
-        'grad_cam': {'tf': 'grad_cam', 'pt': 'grad_cam'},
-        'lrp_epsilon': {'tf': 'lrp.epsilon', 'pt': 'lrp.epsilon'},
-        'lrp_alpha_1_beta_0': {'tf': 'lrp.alpha_1_beta_0', 'pt': 'lrp.alphabeta'},
-        'lrp_alpha_2_beta_1': {'tf': 'lrp.alpha_2_beta_1', 'pt': 'lrp.alphabeta'},
-        'lrp_z': {'tf': 'lrp.z', 'pt': 'lrp.zplus'},
-        'lrp_flat': {'tf': 'lrp.flat', 'pt': 'lrp.flat'}
-    }
-
-    if method in method_name_mapping:
-        tf_method_name = method_name_mapping[method]['tf']
-        pt_method_name = method_name_mapping[method]['pt']
-
-    # TensorFlow relevance map
-    tf_relevance_params = method_params['tf'].copy()
-    print(f"TensorFlow relevance map parameters: {tf_relevance_params}")
-
-    # TensorFlow relevance map - no fallbacks, solid implementation or failure
-    tf_relevance_map = tf_calculate_relevancemap(
-        method=tf_method_name,
-        x=tf_input,
-        model=tf_model,
-        neuron_selection=target_class_tf,
-        **tf_relevance_params
+    # TensorFlow relevance map using unified API
+    print(f"Computing TensorFlow relevance map...")
+    print(f"  Method: {method}")
+    print(f"  Input shape: {tf_input.shape}")
+    print(f"  Target class: {target_class_tf}")
+    
+    # Remove batch dimension for TF as the API handles it
+    tf_input_nobatch = tf_input[0] if tf_input.ndim == 3 else tf_input
+    
+    tf_relevance_map = explain(
+        tf_model,
+        tf_input_nobatch,
+        method_name=method,
+        target_class=target_class_tf
     )
+    
+    # Convert to numpy if needed
+    if hasattr(tf_relevance_map, 'numpy'):
+        tf_relevance_map = tf_relevance_map.numpy()
+    
     print(f"TensorFlow relevance map shape: {tf_relevance_map.shape}")
 
-    # PyTorch relevance map
-    pt_relevance_params = method_params['pt'].copy()
-    print(f"PyTorch relevance map parameters: {pt_relevance_params}")
-
-    # Handle special case for GradCAM where we need to pass an attribute, not a string
-    if method == 'grad_cam' and 'target_layer' in pt_relevance_params:
-        target_layer_name = pt_relevance_params.pop('target_layer')
-        if target_layer_name and hasattr(pt_model, target_layer_name):
-            pt_relevance_params['target_layer'] = getattr(pt_model, target_layer_name)
-
-    # PyTorch relevance map - no fallbacks, solid implementation or failure
-    pt_relevance_map = torch_calculate_relevancemap(
-        model=pt_model,
-        input_tensor=pt_input,
-        method=pt_method_name,
-        target_class=target_class_pt,
-        **pt_relevance_params
+    # PyTorch relevance map using unified API
+    print(f"Computing PyTorch relevance map...")
+    print(f"  Method: {method}")
+    print(f"  Input shape: {pt_input.shape}")
+    print(f"  Target class: {target_class_pt}")
+    
+    pt_relevance_map = explain(
+        pt_model,
+        pt_input,
+        method_name=method,
+        target_class=target_class_pt
     )
+    
+    # Convert to numpy if needed
+    if hasattr(pt_relevance_map, 'detach'):
+        pt_relevance_map = pt_relevance_map.detach().cpu().numpy()
+    elif isinstance(pt_relevance_map, torch.Tensor):
+        pt_relevance_map = pt_relevance_map.cpu().numpy()
+    
     print(f"PyTorch relevance map shape: {pt_relevance_map.shape}")
 
     return tf_relevance_map, pt_relevance_map
@@ -599,9 +489,9 @@ def plot_ecg_comparison_12leads(
     - Blue: Only PyTorch relevance
     
     Args:
-        ecg_data: ECG signal data (2000, 12) or (12, 2000)
-        tf_relevance_map: TensorFlow relevance map (2000, 12) or (12, 2000) 
-        pt_relevance_map: PyTorch relevance map (2000, 12) or (12, 2000)
+        ecg_data: ECG signal data (3000, 12) or (12, 3000)
+        tf_relevance_map: TensorFlow relevance map (3000, 12) or (12, 3000) 
+        pt_relevance_map: PyTorch relevance map (3000, 12) or (12, 3000)
         method_name: XAI method name
         pathology: Pathology type
         record_id: ECG record ID
@@ -612,20 +502,29 @@ def plot_ecg_comparison_12leads(
         Path to saved comparison plot
     """
     # Ensure data is in (leads, timesteps) format for plot_ecg function
-    if ecg_data.shape[0] == 2000 and ecg_data.shape[1] == 12:
-        ecg_data = ecg_data.T  # (12, 2000)
-    if tf_relevance_map.shape[0] == 2000 and tf_relevance_map.shape[1] == 12:
-        tf_relevance_map = tf_relevance_map.T  # (12, 2000)
+    if ecg_data.shape[0] == 3000 and ecg_data.shape[1] == 12:
+        ecg_data = ecg_data.T  # (12, 3000)
+    if tf_relevance_map.shape[0] == 3000 and tf_relevance_map.shape[1] == 12:
+        tf_relevance_map = tf_relevance_map.T  # (12, 3000)
     
     # Handle PyTorch relevance map shape conversion
     if pt_relevance_map.ndim == 3:
         # Remove batch dimension and convert to (leads, timesteps)
         if pt_relevance_map.shape[0] == 1:  # Batch dimension
-            pt_relevance_map = pt_relevance_map[0]  # Now (12, 2000) or (2000, 12)
-            if pt_relevance_map.shape[0] == 2000 and pt_relevance_map.shape[1] == 12:
-                pt_relevance_map = pt_relevance_map.T  # (12, 2000)
-    elif pt_relevance_map.shape[0] == 2000 and pt_relevance_map.shape[1] == 12:
-        pt_relevance_map = pt_relevance_map.T  # (12, 2000)
+            pt_relevance_map = pt_relevance_map[0]  # Now (channels, 3000) or (3000, channels)
+            if pt_relevance_map.shape[0] == 3000:
+                pt_relevance_map = pt_relevance_map.T  # (channels, 3000)
+    elif pt_relevance_map.shape[0] == 3000:
+        pt_relevance_map = pt_relevance_map.T  # (channels, 3000)
+    
+    # Expand single-channel relevance maps to 12 channels if needed
+    if tf_relevance_map.shape[0] == 1 and ecg_data.shape[0] == 12:
+        print(f"Expanding TF relevance from 1 to 12 channels for visualization")
+        tf_relevance_map = np.tile(tf_relevance_map, (12, 1))
+    
+    if pt_relevance_map.shape[0] == 1 and ecg_data.shape[0] == 12:
+        print(f"Expanding PT relevance from 1 to 12 channels for visualization")
+        pt_relevance_map = np.tile(pt_relevance_map, (12, 1))
     
     # Calculate correlation per lead to determine color coding
     lead_correlations = []
@@ -675,8 +574,8 @@ def plot_ecg_comparison_12leads(
     try:
         # Create the ECG plot with highlighted relevance using the same plot_ecg function
         plot_ecg(
-            ecg=ecg_data,  # (12, 2000)
-            explanation=comparison_explanation_normalized,  # (12, 2000)
+            ecg=ecg_data,  # (12, 3000)
+            explanation=comparison_explanation_normalized,  # (12, 3000)
             sampling_rate=sampling_rate,
             title=title,
             show_colorbar=True,
@@ -856,7 +755,7 @@ def normalize_and_compare_relevance_maps(
     if pt_relevance_map.ndim == 2 and tf_relevance_map.ndim == 2:
         # Determine format based on which dimension matches expected channels
         expected_channels = model_info.get('input_channels', 12)
-        expected_sequence = 2000  # Typical sequence length
+        expected_sequence = 3000  # Typical sequence length
         
         # Check TF format
         if tf_relevance_map.shape[-1] == expected_channels:
