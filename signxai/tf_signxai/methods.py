@@ -143,7 +143,9 @@ def execute(model, x, parsed_method: Dict[str, Any], **kwargs) -> np.ndarray:
     
     # Prepare input - add batch dimension if necessary
     x_input = x
-    needs_batch_dim = x.ndim == 3  # Image without batch
+    # For images: (H, W, C) needs batch -> (1, H, W, C)
+    # For time series: (T, F) needs batch -> (1, T, F)
+    needs_batch_dim = (x.ndim == 3 and x.shape[-1] <= 4) or x.ndim == 2
     if needs_batch_dim:
         x_input = np.expand_dims(x, axis=0)
 
