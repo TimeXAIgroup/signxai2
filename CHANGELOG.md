@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.0] - 2024-08-22
+## [2.0.0] - 2024-01-22
 
 ### Added
 - **Dynamic Method Parsing**: Parameters are now embedded directly in method names
@@ -26,5 +26,5 @@ explain(model, x, method="smoothgrad", noise_level=0.3, num_samples=50)
 explain(model, x, method_name="smoothgrad_noise_0_3_samples_50")
 ```
 
-## [0.13.7] - Previous Version
+## [1.0.0] - Previous Version
 - Initial release with wrapper-based API

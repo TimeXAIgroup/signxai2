@@ -51,7 +51,7 @@ The table below shows all available explanation methods in SignXAI. Methods are 
      - Vanilla gradient
      - ✓
      - ✓
-   * - ``input_t_gradient``
+   * - ``gradient_x_input``
      - Gradient multiplied by input
      - ✓
      - ✓
@@ -159,7 +159,7 @@ Computes the gradient of the target output with respect to the input, highlighti
 Gradient x Input
 ~~~~~~~~~~~~~~~~
 
-Method name: ``input_t_gradient``
+Method name: ``gradient_x_input``
 
 Element-wise multiplication of the gradient with the input to reduce noise and improve visualization.
 
@@ -309,7 +309,7 @@ LRP-Z with SIGN input layer rule.
 LRP with Epsilon
 ~~~~~~~~~~~~~~~~
 
-Methods: ``lrp_epsilon_{value}`` (e.g., ``lrp_epsilon_0_1``, ``lrp_epsilon_1``, etc.)
+Methods: ``lrp_epsilon_{value}`` (e.g., ``lrp_epsilon_0_25``, ``lrp_epsilon_1``, etc.)
 
 LRP with epsilon stabilization factor.
 
@@ -318,7 +318,7 @@ LRP with epsilon stabilization factor.
 - ``neuron_selection``: Target output neuron (class) (default: argmax)
 - ``input_layer_rule``: Rule for the input layer (default: None)
 
-Methods: ``lrpsign_epsilon_{value}`` (e.g., ``lrpsign_epsilon_0_1``)
+Methods: ``lrpsign_epsilon_{value}`` (e.g., ``lrpsign_epsilon_0_25``)
 
 LRP-epsilon with SIGN input layer rule.
 
@@ -326,7 +326,7 @@ LRP-epsilon with SIGN input layer rule.
 
 - ``neuron_selection``: Target output neuron (class) (default: argmax)
 
-Methods: ``lrp_epsilon_{value}_std_x`` (e.g., ``lrp_epsilon_0_1_std_x``)
+Methods: ``lrp_epsilon_{value}_std_x`` (e.g., ``lrp_epsilon_0_25_std_x``)
 
 LRP with epsilon proportional to the standard deviation of the input.
 

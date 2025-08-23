@@ -156,14 +156,13 @@ TensorFlow Custom Target
     # Get top 5 predicted classes
     top_classes = np.argsort(preds[0])[-5:][::-1]
     
-    # Generate explanations for each class
+    # Generate explanations for each class using dynamic parsing
     class_explanations = {}
     for idx in top_classes:
-        class_explanations[idx] = calculate_relevancemap(
-            'input_t_gradient', 
-            x, 
+        class_explanations[idx] = explain(
             model, 
-            neuron_selection=idx  # Specific class
+            x, 
+            method_name='gradient_x_input'  # Specific class
         )
     
     # Visualize explanations for different classes
@@ -197,14 +196,13 @@ PyTorch Custom Target
     _, top_indices = torch.topk(output, 5, dim=1)
     top_classes = top_indices[0].tolist()
     
-    # Generate explanations for each class
+    # Generate explanations for each class using dynamic parsing
     class_explanations = {}
     for idx in top_classes:
-        class_explanations[idx] = calculate_relevancemap(
+        class_explanations[idx] = explain(
             model_no_softmax, 
             input_tensor, 
-            method="input_t_gradient",
-            target_class=idx  # Specific class
+            method_name="gradient_x_input"
         )
     
     # Visualize explanations for different classes
@@ -238,7 +236,7 @@ TensorFlow Time Series
     import numpy as np
     import matplotlib.pyplot as plt
     import tensorflow as tf
-    from signxai.tf_signxai import calculate_relevancemap
+    from signxai.api import explain
     
     # Load a pre-trained ECG model
     model = tf.keras.models.load_model('ecg_model.h5')
@@ -248,11 +246,11 @@ TensorFlow Time Series
     ecg_signal = np.load('ecg_sample.npy')
     ecg_input = ecg_signal.reshape(1, -1, 1)  # Add batch and channel dimensions
     
-    # Calculate explanation
-    explanation = calculate_relevancemap(
-        'input_t_gradient', 
+    # Calculate explanation using dynamic parsing
+    explanation = explain(
+        model, 
         ecg_input, 
-        model
+        method_name='gradient_x_input'
     )
     
     # Plot original signal and explanation
@@ -272,11 +270,10 @@ TensorFlow Time Series
     plt.show()
     
     # For 1D time series, GradCAM requires a specific implementation
-    gradcam_explanation = calculate_relevancemap(
-        'grad_cam_timeseries', 
+    gradcam_explanation = explain(
+        model, 
         ecg_input, 
-        model,
-        last_conv_layer_name='conv1d_3'  # Specify convolutional layer
+        method_name='grad_cam_timeseries'
     )
     
     # Plot GradCAM explanation
@@ -295,7 +292,7 @@ PyTorch Time Series
     import torch.nn as nn
     import numpy as np
     import matplotlib.pyplot as plt
-    from signxai.torch_signxai import calculate_relevancemap
+    from signxai.api import explain
     from signxai.torch_signxai.utils import remove_softmax
     
     # Define a simple 1D CNN for time series
@@ -334,11 +331,11 @@ PyTorch Time Series
     # Convert to PyTorch tensor with shape [batch, channels, time]
     ecg_input = torch.tensor(ecg_signal, dtype=torch.float32).reshape(1, 1, -1)
     
-    # Calculate explanation
-    explanation = calculate_relevancemap(
+    # Calculate explanation using dynamic parsing
+    explanation = explain(
         model_no_softmax, 
         ecg_input, 
-        method="input_t_gradient"
+        method_name="gradient_x_input"
     )
     
     # Plot original signal and explanation
@@ -376,17 +373,17 @@ TensorFlow SIGN
     sign_pos = calculate_sign_mu(input_tensor, mu=0.5)     # Focus on positive values
     sign_neg = calculate_sign_mu(input_tensor, mu=-0.5)    # Focus on negative values
     
-    # Apply SIGN with gradient
-    gradient = calculate_relevancemap('gradient', input_tensor, model)
+    # Apply SIGN with gradient using dynamic parsing
+    gradient = explain(model, input_tensor, method_name='gradient')
     
     # Manually apply SIGN
     gradient_sign = gradient * sign
     gradient_sign_pos = gradient * sign_pos
     gradient_sign_neg = gradient * sign_neg
     
-    # Or use built-in methods
-    gradient_sign_direct = calculate_relevancemap('gradient_x_sign', input_tensor, model)
-    gradient_sign_mu = calculate_relevancemap('gradient_x_sign_mu', input_tensor, model, mu=0.5)
+    # Or use built-in methods with dynamic parsing
+    gradient_sign_direct = explain(model, input_tensor, method_name='gradient_x_sign')
+    gradient_sign_mu = explain(model, input_tensor, method_name='gradient_x_sign_mu_0_5')
 
 PyTorch SIGN
 ~~~~~~~~~~~~
@@ -402,8 +399,8 @@ PyTorch SIGN
     sign_pos = calculate_sign_mu(input_tensor, mu=0.5)     # Focus on positive values
     sign_neg = calculate_sign_mu(input_tensor, mu=-0.5)    # Focus on negative values
     
-    # Apply SIGN with gradient
-    gradient = calculate_relevancemap(model_no_softmax, input_tensor, method="gradients")
+    # Apply SIGN with gradient using dynamic parsing
+    gradient = explain(model_no_softmax, input_tensor, method_name="gradient")
     
     # Convert to tensor if needed
     if isinstance(gradient, np.ndarray):
@@ -431,8 +428,8 @@ SHAP Integration
     explainer = shap.GradientExplainer(model, background_dataset)
     shap_values = explainer.shap_values(x)
     
-    # Calculate SignXAI explanation
-    signxai_explanation = calculate_relevancemap('input_t_gradient', x, model)
+    # Calculate SignXAI explanation using dynamic parsing
+    signxai_explanation = explain(model, x, method_name='gradient_x_input')
     
     # Compare explanations
     plt.figure(figsize=(12, 4))
@@ -460,11 +457,11 @@ Captum Integration
     ig = IntegratedGradients(model)
     captum_attr = ig.attribute(input_tensor, target=predicted_idx)
     
-    # SignXAI explanation
-    signxai_attr = calculate_relevancemap(
+    # SignXAI explanation using dynamic parsing
+    signxai_attr = explain(
         model, 
         input_tensor, 
-        method="integrated_gradients"
+        method_name="integrated_gradients_steps_50"
     )
     
     # Compare explanations
@@ -499,11 +496,11 @@ Overlay with Transparency
         overlay_heatmap
     )
     
-    # Generate explanation
-    explanation = calculate_relevancemap(
+    # Generate explanation using dynamic parsing
+    explanation = explain(
         model, 
         input_tensor, 
-        method="lrp_z"
+        method_name="lrp_z"
     )
     
     # Normalize explanation
@@ -533,12 +530,11 @@ Positive and Negative Contributions
 
 .. code-block:: python
 
-    # Separate positive and negative contributions
-    explanation = calculate_relevancemap(
+    # Separate positive and negative contributions using dynamic parsing
+    explanation = explain(
         model, 
         input_tensor, 
-        method="lrp_epsilon", 
-        epsilon=0.1
+        method_name="lrp_epsilon_0_1"
     )
     
     # Extract positive and negative values
@@ -601,8 +597,10 @@ TensorFlow Performance
         all_explanations = []
         
         for batch in dataset.batch(batch_size):
-            batch_explanations = calculate_relevancemap('input_t_gradient', batch, model)
-            all_explanations.append(batch_explanations)
+            batch_explanations = []
+            for input_tensor in batch:
+                batch_explanations.append(explain(model, input_tensor[None], method_name='gradient_x_input'))
+            all_explanations.append(np.concatenate(batch_explanations, axis=0))
         
         return np.concatenate(all_explanations, axis=0)
 
@@ -642,7 +640,7 @@ PyTorch Performance
         
         for batch in dataset_loader:
             inputs, _ = batch
-            explanations = calculate_relevancemap(model, inputs, method="gradients")
+            explanations = explain(model, inputs, method_name="gradient")
             all_explanations.append(explanations)
         
         return np.concatenate(all_explanations, axis=0)

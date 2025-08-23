@@ -24,12 +24,13 @@ SignXAI automatically detects which framework is being used based on the model t
 .. code-block:: python
 
     import signxai
+    from signxai.api import explain
     
     # Check which backends are available
     print(f"Available backends: {signxai._AVAILABLE_BACKENDS}")
     
-    # To use with automatic framework detection
-    result = signxai.calculate_relevancemap(model, input_tensor, method="gradient")
+    # To use with automatic framework detection using the new API
+    result = explain(model, input_tensor, method_name="gradient")
     
     # SignXAI will automatically determine if model is PyTorch or TensorFlow
     # and use the appropriate implementation
@@ -41,21 +42,19 @@ The framework-agnostic API provides a consistent interface regardless of which f
 
 .. code-block:: python
 
-    import signxai
+    from signxai.api import explain
     
     # Works with both PyTorch and TensorFlow models
-    explanation = signxai.calculate_relevancemap(
-        model,          # Either tf.keras.Model or torch.nn.Module
-        input_tensor,   # Either numpy array, tf.Tensor, or torch.Tensor
-        method="lrp_z"  # Same method names across frameworks
+    explanation = explain(
+        model,              # Either tf.keras.Model or torch.nn.Module
+        input_tensor,       # Either numpy array, tf.Tensor, or torch.Tensor
+        method_name="lrp_z"  # Same method names across frameworks
     )
     
     # Multiple inputs
-    explanations = signxai.calculate_relevancemaps(
-        model,
-        [input1, input2, input3],
-        method="input_t_gradient"
-    )
+    explanations = []
+    for input_tensor in [input1, input2, input3]:
+        explanations.append(explain(model, input_tensor, method_name="gradient_x_input"))
 
 Method Consistency Across Frameworks
 ------------------------------------
@@ -66,14 +65,14 @@ SignXAI ensures that the same method produces comparable results across framewor
 Method                          PyTorch            TensorFlow
 =============================== ================== ==================
 ``gradient``                    ✓                  ✓
-``input_t_gradient``            ✓                  ✓
+``gradient_x_input``            ✓                  ✓
 ``gradient_x_sign``             ✓                  ✓
 ``guided_backprop``             ✓                  ✓
-``integrated_gradients``        ✓                  ✓
-``smoothgrad``                  ✓                  ✓
+``integrated_gradients_steps_50`` ✓                ✓
+``smoothgrad_noise_0_2_samples_50`` ✓             ✓
 ``grad_cam``                    ✓                  ✓
 ``lrp_z``                       ✓                  ✓
-``lrp_epsilon_{value}``         ✓                  ✓
+``lrp_epsilon_0_1``             ✓                  ✓
 ``lrp_alpha_1_beta_0``          ✓                  ✓
 =============================== ================== ==================
 
@@ -109,7 +108,7 @@ TensorFlow-Specific Workflow
 
     import numpy as np
     from tensorflow.keras.applications.vgg16 import VGG16
-    from signxai.tf_signxai import calculate_relevancemap
+    from signxai.api import explain
     from signxai.utils.utils import load_image, normalize_heatmap
     
     # Load TensorFlow model
@@ -121,8 +120,8 @@ TensorFlow-Specific Workflow
     # Load and preprocess input
     img, x = load_image('example.jpg')
     
-    # Calculate explanation
-    explanation = calculate_relevancemap('lrp_z', x, model)
+    # Calculate explanation using the new dynamic parsing API
+    explanation = explain(model, x, method_name='lrp_z')
     
     # Visualize
     import matplotlib.pyplot as plt
@@ -136,7 +135,7 @@ PyTorch-Specific Workflow
 
     import torch
     import torchvision.models as models
-    from signxai.torch_signxai import calculate_relevancemap
+    from signxai.api import explain
     from signxai.torch_signxai.utils import remove_softmax
     
     # Load PyTorch model
@@ -159,8 +158,8 @@ PyTorch-Specific Workflow
     img = Image.open('example.jpg')
     input_tensor = transform(img).unsqueeze(0)  # Add batch dimension
     
-    # Calculate explanation
-    explanation = calculate_relevancemap(model_no_softmax, input_tensor, method="lrp_epsilon", epsilon=0.1)
+    # Calculate explanation using the new dynamic parsing API
+    explanation = explain(model_no_softmax, input_tensor, method_name="lrp_epsilon_0_1")
     
     # Visualize
     from signxai.common.visualization import normalize_relevance_map
@@ -187,9 +186,10 @@ ONNX (Open Neural Network Exchange) provides a standard format for model convers
     # Convert TensorFlow model to PyTorch
     pytorch_model = convert_tf_to_torch_via_onnx(tensorflow_model, input_shape=(1, 224, 224, 3))
     
-    # Now you can use the same model with both frameworks
-    tf_explanation = signxai.tf_signxai.calculate_relevancemap('lrp_z', x, tensorflow_model)
-    torch_explanation = signxai.torch_signxai.calculate_relevancemap(pytorch_model, torch_x, method="lrp_z")
+    # Now you can use the same model with both frameworks using the unified API
+    from signxai.api import explain
+    tf_explanation = explain(tensorflow_model, x, method_name='lrp_z')
+    torch_explanation = explain(pytorch_model, torch_x, method_name="lrp_z")
 
 Direct Conversion
 ~~~~~~~~~~~~~~~~~
@@ -213,9 +213,10 @@ To ensure consistency, you may want to compare explanation results from both fra
     import numpy as np
     from signxai.common.visualization import visualize_comparison
     
-    # Get explanations from both frameworks
-    tf_explanation = signxai.tf_signxai.calculate_relevancemap('lrp_z', x, tensorflow_model)
-    torch_explanation = signxai.torch_signxai.calculate_relevancemap(pytorch_model, torch_x, method="lrp_z")
+    # Get explanations from both frameworks using the unified API
+    from signxai.api import explain
+    tf_explanation = explain(tensorflow_model, x, method_name='lrp_z')
+    torch_explanation = explain(pytorch_model, torch_x, method_name="lrp_z")
     
     # Convert to same format (numpy arrays)
     if torch.is_tensor(torch_explanation):
@@ -318,8 +319,7 @@ This example demonstrates analyzing the same model architecture (VGG16) in both 
     from tensorflow.keras.applications.vgg16 import VGG16 as tf_VGG16
     import matplotlib.pyplot as plt
     
-    from signxai.tf_signxai import calculate_relevancemap as tf_calculate_relevancemap
-    from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
+    from signxai.api import explain
     from signxai.utils.utils import load_image
     from signxai.common.visualization import normalize_relevance_map
     
@@ -337,9 +337,9 @@ This example demonstrates analyzing the same model architecture (VGG16) in both 
     # Convert numpy to torch format (C, H, W)
     x_torch = torch.from_numpy(x_np.transpose(2, 0, 1)).float().unsqueeze(0)
     
-    # Calculate explanations
-    tf_explanation = tf_calculate_relevancemap('lrp_z', x_tf, tf_model)
-    torch_explanation = torch_calculate_relevancemap(torch_model, x_torch, method="lrp_z")
+    # Calculate explanations using the unified API
+    tf_explanation = explain(tf_model, x_tf, method_name='lrp_z')
+    torch_explanation = explain(torch_model, x_torch, method_name="lrp_z")
     
     # Convert to numpy arrays
     if isinstance(torch_explanation, torch.Tensor):

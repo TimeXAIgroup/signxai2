@@ -162,8 +162,9 @@ Example usage:
 
 .. code-block:: python
 
-    # Use LRP-Epsilon with SIGN input layer rule
-    explanation = calculate_relevancemap('lrpsign_epsilon_0_1', input_tensor, model)
+    # Use LRP-Epsilon with SIGN input layer rule using dynamic parsing
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name='lrpsign_epsilon_0_1')
     
     # Or explicitly:
     explanation = lrp_epsilon_0_1(model, input_tensor, input_layer_rule='SIGN')
@@ -186,7 +187,7 @@ Gradient x Input
 
 .. code-block:: python
 
-    def input_t_gradient(model_no_softmax, x, **kwargs):
+    def gradient_x_input(model_no_softmax, x, **kwargs):
         g = gradient(model_no_softmax, x, **kwargs)
         return g * x
 
@@ -273,7 +274,7 @@ The following example demonstrates how to use SignXAI's TensorFlow implementatio
     import numpy as np
     import matplotlib.pyplot as plt
     from tensorflow.keras.applications.vgg16 import VGG16
-    from signxai.tf_signxai import calculate_relevancemap
+    from signxai.api import explain
     from signxai.utils.utils import load_image, normalize_heatmap, download_image
 
     # Load model
@@ -287,11 +288,11 @@ The following example demonstrates how to use SignXAI's TensorFlow implementatio
     download_image(path)
     img, x = load_image(path)
 
-    # Calculate relevance maps using different LRP methods
-    R1 = calculate_relevancemap('lrp_z', x, model)  # Basic LRP-Z
-    R2 = calculate_relevancemap('lrpsign_z', x, model)  # LRP-Z with SIGN
-    R3 = calculate_relevancemap('lrp_epsilon_0_1', x, model)  # LRP-Epsilon
-    R4 = calculate_relevancemap('lrpsign_epsilon_0_1', x, model)  # LRP-Epsilon with SIGN
+    # Calculate relevance maps using different LRP methods with dynamic parsing
+    R1 = explain(model, x, method_name='lrp_z')  # Basic LRP-Z
+    R2 = explain(model, x, method_name='lrpsign_z')  # LRP-Z with SIGN
+    R3 = explain(model, x, method_name='lrp_epsilon_0_1')  # LRP-Epsilon
+    R4 = explain(model, x, method_name='lrpsign_epsilon_0_1')  # LRP-Epsilon with SIGN
 
     # Visualize relevance maps
     fig, axs = plt.subplots(ncols=3, nrows=2, figsize=(18, 12))
@@ -311,21 +312,22 @@ For advanced users, SignXAI exposes the ability to directly configure the iNNves
 
 .. code-block:: python
 
-    from signxai.utils.utils import calculate_explanation_innvestigate
+    from signxai.api import explain
     
-    # Configure custom LRP parameters
-    custom_lrp = calculate_explanation_innvestigate(
+    # Configure custom LRP parameters using dynamic parsing
+    custom_lrp = explain(
+        model, 
+        input_tensor,
+        method_name='lrpsign_sequential_composite_a'  # SIGN with sequential composite
+    )
+    
+    # For more advanced customization, use the raw interface:
+    from signxai.utils.utils import calculate_explanation_innvestigate
+    custom_lrp_advanced = calculate_explanation_innvestigate(
         model, 
         input_tensor,
         method='lrp.sequential_composite_a',
-        # Custom layer-wise configuration
-        layer_map={
-            'conv2d': {'alpha': 1, 'beta': 0},
-            'dense': {'epsilon': 0.01}
-        },
-        # Input layer configuration
         input_layer_rule='SIGN',
-        # Custom neuron selection
         neuron_selection=predicted_class
     )
 
@@ -342,7 +344,12 @@ To add new methods based on iNNvestigate, you can create a wrapper function in `
         # Custom pre-processing
         # ...
         
-        # Use iNNvestigate analyzer
+        # Use the new explain API or raw iNNvestigate
+        from signxai.api import explain
+        result = explain(model_no_softmax, x, method_name='custom_method_name')
+        
+        # Or for advanced cases, use the raw interface:
+        from signxai.utils.utils import calculate_explanation_innvestigate
         result = calculate_explanation_innvestigate(
             model_no_softmax, 
             x, 

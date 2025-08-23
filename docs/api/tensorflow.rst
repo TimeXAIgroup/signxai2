@@ -13,33 +13,35 @@ The ``signxai.tf_signxai`` module provides explainability methods for TensorFlow
 Main Functions
 --------------
 
-.. py:function:: calculate_relevancemap(method, input_tensor, model, **kwargs)
+.. py:function:: explain(model, input_tensor, method_name, **kwargs)
 
-   Calculates a relevance map for a given method, input, and model.
+   Calculates a relevance map using the new dynamic parsing API.
    
-   :param method: Name of the explanation method
-   :type method: str
-   :param input_tensor: Input tensor (can be numpy array or TensorFlow tensor)
-   :type input_tensor: numpy.ndarray or tf.Tensor
    :param model: TensorFlow model
    :type model: tf.keras.Model
+   :param input_tensor: Input tensor (can be numpy array or TensorFlow tensor)
+   :type input_tensor: numpy.ndarray or tf.Tensor
+   :param method_name: Name of the explanation method with embedded parameters (e.g., 'lrp_epsilon_0_25', 'smoothgrad_noise_0_3_samples_50')
+   :type method_name: str
    :param kwargs: Additional arguments for the specific method
    :return: Relevance map as numpy array
    :rtype: numpy.ndarray
    
-.. py:function:: calculate_relevancemaps(method, inputs, model, **kwargs)
-
-   Calculates relevance maps for multiple inputs.
+   **Note**: The old ``calculate_relevancemap(method, input_tensor, model)`` API is deprecated. Use this new unified API instead.
    
-   :param method: Name of the explanation method
-   :type method: str
-   :param inputs: List or batch of input tensors
-   :type inputs: list or numpy.ndarray or tf.Tensor
-   :param model: TensorFlow model
-   :type model: tf.keras.Model
-   :param kwargs: Additional arguments for the specific method
-   :return: List or batch of relevance maps
-   :rtype: numpy.ndarray
+For multiple inputs, use ``explain()`` in a loop or with batch processing:
+
+.. code-block:: python
+
+   from signxai.api import explain
+   
+   # For multiple inputs
+   explanations = []
+   for input_tensor in inputs:
+       explanations.append(explain(model, input_tensor, method_name="gradient"))
+   
+   # Or for batch processing (if supported by the method)
+   batch_explanation = explain(model, batch_inputs, method_name="gradient")
 
 Gradient-Based Methods
 ----------------------
@@ -55,6 +57,8 @@ Vanilla Gradient
 
    Computes vanilla gradients of the model output with respect to the input.
    
+   **New API**: Use ``explain(model, input_tensor, method_name="gradient")``
+   
    :param model_no_softmax: TensorFlow model with softmax removed
    :type model_no_softmax: tf.keras.Model
    :param x: Input tensor
@@ -63,12 +67,14 @@ Vanilla Gradient
    :return: Gradient-based attribution
    :rtype: numpy.ndarray
 
-Input x Gradient
+Gradient x Input
 ~~~~~~~~~~~~~~~~
 
-.. py:function:: input_t_gradient(model_no_softmax, x, **kwargs)
+.. py:function:: gradient_x_input(model_no_softmax, x, **kwargs)
 
    Computes the element-wise product of gradients and input.
+   
+   **New API**: Use ``explain(model, input_tensor, method_name="gradient_x_input")``
    
    :param model_no_softmax: TensorFlow model with softmax removed
    :type model_no_softmax: tf.keras.Model
@@ -84,6 +90,8 @@ Integrated Gradients
 .. py:function:: integrated_gradients(model_no_softmax, x, **kwargs)
 
    Computes integrated gradients by integrating gradients along a straight path from reference to input.
+   
+   **New API**: Use ``explain(model, input_tensor, method_name="integrated_gradients_steps_50")`` or other step values like ``integrated_gradients_steps_100``
    
    :param model_no_softmax: TensorFlow model with softmax removed
    :type model_no_softmax: tf.keras.Model
@@ -104,6 +112,8 @@ SmoothGrad
 .. py:function:: smoothgrad(model_no_softmax, x, **kwargs)
 
    Computes smoothgrad by adding noise to the input and averaging the resulting gradients.
+   
+   **New API**: Use ``explain(model, input_tensor, method_name="smoothgrad_noise_0_2_samples_50")`` or other parameter combinations
    
    :param model_no_softmax: TensorFlow model with softmax removed
    :type model_no_softmax: tf.keras.Model
@@ -129,6 +139,8 @@ The Sign module provides implementations of the SIGN explainability methods.
 
    Calculates the sign with a threshold parameter mu.
    
+   **New API**: This is typically used internally, but sign-based methods can be called with ``explain(model, input_tensor, method_name="gradient_x_sign_mu_0_5")`` or ``gradient_x_sign_mu_neg_0_5``
+   
    :param x: Input tensor
    :type x: numpy.ndarray
    :param mu: Threshold parameter (default: 0)
@@ -144,6 +156,8 @@ Gradient x SIGN
 
    Computes the element-wise product of gradients and sign of the input.
    
+   **New API**: Use ``explain(model, input_tensor, method_name="gradient_x_sign")``
+   
    :param model_no_softmax: TensorFlow model with softmax removed
    :type model_no_softmax: tf.keras.Model
    :param x: Input tensor
@@ -155,6 +169,8 @@ Gradient x SIGN
 .. py:function:: gradient_x_sign_mu(model_no_softmax, x, mu, **kwargs)
 
    Computes the element-wise product of gradients and sign of the input with threshold parameter mu.
+   
+   **New API**: Use ``explain(model, input_tensor, method_name="gradient_x_sign_mu_0_5")`` or other mu values like ``gradient_x_sign_mu_neg_0_5``
    
    :param model_no_softmax: TensorFlow model with softmax removed
    :type model_no_softmax: tf.keras.Model
@@ -248,6 +264,13 @@ The iNNvestigate module provides LRP implementations for TensorFlow. This is the
 .. py:function:: calculate_explanation_innvestigate(model, x, method, **kwargs)
 
    Interface to iNNvestigate for LRP and other methods.
+   
+   **New API**: Use ``explain(model, input_tensor, method_name="lrp_z")`` or other LRP variants like:
+   
+   - ``lrp_epsilon_0_25`` for LRP-epsilon with epsilon=0.25
+   - ``lrp_alpha_1_beta_0`` for LRP-alpha-beta
+   - ``lrpsign_z`` for LRP-Z with SIGN input layer rule
+   - ``lrpsign_epsilon_0_25`` for LRP-epsilon with SIGN and epsilon=0.25
    
    :param model: TensorFlow model
    :type model: tf.keras.Model

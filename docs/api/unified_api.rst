@@ -16,13 +16,13 @@ Main Interface
 Main Function
 ~~~~~~~~~~~~~
 
-**explain(model, input_data, method, \*\*kwargs)**
+**explain(model, input_data, method_name, \*\*kwargs)**
 
     Get explanations for a model's predictions using any supported XAI method.
 
     :param model: The neural network model (PyTorch or TensorFlow)
     :param input_data: Input data for which to generate explanations  
-    :param method: The explanation method to use
+    :param method_name: The explanation method to use (with embedded parameters for dynamic parsing)
     :param kwargs: Additional method-specific parameters
     :return: Explanation array with same shape as input
 
@@ -90,39 +90,37 @@ Basic usage with automatic framework detection::
     explanation_tf = explain(
         tf_model, 
         input_data, 
-        method='gradient'
+        method_name='gradient'
     )
     
     # PyTorch model  
     explanation_pt = explain(
         torch_model,
         input_data,
-        method='gradient'
+        method_name='gradient'
     )
 
 Using method-specific parameters::
 
-    # LRP with epsilon
+    # LRP with epsilon (using dynamic parsing)
     explanation = explain(
         model,
         input_data, 
-        method='lrp_epsilon',
-        epsilon=0.01
+        method_name='lrp_epsilon_0_01'
     )
     
-    # Input × Gradient method
+    # Gradient × Input method
     explanation = explain(
         model,
         input_data,
-        method='input_t_gradient'
+        method='gradient_x_input'
     )
     
-    # SIGN variant with custom mu
+    # SIGN variant with custom mu (using dynamic parsing)
     explanation = explain(
         model,
         input_data,
-        method='gradient_x_sign_mu',
-        mu=0.5
+        method_name='gradient_x_sign_mu_0_5'
     )
 
 Error Handling
