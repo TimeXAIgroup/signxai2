@@ -30,7 +30,7 @@ Working with a TensorFlow model:
     import matplotlib.pyplot as plt
     from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input, decode_predictions
     from tensorflow.keras.preprocessing.image import load_img, img_to_array
-    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap
+    from signxai.api import explain
     from signxai.common.visualization import normalize_relevance_map
     
     # Step 1: Load a pre-trained model
@@ -51,25 +51,24 @@ Working with a TensorFlow model:
     top_pred_idx = np.argmax(preds[0])
     print(f"Predicted class: {decode_predictions(preds, top=1)[0][0][1]}")
     
-    # Step 5: Calculate explanation with different methods
+    # Step 5: Calculate explanation with different methods using dynamic parsing
     explanations = {}
     methods = [
-        'gradient',              # Vanilla gradient
-        'input_t_gradient',      # Input × Gradient
-        'gradient_x_sign',       # Gradient × Sign
-        'integrated_gradients',  # Integrated gradients
-        'smoothgrad',            # SmoothGrad
-        'grad_cam',              # Grad-CAM
-        'lrp_z',                 # LRP-Z
-        'lrp_epsilon_0_1'        # LRP-Epsilon
+        'gradient',                      # Vanilla gradient
+        'gradient_x_input',              # Input × Gradient
+        'gradient_x_sign',               # Gradient × Sign
+        'integrated_gradients_steps_50', # Integrated gradients
+        'smoothgrad_noise_0_2_samples_50', # SmoothGrad
+        'grad_cam',                      # Grad-CAM
+        'lrp_z',                         # LRP-Z
+        'lrp_epsilon_0_1'                # LRP-Epsilon
     ]
     
     for method in methods:
-        explanations[method] = calculate_relevancemap(
-            method, 
-            x, 
+        explanations[method] = explain(
             model, 
-            neuron_selection=top_pred_idx
+            x, 
+            method_name=method
         )
     
     # Step 6: Visualize explanations
@@ -111,7 +110,7 @@ Working with a PyTorch model:
     from PIL import Image
     import torchvision.models as models
     import torchvision.transforms as transforms
-    from signxai.torch_signxai import calculate_relevancemap
+    from signxai.api import explain
     from signxai.torch_signxai.utils import remove_softmax
     from signxai.common.visualization import normalize_relevance_map
     
@@ -141,24 +140,23 @@ Working with a PyTorch model:
     # Get the most likely class
     _, predicted_idx = torch.max(output, 1)
     
-    # Step 5: Calculate explanation with different methods
+    # Step 5: Calculate explanation with different methods using dynamic parsing
     explanations = {}
     methods = [
-        "gradients",             # Vanilla gradient
-        "input_t_gradient",      # Gradient × Input
-        "integrated_gradients",  # Integrated gradients
-        "smoothgrad",            # SmoothGrad
-        "grad_cam",              # Grad-CAM
-        "lrp_epsilon",           # LRP with epsilon rule
-        "lrp_alphabeta"          # LRP with alpha-beta rule
+        "gradient",                      # Vanilla gradient
+        "gradient_x_input",              # Gradient × Input
+        "integrated_gradients_steps_50", # Integrated gradients
+        "smoothgrad_noise_0_2_samples_50", # SmoothGrad
+        "grad_cam",                      # Grad-CAM
+        "lrp_epsilon_0_1",               # LRP with epsilon rule
+        "lrp_alpha_1_beta_0"             # LRP with alpha-beta rule
     ]
     
     for method in methods:
-        explanations[method] = calculate_relevancemap(
+        explanations[method] = explain(
             model_no_softmax, 
             input_tensor, 
-            method=method,
-            target_class=predicted_idx.item()
+            method_name=method
         )
     
     # Step 6: Visualize explanations
@@ -224,7 +222,7 @@ TensorFlow Custom Model
 .. code-block:: python
 
     import tensorflow as tf
-    from signxai.tf_signxai import calculate_relevancemap
+    from signxai.api import explain
     
     # Define a custom model
     def create_custom_model():
@@ -245,9 +243,9 @@ TensorFlow Custom Model
     # Load weights if needed
     # model.load_weights('my_model_weights.h5')
     
-    # Generate explanation for a custom input
+    # Generate explanation for a custom input using dynamic parsing
     input_data = np.random.random((1, 28, 28, 1))
-    explanation = calculate_relevancemap('lrp_z', input_data, model, neuron_selection=5)
+    explanation = explain(model, input_data, method_name='lrp_z')
     
     # Visualize
     plt.matshow(explanation[0, :, :, 0], cmap='seismic', clim=(-1, 1))
@@ -263,7 +261,7 @@ PyTorch Custom Model
     import torch
     import torch.nn as nn
     import torch.nn.functional as F
-    from signxai.torch_signxai import calculate_relevancemap
+    from signxai.api import explain
     from signxai.torch_signxai.utils import remove_softmax
     
     # Define a custom model
@@ -295,9 +293,9 @@ PyTorch Custom Model
     # Remove softmax
     model_no_softmax = remove_softmax(model)
     
-    # Generate explanation for a custom input
+    # Generate explanation for a custom input using dynamic parsing
     input_data = torch.randn(1, 1, 28, 28)
-    explanation = calculate_relevancemap(model_no_softmax, input_data, method="lrp_epsilon")
+    explanation = explain(model_no_softmax, input_data, method_name="lrp_epsilon_0_1")
     
     # Visualize
     plt.matshow(explanation[0, 0], cmap='seismic', clim=(-1, 1))
@@ -319,8 +317,11 @@ TensorFlow Batch Processing
     batch_size = 4
     batch_inputs = np.random.random((batch_size, 224, 224, 3))
     
-    # Calculate explanations for each image in batch
-    batch_explanations = calculate_relevancemap('input_t_gradient', batch_inputs, model)
+    # Calculate explanations for each image in batch using dynamic parsing
+    batch_explanations = []
+    for input_tensor in batch_inputs:
+        batch_explanations.append(explain(model, input_tensor[None], method_name='gradient_x_input'))
+    batch_explanations = np.concatenate(batch_explanations, axis=0)
     
     # Visualize batch results
     fig, axs = plt.subplots(2, batch_size, figsize=(12, 6))
@@ -355,8 +356,8 @@ PyTorch Batch Processing
     batch_size = 4
     batch_inputs = torch.randn(batch_size, 3, 224, 224)
     
-    # Calculate explanations for the batch
-    batch_explanations = calculate_relevancemap(model_no_softmax, batch_inputs, method="gradients")
+    # Calculate explanations for the batch using dynamic parsing
+    batch_explanations = explain(model_no_softmax, batch_inputs, method_name="gradient")
     
     # Visualize batch results
     fig, axs = plt.subplots(2, batch_size, figsize=(12, 6))

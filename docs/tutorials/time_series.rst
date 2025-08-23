@@ -150,7 +150,7 @@ Now let's use SignXAI to explain the ECG model's predictions:
     # Calculate explanations with different methods
     methods = [
         'gradient',
-        'input_t_gradient',
+        'gradient_x_input',
         'integrated_gradients',
         'grad_cam',  # Works for time series too
         'lrp_z',
@@ -363,7 +363,7 @@ Now let's use SignXAI to explain the PyTorch ECG model:
     # Calculate explanations with different methods
     methods = [
         "gradient",
-        "input_t_gradient",
+        "gradient_x_input",
         "integrated_gradients",
         "smoothgrad",
         "lrp_epsilon_0_1",
@@ -499,7 +499,7 @@ Let's perform a more detailed analysis focusing on characteristic ECG features:
     plt.show()
     
     # Compare attribution across methods
-    methods_to_compare = ['gradient', 'input_t_gradient', 'lrp_z', 'lrpsign_z']
+    methods_to_compare = ['gradient', 'gradient_x_input', 'lrp_z', 'lrpsign_z']
     components = ['P-wave', 'QRS Complex', 'T-wave']
     regions = [p_wave_region, qrs_complex_region, t_wave_region]
     

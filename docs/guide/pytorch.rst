@@ -170,8 +170,9 @@ Adds a small epsilon value to stabilize the division operation:
 
 .. code-block:: python
 
-    # Using PyTorch-native API
-    explanation = calculate_relevancemap(model, input_tensor, method="lrp_epsilon", epsilon=0.1)
+    # Using the new dynamic parsing API
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="lrp_epsilon_0_1")
     
     # Or via analyzer directly
     analyzer = LRPAnalyzer(model, rule="epsilon", epsilon=0.1)
@@ -184,8 +185,9 @@ Separates positive and negative contributions with different weights:
 
 .. code-block:: python
 
-    # Using PyTorch-native API
-    explanation = calculate_relevancemap(model, input_tensor, method="lrp_alphabeta", alpha=1, beta=0)
+    # Using the new dynamic parsing API
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="lrp_alpha_1_beta_0")
     
     # Or via analyzer directly
     analyzer = LRPAnalyzer(model, rule="alphabeta")  # Default alpha=1, beta=0
@@ -198,13 +200,9 @@ For more complex LRP configurations, the ``AdvancedLRPAnalyzer`` can be used:
 
 .. code-block:: python
 
-    # Using PyTorch-native API
-    explanation = calculate_relevancemap(
-        model, 
-        input_tensor, 
-        method="lrp_advanced",
-        rule_type="alpha1beta0"
-    )
+    # Using the new dynamic parsing API
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="lrp_alpha_1_beta_0")
     
     # Or for more control
     analyzer = AdvancedLRPAnalyzer(
@@ -222,15 +220,9 @@ Applies different LRP rules to different layers of the network:
 
 .. code-block:: python
 
-    # Using PyTorch-native API
-    explanation = calculate_relevancemap(
-        model, 
-        input_tensor, 
-        method="lrp_sequential",
-        first_layer_rule="zbox",
-        middle_layer_rule="alphabeta",
-        last_layer_rule="epsilon"
-    )
+    # Using the new dynamic parsing API
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="lrp_sequential_composite_a")
     
     # Or via analyzer directly
     analyzer = LRPSequential(
@@ -454,19 +446,19 @@ SignXAI provides two API styles for PyTorch users:
 
 .. code-block:: python
 
-    from signxai.torch_signxai import calculate_relevancemap
+    from signxai.api import explain
     
-    # PyTorch-style API: model first, then input
-    explanation = calculate_relevancemap(model, input_tensor, method="gradients")
+    # New unified API
+    explanation = explain(model, input_tensor, method_name="gradient")
 
 2. **TensorFlow-Compatible API** - Consistent with the TensorFlow implementation
 
 .. code-block:: python
 
-    from signxai.torch_signxai.methods.wrappers import calculate_relevancemap as tf_calculate_relevancemap
+    from signxai.api import explain
     
-    # TensorFlow-style API: method name first, then input, then model
-    explanation = tf_calculate_relevancemap("gradient", input_tensor, model)
+    # New unified API (same across frameworks)
+    explanation = explain(model, input_tensor, method_name="gradient")
 
 This dual API allows for easier migration between frameworks and preference-based usage.
 
@@ -483,7 +475,7 @@ The following example demonstrates how to use SignXAI's PyTorch implementation w
     from PIL import Image
     import numpy as np
     
-    from signxai.torch_signxai import calculate_relevancemap
+    from signxai.api import explain
     from signxai.torch_signxai.utils import remove_softmax
     from signxai.common.visualization import normalize_relevance_map, relevance_to_heatmap, overlay_heatmap
     
@@ -499,17 +491,10 @@ The following example demonstrates how to use SignXAI's PyTorch implementation w
     img_tensor = torch.FloatTensor(np.array(img)).permute(2, 0, 1) / 255.0
     img_tensor = img_tensor.unsqueeze(0)  # Add batch dimension
     
-    # Calculate relevance maps using different LRP methods
-    lrp_eps = calculate_relevancemap(model_no_softmax, img_tensor, method="lrp_epsilon", epsilon=0.1)
-    lrp_ab = calculate_relevancemap(model_no_softmax, img_tensor, method="lrp_alphabeta")
-    lrp_composite = calculate_relevancemap(
-        model_no_softmax, 
-        img_tensor, 
-        method="lrp_sequential",
-        first_layer_rule="zbox",
-        middle_layer_rule="alphabeta",
-        last_layer_rule="epsilon"
-    )
+    # Calculate relevance maps using different LRP methods with dynamic parsing
+    lrp_eps = explain(model_no_softmax, img_tensor, method_name="lrp_epsilon_0_1")
+    lrp_ab = explain(model_no_softmax, img_tensor, method_name="lrp_alpha_1_beta_0")
+    lrp_composite = explain(model_no_softmax, img_tensor, method_name="lrp_sequential_composite_a")
     
     # Visualize relevance maps
     fig, axs = plt.subplots(1, 4, figsize=(16, 4))
@@ -578,8 +563,8 @@ SignXAI implements the novel SIGN methods for PyTorch models:
     # Calculate sign with threshold mu
     sign = calculate_sign_mu(input_tensor, mu=0.0)
     
-    # Use with gradient-based methods
-    grad = GradientAnalyzer(model).analyze(input_tensor)
+    # Use with gradient-based methods  
+    grad = explain(model, input_tensor, method_name="gradient")
     grad_sign = grad * sign
 
 This can be used with any of the analyzers to create SIGN variants of the methods.

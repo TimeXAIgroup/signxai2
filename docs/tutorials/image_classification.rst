@@ -77,7 +77,7 @@ Let's use a pre-trained VGG16 model with TensorFlow:
     # Calculate explanations with different methods
     methods = [
         'gradient',
-        'input_t_gradient',
+        'gradient_x_input',
         'integrated_gradients',
         'smoothgrad',
         'grad_cam',
@@ -180,7 +180,7 @@ Now let's do the same with PyTorch:
     # Calculate explanations with different methods
     methods = [
         "gradient",
-        "input_t_gradient",
+        "gradient_x_input",
         "integrated_gradients",
         "smoothgrad",
         "grad_cam",

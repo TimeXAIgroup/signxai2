@@ -18,8 +18,9 @@ The simplest way to visualize explanations is using matplotlib:
     import matplotlib.pyplot as plt
     import numpy as np
     
-    # Generate an explanation (placeholder)
-    explanation = calculate_relevancemap(...)
+    # Generate an explanation using the new API (placeholder)
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="gradient")
     
     # Simple visualization
     plt.figure(figsize=(10, 6))
@@ -90,12 +91,12 @@ Multiple Method Comparison
 
     from signxai.common.visualization import visualize_comparison
     
-    # Generate explanations with different methods
+    # Generate explanations with different methods using dynamic parsing
     explanations = {
-        'gradient': calculate_relevancemap(model, input_tensor, method="gradients"),
-        'integrated_gradients': calculate_relevancemap(model, input_tensor, method="integrated_gradients"),
-        'smoothgrad': calculate_relevancemap(model, input_tensor, method="smoothgrad"),
-        'lrp_epsilon': calculate_relevancemap(model, input_tensor, method="lrp_epsilon")
+        'gradient': explain(model, input_tensor, method_name="gradient"),
+        'integrated_gradients': explain(model, input_tensor, method_name="integrated_gradients_steps_50"),
+        'smoothgrad': explain(model, input_tensor, method_name="smoothgrad_noise_0_2_samples_50"),
+        'lrp_epsilon': explain(model, input_tensor, method_name="lrp_epsilon_0_1")
     }
     
     # Convert explanations to suitable format for comparison
@@ -132,8 +133,9 @@ Separate visualization of positive and negative attributions:
 
 .. code-block:: python
 
-    # Get explanation
-    explanation = calculate_relevancemap(...)
+    # Get explanation using the new API
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="gradient")
     
     # Sum across channels
     explanation_flat = explanation[0].sum(axis=0) if explanation.ndim == 4 else explanation[0]
@@ -174,8 +176,9 @@ Visualize attributions for different input channels individually:
 
 .. code-block:: python
 
-    # Get explanation (assuming RGB image, 3 channels)
-    explanation = calculate_relevancemap(...)
+    # Get explanation (assuming RGB image, 3 channels) using the new API
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="gradient")
     
     # Get channel-specific explanations
     r_channel = explanation[0, 0]  # Red channel
@@ -209,8 +212,9 @@ Special visualization for Grad-CAM results:
 
 .. code-block:: python
 
-    # Generate Grad-CAM explanation
-    gradcam = calculate_relevancemap(model, input_tensor, method="grad_cam")
+    # Generate Grad-CAM explanation using dynamic parsing
+    from signxai.api import explain
+    gradcam = explain(model, input_tensor, method_name="grad_cam")
     
     # Normalize Grad-CAM (it's usually positive-only)
     normalized_gradcam = gradcam[0, :, :, 0] if gradcam.ndim == 4 else gradcam[0]
@@ -246,9 +250,10 @@ For time series data, the visualization differs from images:
 
 .. code-block:: python
 
-    # Generate explanation for time series
+    # Generate explanation for time series using the new API
     time_series = np.load('ecg_sample.npy')
-    explanation = calculate_relevancemap(...)
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="gradient")
     
     # For time series, the explanation usually has shape [batch, time, channels]
     # or [batch, channels, time] depending on framework
@@ -377,7 +382,13 @@ Save your visualizations for later use:
 
     # Create visualization
     plt.figure(figsize=(10, 6))
-    plt.imshow(normalize_relevance_map(explanation[0].sum(axis=0)), cmap='seismic', clim=(-1, 1))
+    # Note: explanation shape depends on framework - handle both cases
+    if explanation.ndim == 4:  # TensorFlow format [batch, height, width, channels]
+        explanation_viz = explanation[0].sum(axis=-1)
+    else:  # PyTorch format [batch, channels, height, width]
+        explanation_viz = explanation[0].sum(axis=0)
+    
+    plt.imshow(normalize_relevance_map(explanation_viz), cmap='seismic', clim=(-1, 1))
     plt.colorbar(label='Attribution Value')
     plt.title('Explanation')
     plt.axis('off')
@@ -389,7 +400,12 @@ Save your visualizations for later use:
     # Save all explanations from a method comparison
     for method, expl in explanations.items():
         plt.figure(figsize=(8, 8))
-        plt.imshow(normalize_relevance_map(expl[0].sum(axis=0)), cmap='seismic', clim=(-1, 1))
+        # Handle both TensorFlow and PyTorch formats
+        if expl.ndim == 4:  # TensorFlow format
+            explanation_viz = expl[0].sum(axis=-1)
+        else:  # PyTorch format
+            explanation_viz = expl[0].sum(axis=0)
+        plt.imshow(normalize_relevance_map(explanation_viz), cmap='seismic', clim=(-1, 1))
         plt.title(method)
         plt.axis('off')
         plt.savefig(f'explanation_{method}.png', dpi=300, bbox_inches='tight')
@@ -417,8 +433,9 @@ TensorFlow explanations typically have shape ``[batch, height, width, channels]`
 
 .. code-block:: python
 
-    # For TensorFlow
-    explanation = calculate_relevancemap('gradient', input_tensor, model)
+    # For TensorFlow using the new unified API
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name='gradient')
     
     # Sum across channels for visualization
     explanation_viz = explanation[0].sum(axis=-1)
@@ -433,8 +450,9 @@ PyTorch explanations typically have shape ``[batch, channels, height, width]`` f
 
 .. code-block:: python
 
-    # For PyTorch
-    explanation = calculate_relevancemap(model, input_tensor, method="gradients")
+    # For PyTorch using the new unified API
+    from signxai.api import explain
+    explanation = explain(model, input_tensor, method_name="gradient")
     
     # Sum across channels for visualization
     explanation_viz = explanation[0].sum(axis=0)

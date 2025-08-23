@@ -72,7 +72,7 @@ def calculate_explanation_innvestigate(model, x, method='lrp.epsilon', neuron_se
         Explanation (relevance map)
     """
     # Import here to avoid circular imports
-    from signxai.tf_signxai.methods.innvestigate.analyzer import create_analyzer
+    from signxai.tf_signxai.methods_impl.innvestigate.analyzer import create_analyzer
 
     # Create the analyzer
     analyzer = create_analyzer(method, model, **kwargs)

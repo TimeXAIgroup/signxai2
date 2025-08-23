@@ -18,66 +18,60 @@ This module provides two API styles: a PyTorch-native style and a TensorFlow-com
 PyTorch-Native API
 ~~~~~~~~~~~~~~~~~~
 
-.. py:function:: calculate_relevancemap(model, input_tensor, method="gradients", **kwargs)
+.. py:function:: explain(model, input_tensor, method_name, **kwargs)
 
-   Calculates a relevance map for a given model, input, and method in a PyTorch-native style.
+   Calculates a relevance map using the new dynamic parsing API.
    
    :param model: PyTorch model
    :type model: torch.nn.Module
    :param input_tensor: Input tensor
    :type input_tensor: torch.Tensor or numpy.ndarray
-   :param method: Name of the explanation method
-   :type method: str, optional
+   :param method_name: Name of the explanation method with embedded parameters (e.g., 'lrp_epsilon_0_25', 'smoothgrad_noise_0_3_samples_50')
+   :type method_name: str
    :param kwargs: Additional arguments for the specific method
    :return: Relevance map as numpy array
    :rtype: numpy.ndarray
    
-.. py:function:: calculate_relevancemaps(model, input_tensors, method="gradients", **kwargs)
-
-   Calculates relevance maps for multiple inputs in a PyTorch-native style.
+   **Note**: The old ``calculate_relevancemap(model, input_tensor, method="gradients")`` API is deprecated. Use this new unified API instead.
    
-   :param model: PyTorch model
-   :type model: torch.nn.Module
-   :param input_tensors: List or batch of input tensors
-   :type input_tensors: list or torch.Tensor or numpy.ndarray
-   :param method: Name of the explanation method
-   :type method: str, optional
-   :param kwargs: Additional arguments for the specific method
-   :return: List or batch of relevance maps
-   :rtype: numpy.ndarray
+For multiple inputs, use ``explain()`` in a loop or with batch processing:
+
+.. code-block:: python
+
+   from signxai.api import explain
+   
+   # For multiple inputs
+   explanations = []
+   for input_tensor in input_tensors:
+       explanations.append(explain(model, input_tensor, method_name="gradient"))
+   
+   # Or for batch processing (if supported by the method)
+   batch_explanation = explain(model, batch_inputs, method_name="gradient")
 
 TensorFlow-Compatible API
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. py:module:: signxai.torch_signxai.methods.wrappers
 
-.. py:function:: calculate_relevancemap(method_name, x, model_no_softmax, **kwargs)
+**Deprecated**: The TensorFlow-compatible API style is now replaced by the unified ``explain()`` API.
 
-   Calculates a relevance map using the TensorFlow-compatible API style.
-   
-   :param method_name: Name of the explanation method
-   :type method_name: str
-   :param x: Input tensor
-   :type x: numpy.ndarray or torch.Tensor
-   :param model_no_softmax: PyTorch model with softmax removed
-   :type model_no_softmax: torch.nn.Module
-   :param kwargs: Additional arguments for the specific method
-   :return: Relevance map as numpy array
-   :rtype: numpy.ndarray
-   
-.. py:function:: calculate_relevancemaps(method_name, X, model_no_softmax, **kwargs)
+Instead of ``calculate_relevancemap(method_name, x, model_no_softmax)`` use:
 
-   Calculates relevance maps for multiple inputs using the TensorFlow-compatible API style.
+.. code-block:: python
+
+   from signxai.api import explain
+   explanation = explain(model_no_softmax, x, method_name=method_name)
    
-   :param method_name: Name of the explanation method
-   :type method_name: str
-   :param X: List or batch of input tensors
-   :type X: list or numpy.ndarray or torch.Tensor
-   :param model_no_softmax: PyTorch model with softmax removed
-   :type model_no_softmax: torch.nn.Module
-   :param kwargs: Additional arguments for the specific method
-   :return: List or batch of relevance maps
-   :rtype: numpy.ndarray
+**Deprecated**: Use the new unified ``explain()`` API instead:
+
+.. code-block:: python
+
+   from signxai.api import explain
+   
+   # For multiple inputs
+   explanations = []
+   for input_tensor in X:
+       explanations.append(explain(model_no_softmax, input_tensor, method_name=method_name))
 
 Zennit Integration
 ------------------
@@ -96,6 +90,8 @@ The module ``signxai.torch_signxai.methods.zennit_impl`` provides Zennit-based i
    .. py:method:: analyze(input_tensor, target_class=None)
       
       Generate vanilla gradient attribution.
+      
+      **New API**: Use ``explain(model, input_tensor, method_name="gradient")``
       
       :param input_tensor: Input tensor
       :type input_tensor: torch.Tensor or numpy.ndarray
@@ -119,6 +115,8 @@ The module ``signxai.torch_signxai.methods.zennit_impl`` provides Zennit-based i
       
       Generate integrated gradients attribution.
       
+      **New API**: Use ``explain(model, input_tensor, method_name="integrated_gradients_steps_50")`` or other step values like ``integrated_gradients_steps_100``
+      
       :param input_tensor: Input tensor
       :type input_tensor: torch.Tensor or numpy.ndarray
       :param target_class: Target class index (None for argmax)
@@ -140,6 +138,8 @@ The module ``signxai.torch_signxai.methods.zennit_impl`` provides Zennit-based i
    .. py:method:: analyze(input_tensor, target_class=None)
       
       Generate SmoothGrad attribution.
+      
+      **New API**: Use ``explain(model, input_tensor, method_name="smoothgrad_noise_0_2_samples_50")`` or other parameter combinations
       
       :param input_tensor: Input tensor
       :type input_tensor: torch.Tensor or numpy.ndarray
@@ -177,6 +177,8 @@ The module ``signxai.torch_signxai.methods.zennit_impl`` provides Zennit-based i
       
       Generate gradient × input attribution.
       
+      **New API**: Use ``explain(model, input_tensor, method_name="gradient_x_input")``
+      
       :param input_tensor: Input tensor
       :type input_tensor: torch.Tensor or numpy.ndarray
       :param target_class: Target class index (None for argmax)
@@ -196,6 +198,8 @@ The module ``signxai.torch_signxai.methods.zennit_impl`` provides Zennit-based i
    .. py:method:: analyze(input_tensor, target_class=None)
       
       Generate gradient × sign attribution.
+      
+      **New API**: Use ``explain(model, input_tensor, method_name="gradient_x_sign")`` or with mu values like ``gradient_x_sign_mu_0_5`` or ``gradient_x_sign_mu_neg_0_5``
       
       :param input_tensor: Input tensor
       :type input_tensor: torch.Tensor or numpy.ndarray
@@ -286,6 +290,8 @@ The Zennit library is used to implement various LRP variants.
       
       Generate LRP attribution.
       
+      **New API**: Use ``explain(model, input_tensor, method_name="lrp_epsilon_0_25")`` or other variants like ``lrp_alpha_1_beta_0``
+      
       :param input_tensor: Input tensor
       :type input_tensor: torch.Tensor or numpy.ndarray
       :param target_class: Target class index (None for argmax)
@@ -360,6 +366,8 @@ The SIGN methods are implemented for PyTorch models as well.
 .. py:function:: calculate_sign_mu(x, mu=0)
 
    Calculates the sign with a threshold parameter mu for PyTorch inputs.
+   
+   **New API**: This is typically used internally, but sign-based methods can be called with ``explain(model, input_tensor, method_name="gradient_x_sign_mu_0_5")`` or ``gradient_x_sign_mu_neg_0_5``
    
    :param x: Input tensor
    :type x: torch.Tensor or numpy.ndarray

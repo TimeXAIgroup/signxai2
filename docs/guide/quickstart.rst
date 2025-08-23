@@ -38,13 +38,14 @@ Here's a complete example using TensorFlow:
     import matplotlib.pyplot as plt
     from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input, decode_predictions
     from tensorflow.keras.preprocessing.image import load_img, img_to_array
-    from signxai.tf_signxai.methods.wrappers import calculate_relevancemap
+    from signxai.api import explain
+    from signxai.utils.utils import remove_softmax
     
     # Step 1: Load a pre-trained model
     model = VGG16(weights='imagenet')
     
     # Step 2: Remove softmax (critical for explanations)
-    model.layers[-1].activation = None
+    model = remove_softmax(model)
     
     # Step 3: Load and preprocess an image
     img_path = 'path/to/image.jpg'
@@ -58,8 +59,10 @@ Here's a complete example using TensorFlow:
     top_pred_idx = np.argmax(preds[0])
     print(f"Predicted class: {decode_predictions(preds, top=1)[0][0][1]}")
     
-    # Step 5: Calculate explanation with input × gradient method
-    explanation = calculate_relevancemap('input_t_gradient', x, model, neuron_selection=top_pred_idx)
+    # Step 5: Calculate explanation with advanced gradient method
+    # This demonstrates dynamic method parsing with multiple operations:
+    # gradient × input × sign with mu parameter of -0.5
+    explanation = explain(model, x, method_name='gradient_x_input_x_sign_mu_neg_0_5', target_class=top_pred_idx)
     
     # Step 6: Normalize and visualize
     # Sum over channels to create 2D heatmap
@@ -97,7 +100,7 @@ Here's a complete example using PyTorch:
     from PIL import Image
     import torchvision.models as models
     import torchvision.transforms as transforms
-    from signxai.torch_signxai import calculate_relevancemap
+    from signxai.api import explain
     from signxai.torch_signxai.utils import remove_softmax
     
     # Step 1: Load a pre-trained model
@@ -126,11 +129,13 @@ Here's a complete example using PyTorch:
     # Get the most likely class
     _, predicted_idx = torch.max(output, 1)
     
-    # Step 5: Calculate explanation with Gradient x Input method
-    explanation = calculate_relevancemap(
+    # Step 5: Calculate explanation with advanced gradient method
+    # This demonstrates dynamic method parsing with multiple operations:
+    # gradient × input × sign with mu parameter of -0.5
+    explanation = explain(
         model_no_softmax, 
         input_tensor, 
-        method="input_t_gradient",
+        method_name="gradient_x_input_x_sign_mu_neg_0_5",
         target_class=predicted_idx.item()
     )
     
@@ -169,34 +174,44 @@ You can also use the framework-agnostic API:
 
 .. code-block:: python
 
-    from signxai import explain, list_methods
-    
-    # List available methods
-    print(f"Available methods: {list_methods()}")
+    from signxai.api import explain
     
     # Will work with either PyTorch or TensorFlow model
-    explanation = explain(model, input_data, method="gradient")
+    # Using dynamic method parsing - parameters embedded in method names
+    
+    # Simple gradient method
+    explanation = explain(model, input_data, method_name="gradient")
+    
+    # Advanced method with parameters
+    explanation = explain(model, input_data, method_name="gradient_x_input_x_sign_mu_neg_0_5")
     
     # SignXAI will automatically detect the framework
 
 Multiple Explanation Methods
 ----------------------------
 
-Compare different explanation methods for the same input:
+Compare different explanation methods using dynamic method parsing:
 
 .. code-block:: python
 
-    # For PyTorch
-    from signxai.torch_signxai import calculate_relevancemap
+    from signxai.api import explain
     
-    methods = ['gradient', 'input_t_gradient', 'integrated_gradients', 'smoothgrad', 'lrp_z']
+    # Dynamic method names with embedded parameters
+    methods = [
+        'gradient',                                    # Basic gradient
+        'gradient_x_input',                           # Gradient × Input
+        'gradient_x_input_x_sign_mu_neg_0_5',        # Advanced combination
+        'integrated_gradients_steps_100',             # Integrated Gradients (100 steps)
+        'smoothgrad_noise_0_3_samples_50',           # SmoothGrad with parameters
+        'lrp_epsilon_0_25'                           # LRP with epsilon=0.25
+    ]
     explanations = []
     
-    for method in methods:
-        explanation = calculate_relevancemap(
+    for method_name in methods:
+        explanation = explain(
             model=model_no_softmax,
-            input_tensor=input_tensor,
-            method=method,
+            x=input_tensor,
+            method_name=method_name,
             target_class=predicted_idx.item()
         )
         # Convert to numpy for visualization
@@ -210,7 +225,7 @@ Compare different explanation methods for the same input:
     axs[0].set_title('Original')
     axs[0].axis('off')
     
-    for i, (method, expl) in enumerate(zip(methods, explanations)):
+    for i, (method_name, expl) in enumerate(zip(methods, explanations)):
         # Sum over channels and normalize
         heatmap = expl.sum(axis=0)  # PyTorch format: (C, H, W)
         abs_max = np.max(np.abs(heatmap))
@@ -219,7 +234,7 @@ Compare different explanation methods for the same input:
         else:
             normalized = heatmap
         axs[i+1].imshow(normalized, cmap='seismic', clim=(-1, 1))
-        axs[i+1].set_title(method)
+        axs[i+1].set_title(method_name)
         axs[i+1].axis('off']
     
     plt.tight_layout()
@@ -228,24 +243,28 @@ Compare different explanation methods for the same input:
 LRP Variants
 ------------
 
-Layer-wise Relevance Propagation (LRP) has several variants:
+Layer-wise Relevance Propagation (LRP) variants using dynamic method parsing:
 
 .. code-block:: python
 
-    # For PyTorch
+    from signxai.api import explain
+    
+    # LRP methods with parameters embedded in names
     lrp_methods = [
-        'lrp_z',                  # Basic LRP-Z
-        'lrpsign_z',              # LRP-Z with SIGN
-        'lrp_epsilon_0_1',        # LRP with epsilon=0.1
-        'lrp_alpha_1_beta_0'      # LRP with alpha=1, beta=0
+        'lrp_z',                          # Basic LRP-Z
+        'lrp_z_x_sign',                   # LRP-Z with SIGN
+        'lrp_epsilon_0_1',                # LRP with epsilon=0.1
+        'lrp_epsilon_0_25',               # LRP with epsilon=0.25
+        'lrp_alpha_2_beta_1',             # LRP with alpha=2, beta=1
+        'lrp_gamma_0_25'                  # LRP with gamma=0.25
     ]
     
     lrp_explanations = []
-    for method in lrp_methods:
-        explanation = calculate_relevancemap(
+    for method_name in lrp_methods:
+        explanation = explain(
             model=model_no_softmax,
-            input_tensor=input_tensor,
-            method=method,
+            x=input_tensor,
+            method_name=method_name,
             target_class=predicted_idx.item()
         )
         if hasattr(explanation, 'detach'):
@@ -254,7 +273,7 @@ Layer-wise Relevance Propagation (LRP) has several variants:
     
     # Visualize LRP variants
     fig, axs = plt.subplots(1, len(lrp_methods), figsize=(12, 3))
-    for i, (method, expl) in enumerate(zip(lrp_methods, lrp_explanations)):
+    for i, (method_name, expl) in enumerate(zip(lrp_methods, lrp_explanations)):
         heatmap = expl.sum(axis=0)
         abs_max = np.max(np.abs(heatmap))
         if abs_max > 0:
@@ -262,57 +281,58 @@ Layer-wise Relevance Propagation (LRP) has several variants:
         else:
             normalized = heatmap
         axs[i].imshow(normalized, cmap='seismic', clim=(-1, 1))
-        axs[i].set_title(method)
+        axs[i].set_title(method_name)
         axs[i].axis('off')
     plt.tight_layout()
     plt.show()
 
-Working with Different Method Parameters
-----------------------------------------
+Working with Dynamic Method Parameters
+---------------------------------------
 
-Many methods support additional parameters:
+Parameters are embedded directly in method names:
 
 .. code-block:: python
 
-    # For PyTorch
-    # LRP with different epsilon values
-    epsilons = [0.01, 0.1, 1.0]
-    for eps in epsilons:
-        explanation = calculate_relevancemap(
+    from signxai.api import explain
+    
+    # LRP with different epsilon values (embedded in method name)
+    epsilon_methods = [
+        'lrp_epsilon_0_01',    # epsilon=0.01
+        'lrp_epsilon_0_1',     # epsilon=0.1
+        'lrp_epsilon_1'        # epsilon=1.0
+    ]
+    
+    for method_name in epsilon_methods:
+        explanation = explain(
             model=model_no_softmax,
-            input_tensor=input_tensor,
-            method='lrp_epsilon',
-            target_class=predicted_idx.item(),
-            epsilon=eps
+            x=input_tensor,
+            method_name=method_name,
+            target_class=predicted_idx.item()
         )
         # Visualize...
     
-    # SmoothGrad with custom parameters
-    explanation = calculate_relevancemap(
+    # SmoothGrad with custom parameters (embedded in name)
+    explanation = explain(
         model=model_no_softmax,
-        input_tensor=input_tensor,
-        method='smoothgrad',
-        target_class=predicted_idx.item(),
-        num_samples=50,    # Number of samples
-        noise_level=0.1    # Noise level
+        x=input_tensor,
+        method_name='smoothgrad_noise_0_1_samples_50',  # noise=0.1, samples=50
+        target_class=predicted_idx.item()
     )
     
     # Integrated Gradients with custom steps
-    explanation = calculate_relevancemap(
+    explanation = explain(
         model=model_no_softmax,
-        input_tensor=input_tensor,
-        method='integrated_gradients',
-        target_class=predicted_idx.item(),
-        steps=100  # Integration steps
+        x=input_tensor,
+        method_name='integrated_gradients_steps_100',  # 100 integration steps
+        target_class=predicted_idx.item()
     )
     
-    # Grad-CAM with specific layer
-    explanation = calculate_relevancemap(
+    # Complex combinations with multiple operations
+    explanation = explain(
         model=model_no_softmax,
-        input_tensor=input_tensor,
-        method='grad_cam',
-        target_class=predicted_idx.item(),
-        target_layer=model.features[28]  # Last conv layer for VGG16
+        x=input_tensor,
+        method_name='gradient_x_input_x_sign_mu_neg_0_5',  # gradient × input × sign(mu=-0.5)
+        target_class=predicted_idx.item()
     )
 
 Next Steps

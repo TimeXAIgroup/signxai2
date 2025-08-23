@@ -1,102 +1,30 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## [0.13.8] - 2025-08-22
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [0.13.8] - 2025-08-05
+### Added
+- **Dynamic Method Parsing**: Parameters are now embedded directly in method names
+- **Unified API**: Single `explain()` function for all methods
+- **12-Lead ECG Support**: Full support for multi-channel time series visualization
+- **Method Combinations**: Support for complex method combinations like `gradient_x_input_x_sign_mu_neg_0_5`
 
 ### Changed
-- Cleaned up Code structure of torch implementation by removing corrected_hooks.py, innvestigate_compatible_hooks.py, lrp_variants.py, and tf_exact_epsilon_hook.py and incorporating them into analyzers.py and hooks.py
-- Edited quickstart guide pytorch example
-- **BREAKING CHANGE**: Installation now requires explicit framework selection
-  - `pip install signxai2` alone is no longer supported
-  - Users must specify: `signxai2[tensorflow]`, `signxai2[pytorch]`, `signxai2[all]`, or `signxai2[dev]`
-- Moved TensorFlow and PyTorch dependencies from core to optional dependencies
-- Updated all documentation and tutorials to reflect new installation pattern
-- Removed references to requirements.txt files in favor of pyproject.toml extras
+- **Removed Wrapper Functions**: Direct method calls without intermediate wrappers
+- **Simplified API**: All methods now use the same unified interface
+- **Improved Performance**: Optimized method parsing and execution
 
-### Added
-- Clear error messaging when attempting to use SignXAI2 without framework installation
-- Framework-specific installation options for reduced dependency footprint
+### Deprecated
+- `wrapper.py` functionality replaced by dynamic parsing
+- Old parameter passing style (use embedded parameters instead)
 
-### Fixed
-- Unified API method naming consistency across documentation tutorials
-- Tutorial notebooks now use correct model paths and unified API patterns
+### Examples
+```python
+# Old style (deprecated):
+explain(model, x, method="smoothgrad", noise_level=0.3, num_samples=50)
 
-### Added
+# New style:
+explain(model, x, method_name="smoothgrad_noise_0_3_samples_50")
+```
 
-#### Core Features
-- **Unified API**: Framework-agnostic `signxai.explain()` function that automatically detects TensorFlow or PyTorch models
-- **Cross-framework compatibility**: Consistent API and results across TensorFlow and PyTorch implementations
-- **200+ XAI methods**: Comprehensive collection of explainable AI methods including gradients, LRP variants, CAM methods, and backpropagation techniques
-
-#### Framework Support
-- **TensorFlow integration**: Full support for TensorFlow/Keras models with iNNvestigate backend for LRP methods
-- **PyTorch integration**: Complete PyTorch support with Zennit backend for LRP implementations
-- **Automatic framework detection**: Seamless switching between frameworks based on model type
-
-#### XAI Methods
-- **Gradient-based methods**: 
-  - Vanilla gradients, Gradient × Input, Integrated Gradients
-  - SmoothGrad, VarGrad for noise reduction
-  - Guided Backpropagation and DeconvNet
-- **Layer-wise Relevance Propagation (LRP)**:
-  - Basic rules: LRP-Z, LRP-Epsilon, LRP-Gamma
-  - Advanced rules: LRP-Alpha-Beta, LRP-Z+, LRP-ZBox
-  - Composite rules with layer-specific configurations
-- **Class Activation Mapping**:
-  - Grad-CAM for convolutional networks
-  - Specialized Grad-CAM for time series data
-- **SIGN method**: Novel contribution for reducing bias in explanations
-  - SIGN-enhanced variants of gradient and LRP methods
-  - Customizable threshold parameter (μ) for flexible sign computation
-
-#### Visualization and Analysis
-- **Framework-agnostic visualization**: Consistent plotting utilities across both frameworks
-- **Advanced visualization options**: Heatmaps, overlays, positive/negative contribution separation
-- **Method comparison tools**: Side-by-side comparison of multiple explanation methods
-- **Batch processing support**: Efficient handling of multiple inputs
-
-#### Documentation and Tutorials
-- **Comprehensive documentation**: Complete Sphinx-based documentation with API reference
-- **Interactive tutorials**: Jupyter notebooks covering basic usage, advanced features, and cross-framework comparison
-- **Installation guides**: Detailed setup instructions for both frameworks
-- **Method comparison examples**: Practical examples showing framework interoperability
-
-#### Development Tools
-- **Comparison scripts**: Tools for validating consistency between TensorFlow and PyTorch implementations
-- **Performance benchmarking**: Scripts for comparing method execution times and accuracy
-- **Testing framework**: Comprehensive test suite ensuring reliability across frameworks
-
-### Technical Details
-
-#### Dependencies
-- **Core**: NumPy ≥1.19.0, Matplotlib ≥3.7.0, SciPy ≥1.10.0, Pillow ≥8.0.0
-- **TensorFlow**: TensorFlow ≥2.8.0, ≤2.12.1
-- **PyTorch**: PyTorch ≥1.10.0, Zennit ≥0.5.1, scikit-image ≥0.19.0
-- **Python**: Supports Python 3.9-3.10
-
-#### Package Structure
-- **signxai.tf_signxai**: TensorFlow-specific implementations
-- **signxai.torch_signxai**: PyTorch-specific implementations  
-- **signxai.common**: Shared utilities and visualization tools
-- **signxai.api**: Unified API and framework detection
-
-#### Performance Features
-- **Memory-efficient processing**: Optimized for large models and datasets
-- **GPU acceleration**: Support for CUDA-enabled explanations in PyTorch
-- **Batch processing**: Efficient handling of multiple explanations
-- **Parameter mapping**: Automatic translation between framework-specific parameters
-
-### Known Issues
-- Some advanced LRP composites may have slight differences between TensorFlow and PyTorch implementations due to underlying library differences
-- Very large models may require additional memory optimization for certain methods
-
-### Acknowledgments
-- Built upon [iNNvestigate](https://github.com/albermax/innvestigate) for TensorFlow LRP implementations
-- Built upon [Zennit](https://github.com/chr5tphr/zennit) for PyTorch LRP implementations
-- SIGN method represents the novel contribution of the SignXAI project
-
-[0.13.8]: https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md
+## [0.13.7] - Previous Version
+- Initial release with wrapper-based API
