@@ -21,6 +21,8 @@ If you use the code from this repository in your work, please cite:
 }
 ```
 
+![SIGN Explanation](https://pypi-camo.freetls.fastly.net/00b567188fb6bd7ccefc60fbdb099c52905a6941/68747470733a2f2f6172732e656c732d63646e2e636f6d2f636f6e74656e742f696d6167652f312d73322e302d53313536363235333532333030313939392d6761315f6c72672e6a7067)
+
 ## Documentation
 
 The documentation for SignXAI2 is available at: https://TimeXAIgroup.github.io/signxai2/index.html

@@ -18,7 +18,7 @@ else:
     from .methods.zennit_impl import calculate_relevancemap as calculate_relevancemap
 
 # Import utilities that are commonly used
-from .utils import remove_softmax, decode_predictions, NoSoftmaxWrapper
+from .torch_utils import remove_softmax, decode_predictions, NoSoftmaxWrapper
 
 # Import individual method functions for compatibility
 try:

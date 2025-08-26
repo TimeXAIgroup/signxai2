@@ -9,7 +9,7 @@ from typing import Dict, Any, List
 from signxai.tf_signxai.methods_impl.grad_cam import calculate_grad_cam_relevancemap, calculate_grad_cam_relevancemap_timeseries
 from signxai.tf_signxai.methods_impl.guided_backprop import guided_backprop_on_guided_model
 from signxai.tf_signxai.methods_impl.signed import calculate_sign_mu
-from signxai.utils.utils import calculate_explanation_innvestigate
+from signxai.tf_signxai.tf_utils import calculate_explanation_innvestigate
 from signxai.common.method_parser import MethodParser
 from signxai.common.method_normalizer import MethodNormalizer
 

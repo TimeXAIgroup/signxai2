@@ -20,7 +20,7 @@ tf.get_logger().setLevel('ERROR')
 
 # Import the unified SignXAI API
 from signxai.api import explain
-from signxai.utils.utils import remove_softmax as tf_remove_softmax
+from signxai.tf_signxai.tf_utils import remove_softmax as tf_remove_softmax
 
 # Add project root to path for utility imports
 current_script_dir = os.path.dirname(os.path.abspath(__file__))

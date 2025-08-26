@@ -69,7 +69,7 @@ class SimpleGradientFamily(MethodFamily):
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
         """Execute gradient methods for TensorFlow with dynamic modifiers."""
         try:
-            from ..utils.utils import calculate_explanation_innvestigate
+            from ..tf_signxai.tf_utils import calculate_explanation_innvestigate
             import numpy as np
             
             method_lower = method_name.lower()
@@ -190,7 +190,7 @@ class StochasticMethodFamily(MethodFamily):
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
         """Execute stochastic methods for TensorFlow with dynamic modifiers."""
         try:
-            from ..utils.utils import calculate_explanation_innvestigate
+            from ..tf_signxai.tf_utils import calculate_explanation_innvestigate
             import numpy as np
             
             method_lower = method_name.lower()
@@ -530,7 +530,7 @@ class LRPBasicFamily(MethodFamily):
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
         """Execute LRP methods for TensorFlow with comprehensive rule parsing."""
         try:
-            from ..utils.utils import calculate_explanation_innvestigate
+            from ..tf_signxai.tf_utils import calculate_explanation_innvestigate
             import numpy as np
             
             method_lower = method_name.lower()
@@ -743,7 +743,7 @@ class SpecializedLRPFamily(MethodFamily):
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
         """Execute specialized LRP methods for TensorFlow with sign variants."""
         try:
-            from ..utils.utils import calculate_explanation_innvestigate
+            from ..tf_signxai.tf_utils import calculate_explanation_innvestigate
             import numpy as np
             
             method_lower = method_name.lower()
@@ -762,7 +762,7 @@ class SpecializedLRPFamily(MethodFamily):
     
     def _execute_sign_variant_tensorflow(self, model, x, method_lower, **kwargs):
         """Execute LRP sign variants for TensorFlow."""
-        from ..utils.utils import calculate_explanation_innvestigate
+        from ..tf_signxai.tf_utils import calculate_explanation_innvestigate
         import numpy as np
         
         # Parse the method components
@@ -1106,7 +1106,7 @@ class DeepLiftFamily(MethodFamily):
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
         """Execute DeepLift for TensorFlow."""
         try:
-            from ..utils.utils import calculate_explanation_innvestigate
+            from ..tf_signxai.tf_utils import calculate_explanation_innvestigate
             
             result = calculate_explanation_innvestigate(
                 model, x, method='deeplift.wrapper',
@@ -1159,7 +1159,7 @@ class GuidedFamily(MethodFamily):
     def execute_tensorflow(self, model, x, method_name: str, **kwargs):
         """Execute guided methods for TensorFlow with dynamic modifiers."""
         try:
-            from ..utils.utils import calculate_explanation_innvestigate
+            from ..tf_signxai.tf_utils import calculate_explanation_innvestigate
             import numpy as np
             
             method_lower = method_name.lower()

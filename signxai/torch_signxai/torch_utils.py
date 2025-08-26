@@ -1,4 +1,4 @@
-# signxai/torch_signxai/utils.py
+# signxai/torch_signxai/torch_utils.py
 
 import torch
 import torch.nn as nn

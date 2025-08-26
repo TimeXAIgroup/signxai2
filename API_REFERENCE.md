@@ -51,13 +51,13 @@ explanation = explain(model, x, method_name="gradient_x_input_x_sign_mu_neg_0_5"
 
 ### TensorFlow
 ```python
-from signxai.utils.utils import remove_softmax
+from signxai.tf_signxai.tf_utils import remove_softmax
 model_no_softmax = remove_softmax(model)
 ```
 
 ### PyTorch
 ```python
-from signxai.torch_signxai.utils import remove_softmax
+from signxai.torch_signxai.torch_utils import remove_softmax
 model_no_softmax = remove_softmax(model)
 ```
 

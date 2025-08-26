@@ -18,7 +18,7 @@ warnings.filterwarnings('ignore', category=UserWarning)
 
 # Import the unified SignXAI API
 from signxai.api import explain
-from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
+from signxai.torch_signxai.torch_utils import remove_softmax as torch_remove_softmax
 
 # Add project root to path for utility imports
 current_script_dir = os.path.dirname(os.path.abspath(__file__))

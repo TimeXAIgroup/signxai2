@@ -33,12 +33,12 @@ except ImportError:
 
 # Import SignXAI components after confirming frameworks are available
 try:
-    from signxai.utils.utils import load_image as signxai_load_tf_image
-    from signxai.utils.utils import remove_softmax as tf_remove_softmax
+    from signxai.tf_signxai.tf_utils import load_image as signxai_load_tf_image
+    from signxai.tf_signxai.tf_utils import remove_softmax as tf_remove_softmax
     from signxai.tf_signxai import calculate_relevancemap as tf_calculate_relevancemap
     from signxai.torch_signxai import calculate_relevancemap as torch_calculate_relevancemap
-    from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
-    from signxai.torch_signxai.utils import decode_predictions as decode_predictions_pytorch
+    from signxai.torch_signxai.torch_utils import remove_softmax as torch_remove_softmax
+    from signxai.torch_signxai.torch_utils import decode_predictions as decode_predictions_pytorch
     # Wrappers no longer needed - using Method Family Architecture
 except ImportError as e:
     print(f"ERROR: Failed to import SignXAI components: {e}")
