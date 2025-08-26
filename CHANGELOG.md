@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.13.8] - 2025-08-22
+## [0.13.8] - 2025-08-26
 
 ### Added
 - **Dynamic Method Parsing**: Parameters are now embedded directly in method names
