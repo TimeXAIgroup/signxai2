@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.13.9] - 2025-08-26
+## [0.14.0] - 2025-08-26
 
 ### Added
 
@@ -12,7 +12,7 @@
 
 ### Deprecated
 
-## [0.13.8] - Previous Version
+## [0.13.9] - Previous Version
 - Modified package to remove wrappers.py and work with direct method calls.
 ### Examples
 ```python
