@@ -186,7 +186,7 @@ def calculate_relevancemap(method: str,
 
         if method in innvestigate_methods or method.startswith('lrp'):
             try:
-                from ..utils.utils import calculate_explanation_innvestigate
+                from .tf_utils import calculate_explanation_innvestigate
                 # The 'model' passed to calculate_explanation_innvestigate is expected to be
                 # the model without softmax by that utility's internal logic for iNNvestigate.
                 

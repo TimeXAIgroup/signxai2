@@ -177,7 +177,7 @@ You can also use the framework-agnostic API:
 
     from signxai.api import explain
     
-    # Will work with either PyTorch or TensorFlow model
+    # Will work with either PyTorch ==or TensorFlow model
     # Using dynamic method parsing - parameters embedded in method names
     
     # Simple gradient method

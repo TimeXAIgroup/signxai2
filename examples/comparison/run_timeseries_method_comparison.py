@@ -79,8 +79,8 @@ from utils.ecg_visualization import plot_ecg
 try:
     # Import the unified SignXAI API for dynamic method parsing
     from signxai.api import explain
-    from signxai.utils.utils import remove_softmax as tf_remove_softmax
-    from signxai.torch_signxai.utils import remove_softmax as torch_remove_softmax
+    from signxai.tf_signxai.tf_utils import remove_softmax as tf_remove_softmax
+    from signxai.torch_signxai.torch_utils import remove_softmax as torch_remove_softmax
 except ImportError as e:
     print(f"ERROR: Failed to import SignXAI components: {e}")
     print("Please ensure SignXAI2 is installed with both frameworks:")

@@ -14,7 +14,7 @@ if project_root not in sys.path:
 
 try:
     # Import your utility function from your signxai package
-    from signxai.utils.utils import load_image as signxai_load_image
+    from signxai.tf_signxai.tf_utils import load_image as signxai_load_image
 except ImportError as e:
     print(f"Error importing signxai.utils.utils.load_image: {e}")
     print("Please ensure your 'signxai' package is installed (e.g., 'pip install -e .' from project root).")

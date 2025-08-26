@@ -1,5 +1,5 @@
 # signxai/__init__.py
-__version__ = "0.13.8"
+__version__ = "0.13.9"
 
 _DEFAULT_BACKEND = None
 _AVAILABLE_BACKENDS = []
@@ -88,10 +88,10 @@ def _detect_framework(model):
 def _prepare_model(model, framework):
     """Prepare model for explanation (remove softmax if needed)."""
     if framework == 'tensorflow':
-        from signxai.utils.utils import remove_softmax
+        from signxai.tf_signxai.tf_utils import remove_softmax
         return remove_softmax(model)
     else:  # pytorch
-        from signxai.torch_signxai.utils import remove_softmax
+        from signxai.torch_signxai.torch_utils import remove_softmax
         model_copy = model.__class__(**{k: v for k, v in model.__dict__.items() if not k.startswith('_')})
         model_copy.load_state_dict(model.state_dict())
         return remove_softmax(model_copy)

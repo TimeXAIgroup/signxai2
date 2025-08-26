@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.applications.vgg16 import VGG16
 from signxai.methods.wrappers import calculate_relevancemap
-from signxai.utils.utils import (load_image, aggregate_and_normalize_relevancemap_rgb, download_image, 
-                                 calculate_explanation_innvestigate)
+from signxai.tf_signxai.tf_utils import load_image, download_image, calculate_explanation_innvestigate
+from signxai.utils.utils import aggregate_and_normalize_relevancemap_rgb
 
 # Load model
 model = VGG16(weights='imagenet')
