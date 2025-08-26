@@ -48,7 +48,7 @@ Here's a complete example using TensorFlow:
     model = remove_softmax(model)
     
     # Step 3: Load and preprocess an image
-    img_path = 'path/to/image.jpg'
+    img_path = 'path/to/image.jpg' # Please replace with actual path
     img = load_img(img_path, target_size=(224, 224))
     x = img_to_array(img)
     x = np.expand_dims(x, axis=0)
@@ -94,79 +94,79 @@ Here's a complete example using PyTorch:
 
 .. code-block:: python
 
-    import torch
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from PIL import Image
-    import torchvision.models as models
-    import torchvision.transforms as transforms
-    from signxai.api import explain
-    from signxai.torch_signxai.utils import remove_softmax
-
-    # Step 1: Load a pre-trained model
-    model = models.vgg16(pretrained=True)
-    model.eval()
-
-    # Step 2: Remove softmax
-    model_no_softmax = remove_softmax(model)
-
-    # Step 3: Load and preprocess an image
-    img_path = 'path/to/image.jpg' # Please replace with actual path
-    img = Image.open(img_path).convert('RGB')
-
-    preprocess = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-
-    input_tensor = preprocess(img).unsqueeze(0)  # Add batch dimension
-
-    # Step 4: Get prediction
-    with torch.no_grad():
-        output = model(input_tensor)
-
-    # Get the most likely class
-    _, predicted_idx = torch.max(output, 1)
-
-    # Step 5: Calculate explanation with advanced gradient method
-    explanation = explain(
-        model_no_softmax,
-        input_tensor,
-        method_name="gradient_x_input_x_sign_mu_neg_0_5",
-        target_class=predicted_idx.item()
-    )
-
-    # Step 6: Normalize and visualize
-    # Convert to numpy for visualization
-    explanation_np = explanation.detach().cpu().numpy() if hasattr(explanation, 'detach') else explanation
-    # Sum over channels to create 2D heatmap
-    if explanation_np.ndim == 4:
-        explanation_np = explanation_np[0]
-    heatmap = explanation_np.sum(axis=0)
-
-    abs_max = np.max(np.abs(heatmap))
-    if abs_max > 0:
-        normalized = heatmap / abs_max
-    else:
-        normalized = heatmap
-
-    # Convert the original image for display
-    img_np = np.array(img.resize((224, 224))) / 255.0
-
-    plt.figure(figsize=(10, 5))
-    plt.subplot(1, 2, 1)
-    plt.imshow(img_np)
-    plt.title('Original Image')
-    plt.axis('off')
-
-    plt.subplot(1, 2, 2)
-    plt.imshow(normalized, cmap='seismic', clim=(-1, 1))
-    plt.title('Explanation')
-    plt.axis('off')
-
-    plt.tight_layout()
-    plt.show()
+   import torch
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from PIL import Image
+   import torchvision.models as models
+   import torchvision.transforms as transforms
+   from signxai.api import explain
+   from signxai.torch_signxai.utils import remove_softmax
+   
+   # Step 1: Load a pre-trained model
+   model = models.vgg16(pretrained=True)
+   model.eval()
+   
+   # Step 2: Remove softmax
+   model_no_softmax = remove_softmax(model)
+   
+   # Step 3: Load and preprocess an image
+   img_path = 'path/to/image.jpg' # Please replace with actual path
+   img = Image.open(img_path).convert('RGB')
+   
+   preprocess = transforms.Compose([
+       transforms.Resize((224, 224)),
+       transforms.ToTensor(),
+       transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+   ])
+   
+   input_tensor = preprocess(img).unsqueeze(0)  # Add batch dimension
+   
+   # Step 4: Get prediction
+   with torch.no_grad():
+       output = model(input_tensor)
+   
+   # Get the most likely class
+   _, predicted_idx = torch.max(output, 1)
+   
+   # Step 5: Calculate explanation with advanced gradient method
+   explanation = explain(
+       model_no_softmax,
+       input_tensor,
+       method_name="gradient_x_input_x_sign_mu_neg_0_5",
+       target_class=predicted_idx.item()
+   )
+   
+   # Step 6: Normalize and visualize
+   # Convert to numpy for visualization
+   explanation_np = explanation.detach().cpu().numpy() if hasattr(explanation, 'detach') else explanation
+   # Sum over channels to create 2D heatmap
+   if explanation_np.ndim == 4:
+       explanation_np = explanation_np[0]
+   heatmap = explanation_np.sum(axis=0)
+   
+   abs_max = np.max(np.abs(heatmap))
+   if abs_max > 0:
+       normalized = heatmap / abs_max
+   else:
+       normalized = heatmap
+   
+   # Convert the original image for display
+   img_np = np.array(img.resize((224, 224))) / 255.0
+   
+   plt.figure(figsize=(10, 5))
+   plt.subplot(1, 2, 1)
+   plt.imshow(img_np)
+   plt.title('Original Image')
+   plt.axis('off')
+   
+   plt.subplot(1, 2, 2)
+   plt.imshow(normalized, cmap='seismic', clim=(-1, 1))
+   plt.title('Explanation')
+   plt.axis('off')
+   
+   plt.tight_layout()
+   plt.show()
 
 Framework-Agnostic Approach
 ---------------------------
@@ -177,7 +177,7 @@ You can also use the framework-agnostic API:
 
     from signxai.api import explain
     
-    # Will work with either PyTorch or TensorFlow model
+    # Will work with either PyTorch ==or TensorFlow model
     # Using dynamic method parsing - parameters embedded in method names
     
     # Simple gradient method
