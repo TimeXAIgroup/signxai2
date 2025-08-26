@@ -101,7 +101,7 @@ Here's a complete example using PyTorch:
     import torchvision.models as models
     import torchvision.transforms as transforms
     from signxai.api import explain
-    from signxai.torch_signxai.utils import remove_softmax
+    from signxai.torch_signxai.torch_utils import remove_softmax
 
     # Step 1: Load a pre-trained model
     model = models.vgg16(pretrained=True)
