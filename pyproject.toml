@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "signxai2"
 version = "0.13.8"
 authors = [
-    {name = "IRISlaboratory", email = "nils.gumpfer@kite.thm.de"},
+    {name = "TimeXAIgroup", email = "nils.gumpfer@kite.thm.de"},
 ]
 maintainers = [
     {name = "Nils Gumpfer", email = "nils.gumpfer@kite.thm.de"},
@@ -104,11 +104,11 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/IRISlaboratory/signxai2"
-Documentation = "https://IRISlaboratory.github.io/signxai2/index.html"
-Repository = "https://github.com/IRISlaboratory/signxai2.git"
-"Bug Reports" = "https://github.com/IRISlaboratory/signxai2/issues"
-Changelog = "https://github.com/IRISlaboratory/signxai2/blob/main/CHANGELOG.md"
+Homepage = "https://www.thm.de/mnd/jennifer-hannig/timexai-erklaerbare-kuenstliche-intelligenz-fuer-zeitreihen"
+Documentation = "https://TimeXAIgroup.github.io/signxai2/index.html"
+Repository = "https://github.com/TimeXAIgroup/signxai2.git"
+"Bug Reports" = "https://github.com/TimeXAIgroup/signxai2/issues"
+Changelog = "https://github.com/TimeXAIgroup/signxai2/blob/main/CHANGELOG.md"
 "Publication" = "https://www.sciencedirect.com/science/article/pii/S1566253523001999?via%3Dihub"
 
 [project.scripts]

@@ -212,7 +212,7 @@ def categorize_methods(methods):
     
     for method in methods:
         # Core gradient methods
-        if method in ['gradient', 'input_t_gradient']:
+        if method in ['gradient', 'gradient_x_input']:
             categories['gradient_based'].append(method)
         elif method in ['smoothgrad', 'integrated_gradients', 'vargrad']:
             categories['smooth_integrated'].append(method)
