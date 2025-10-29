@@ -45,5 +45,5 @@ Changelog = "https://github.com/TimeXAIgroup/signxai2/blob/main/CHANGELOG.md"
 branch = "main"  # release only from main
 version_toml = ["pyproject.toml:project.version"]
 build_command = "python -m build"
-upload_to_pypi = true
+upload_to_pypi = false
 changelog_file = "CHANGELOG.md"

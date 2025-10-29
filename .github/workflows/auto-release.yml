@@ -4,8 +4,8 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write
-  id-token: write
+  contents: write     # tags & releases
+  id-token: write     # REQUIRED for PyPI Trusted Publishing
   packages: read
 
 jobs:
@@ -13,13 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
       - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11.11"
+        with: { python-version: "3.11.11" }
+
       - run: python -m pip install --upgrade pip build python-semantic-release
+
+      # Version bump, tag, release notes, build into dist/
       - name: Semantic Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: semantic-release publish
+
+      # Upload dist/ to PyPI using OIDC (no API token needed)
+      - name: Publish to PyPI (Trusted Publisher)
+        uses: pypa/gh-action-pypi-publish@release/v1
