@@ -8,6 +8,7 @@ version = "0.15.0"
 description = "Extended variant of ZeNNit with SIGNed explanations - Unveiling relevant features by reducing bias"
 authors = [
     {name = "TimeXAIgroup", email = "jennifer.hannig@kite.thm.de"},
+    {name = "Nils Gumpfer", email = "nils.gumpfer@kite.thm.de"},
 ]
 maintainers = [
     {name = "Nils Gumpfer", email = "nils.gumpfer@kite.thm.de"},
@@ -16,19 +17,26 @@ readme = "README.md"
 license = "GPL-3.0"
 requires-python = ">=3.11.11"
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Scientific/Engineering :: Image Classification",
-    "Topic :: Scientific/Engineering :: Time Series Classification",
-    "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Operating System :: OS Independent"
 ]
-keywords = ["explainable ai", "xai", "interpretability", "machine learning", "deep learning", "pytorch", "lrp", "layer-wise relevance propagation", "grad-cam", "sign", "attribution", "saliency"]
+keywords = [
+    "Feature Attribution",
+    "Explainable AI",
+    "XAI",
+    "Interpretability",
+    "Machine Learning",
+    "Deep Learning",
+    "Artificial Intelligence",
+    "SIGN"
+]
 dependencies = [
     "zennit==1.0.0"
 ]
