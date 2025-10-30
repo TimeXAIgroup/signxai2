@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "signxai2"
-version = "0.0.0"  # will be auto-updated by python-semantic-release
+version = "v0.15.0"
+description = "Extended variant of ZeNNit with SIGNed explanations - Unveiling relevant features by reducing bias"
 authors = [
     {name = "TimeXAIgroup", email = "jennifer.hannig@kite.thm.de"},
 ]
 maintainers = [
     {name = "Nils Gumpfer", email = "nils.gumpfer@kite.thm.de"},
 ]
-description = "Extended variant of ZeNNit with SIGNed explanations - Unveiling relevant features by reducing bias"
 readme = "README.md"
 license = "GPL-3.0"
 requires-python = ">=3.11.11"
@@ -42,8 +42,7 @@ Changelog = "https://github.com/TimeXAIgroup/signxai2/blob/main/CHANGELOG.md"
 "Publication" = "https://www.sciencedirect.com/science/article/pii/S1566253523001999?via%3Dihub"
 
 [tool.semantic_release]
-branch = "main"  # release only from main
+branch = "main"
 version_toml = ["pyproject.toml:project.version"]
 build_command = "python -m build"
 upload_to_pypi = false
-changelog_file = "CHANGELOG.md"
