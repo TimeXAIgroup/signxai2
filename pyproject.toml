@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "signxai2"
-version = "0.15.0"
+version = "0.15.1"
 description = "Extended variant of ZeNNit with SIGNed explanations - Unveiling relevant features by reducing bias"
 authors = [
     {name = "TimeXAIgroup", email = "jennifer.hannig@kite.thm.de"},
@@ -42,11 +42,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://www.thm.de/mnd/jennifer-hannig/timexai-erklaerbare-kuenstliche-intelligenz-fuer-zeitreihen"
 Documentation = "https://TimeXAIgroup.github.io/signxai2/index.html"
 Repository = "https://github.com/TimeXAIgroup/signxai2.git"
 "Bug Reports" = "https://github.com/TimeXAIgroup/signxai2/issues"
-Changelog = "https://github.com/TimeXAIgroup/signxai2/blob/main/CHANGELOG.md"
 "Publication" = "https://www.sciencedirect.com/science/article/pii/S1566253523001999?via%3Dihub"
 
 [tool.semantic_release]
