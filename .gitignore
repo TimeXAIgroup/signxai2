@@ -24,6 +24,8 @@ docs/_build/
 # Generated example results and plots
 /examples/comparison/results/
 /examples/.ecgs/
+/examples/example_1.jpg
+/examples/example_2.jpg
 /utils/output/
 
 # Backup files
