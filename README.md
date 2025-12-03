@@ -1,10 +1,14 @@
+# SIGNed XAI for Image and Time Series Models
+
 <img alt="SIGNXAI-Example" src="https://raw.githubusercontent.com/TimeXAIgroup/signxai2/main/img/sign_mnist.png" width=750>
 
 [![PyPI Version](https://img.shields.io/pypi/v/signxai2)](https://pypi.org/project/signxai2/)
 [![License](https://img.shields.io/pypi/l/signxai2)](https://github.com/TimeXAIgroup/signxai2/blob/master/COPYING.LESSER)
 
 
-SIGN (**S**ign-based **I**mprovement of **G**radient-based expla**N**ations) is a novel XAI method intended to reduce bias in explanations that are intrinsically induced by several state-of-the-art XAI methods. The SIGN-XAI-2 package enables simple application of this method in your projects using the established Zennit (**Z**ennit **e**xplains **n**eural **n**etworks **i**n **t**orch) package [pypi.org/project/zennit/](https://pypi.org/project/zennit/).
+SIGN (**S**ign-based **I**mprovement of **G**radient-based expla**N**ations) is a novel XAI method intended to reduce bias in explanations that are intrinsically induced by several state-of-the-art XAI methods. The SIGN-XAI-2 package enables simple application of this method in your projects using the established Zennit (**Z**ennit **e**xplains **n**eural **n**etworks **i**n **t**orch) package [pypi.org/project/zennit/](https://pypi.org/project/zennit/). 
+
+SIGN-based explanations are particularly well suited for generating bias-reduced heatmaps for both image and time series data, enhancing interpretability by more reliably uncovering relevant features.
 
 If you use this package or parts of it in your own work, please consider citing our [paper](https://doi.org/10.1016/j.inffus.2023.101883):
 ```bibtex
