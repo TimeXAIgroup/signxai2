@@ -32,6 +32,14 @@ To install the package directly from PyPI using pip, use:
 $ pip install signxai2
 ```
 
+## Supported Methods
+
+- Gradient
+- Gradient $\times$ Input
+- Gradient $\times$ SIGN
+- LRP (all variants contained in [Zennit](https://pypi.org/project/zennit/). )
+- LRP-$\epsilon$ with SIGN as Input Layer Rule
+
 ## Usage
 SIGN-XAI-2 is based on Zennit and works with PyTorch. If you want to know more about Zennit and its usage, visit [github.com/chr5tphr/zennit](https://github.com/chr5tphr/zennit). There is also a version of SIGN available for usage with TensorFlow environments [pypi.org/project/signxai/](https://pypi.org/project/signxai/).
 
@@ -41,24 +49,22 @@ The below example code (see [vgg16_simple.py](https://github.com/TimeXAIgroup/si
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-
 from torchvision.models import vgg16, VGG16_Weights
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize
 from zennit.attribution import Gradient
-
 from signxai2.misc import get_example_image
 from signxai2.sign import EpsilonStdXSIGN
 
-# Define the preprocessing pipeline
+# Define preprocessing pipeline
 transform = Compose([
-    Resize(224),
+    Resize((224, 224)),
     ToTensor(),
     Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
 ])
 
 # Load and preprocess image
 image = get_example_image(1)
-data = transform(image)[None]  # Add batch dimension
+data = transform(image)[None]
 
 # Load pretrained VGG16 model
 weights=VGG16_Weights.IMAGENET1K_V1
@@ -73,22 +79,20 @@ target = torch.eye(1000)[[pred]]
 label = weights.meta['categories'][pred]
 print('Predicted class: {}'.format(label))
 
-# Visualize the original image and relevance map
-fig, axs = plt.subplots(1, 2, figsize=(12, 5))
-axs[0].imshow(image)
-axs[0].set_title('Image')
-
 # Compute attribution
 composite = EpsilonStdXSIGN(mu=0, stdfactor=0.3, signstdfactor=0.3)
 with Gradient(model=model, composite=composite) as attributor:
     _, attribution = attributor(data, target)
 
 # Prepare relevance map
-attribution = np.nan_to_num(attribution)
-relevance = attribution.sum(1)
-R = relevance[0] / np.abs(relevance).max()
+attribution = np.nan_to_num(attribution)[0]
+relevance = attribution.sum(0)
+R = relevance / np.abs(relevance).max()
 
-# Plot relevance map
+# Visualize the image and relevance map
+fig, axs = plt.subplots(1, 2, figsize=(10, 6))
+axs[0].imshow(Compose([Resize((224, 224))])(image))
+axs[0].set_title('Image')
 axs[1].matshow(R, cmap='seismic', clim=(-1, 1))
 axs[1].set_title('LRP-Epsilon-SIGN')
 

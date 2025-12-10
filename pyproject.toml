@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "signxai2"
-version = "0.15.3"
+version = "0.15.4"
 description = "Extended variant of ZeNNit with SIGNed explanations - Unveiling relevant features by reducing bias"
 authors = [
     {name = "TimeXAIgroup", email = "jennifer.hannig@kite.thm.de"},

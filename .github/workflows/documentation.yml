@@ -1,0 +1,45 @@
+name: docs
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-docs:
+    name: Build documentation
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Python
+        run: uv python install 3.13.2
+
+      - name: Install LaTeX (for BibTeX) and Pandoc
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            texlive-latex-base \
+            texlive-binaries \
+            texlive-bibtex-extra \
+            dvipng \
+            pandoc
+
+      - name: Build Sphinx docs
+        run: uv run tox run -e docs
+
+      - name: Upload HTML docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-docs
+          path: docs/_build/html
+          if-no-files-found: ignore
