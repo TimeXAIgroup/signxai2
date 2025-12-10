@@ -1,5 +1,7 @@
-import sys
+# Configuration file for the Sphinx documentation builder.
+
 import os
+import sys
 from subprocess import run, CalledProcessError
 import inspect
 
@@ -7,6 +9,13 @@ from pybtex.style.formatting.plain import Style as PlainStyle
 from pybtex.style.labels import BaseLabelStyle
 from pybtex.plugin import register_plugin
 
+
+# --- Ensure our package is importable for autodoc --------------------------------
+# conf.py is in docs/, so ".." is the repo root
+sys.path.insert(0, os.path.abspath(".."))
+
+
+# --- Custom BibTeX style ---------------------------------------------------------
 
 class AuthorYearLabelStyle(BaseLabelStyle):
     def format_labels(self, sorted_entries):
@@ -18,49 +27,49 @@ class AuthorYearStyle(PlainStyle):
     default_label_style = AuthorYearLabelStyle
 
 
-register_plugin('pybtex.style.formatting', 'author_year_style', AuthorYearStyle)
+register_plugin("pybtex.style.formatting", "author_year_style", AuthorYearStyle)
 
+
+# --- Git revision + linkcode URL -------------------------------------------------
 
 def getrev():
     try:
         revision = run(
-            ['git', 'describe', '--tags', 'HEAD'],
+            ["git", "describe", "--tags", "HEAD"],
             capture_output=True,
             check=True,
-            text=True
+            text=True,
         ).stdout[:-1]
     except CalledProcessError:
-        revision = 'main'
+        # fall back to main, not master
+        revision = "main"
 
     return revision
 
 
-# revision of the documentation
 REVISION = getrev()
 
-# path for the linkcode plugin
-# signxai2 package lives in the top-level "signxai2" directory in the repo
+# For signxai2 we don't have a "src/" layout, so use repo root directly
 LINKCODE_URL = (
-    f'https://github.com/TimeXAIgroup/signxai2/blob/{REVISION}'
-    '/{filepath}#L{linestart}-L{linestop}'
-)
+    "https://github.com/TimeXAIgroup/signxai2/blob/{revision}/{filepath}"
+    "#L{linestart}-L{linestop}"
+).format
 
 
-# revised from https://gist.github.com/nlgranger/55ff2e7ff10c280731348a16d569cb73
 def linkcode_resolve(domain, info):
-    if domain != 'py' or not info['module']:
+    if domain != "py" or not info["module"]:
         return None
 
-    modname = info['module']
-    topmodulename = modname.split('.')[0]
-    fullname = info['fullname']
+    modname = info["module"]
+    topmodulename = modname.split(".")[0]
+    fullname = info["fullname"]
 
     submod = sys.modules.get(modname)
     if submod is None:
         return None
 
     obj = submod
-    for part in fullname.split('.'):
+    for part in fullname.split("."):
         try:
             obj = getattr(obj, part)
         except Exception:
@@ -70,11 +79,12 @@ def linkcode_resolve(domain, info):
         module = sys.modules.get(topmodulename)
         if module is None:
             return None
-        # point to the package root so filepath is relative to the repo root
-        modpath = os.path.abspath(os.path.join(os.path.dirname(module.__file__), '..'))
+        # module.__file__ is something like /path/to/repo/signxai2/__init__.py
+        # so ".." brings us to the repo root
+        modpath = os.path.abspath(os.path.join(os.path.dirname(module.__file__), ".."))
         filepath = os.path.relpath(inspect.getsourcefile(obj), modpath)
         if filepath is None:
-            return
+            return None
     except Exception:
         return None
 
@@ -85,7 +95,12 @@ def linkcode_resolve(domain, info):
     else:
         linestart, linestop = lineno, lineno + len(source) - 1
 
-    return LINKCODE_URL.format(filepath=filepath, linestart=linestart, linestop=linestop)
+    return LINKCODE_URL(
+        revision=REVISION,
+        filepath=filepath,
+        linestart=linestart,
+        linestop=linestop,
+    )
 
 
 def config_inited_handler(app, config):
@@ -93,52 +108,49 @@ def config_inited_handler(app, config):
 
 
 def setup(app):
-    app.add_config_value('REVISION', 'main', 'env')
-    app.add_config_value('generated_path', '_generated', 'env')
-    app.connect('config-inited', config_inited_handler)
+    app.add_config_value("REVISION", "main", "env")
+    app.add_config_value("generated_path", "_generated", "env")
+    app.connect("config-inited", config_inited_handler)
 
 
-# -- Project information -----------------------------------------------------
-project = 'signxai2'
-copyright = '2025, TimeXAIgroup'
-author = 'TimeXAIgroup'
+# --- Project information ---------------------------------------------------------
 
-# If you want, you can also pull the version from pyproject.toml here
-# to keep docs version in sync with the package.
+project = "signxai2"
+author = "TimeXAIgroup"
+copyright = "2025, TimeXAIgroup"
 
 
-# -- General configuration ---------------------------------------------------
+# --- General configuration -------------------------------------------------------
 
-templates_path = ['_templates']
-html_static_path = ['_static']
-html_favicon = '_static/favicon.svg'
-# html_css_files = ['custom.css']
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.linkcode",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.napoleon",
+    "sphinxcontrib.datatemplates",
+    "sphinxcontrib.bibtex",
+    "sphinx_copybutton",
+    "sphinx_rtd_theme",
+    "nbsphinx",
+]
+
+templates_path = ["_templates"]
+html_static_path = ["_static"]
+html_favicon = "_static/favicon.svg"
 
 exclude_patterns = []
 
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.extlinks',
-    'sphinx.ext.linkcode',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon',
-    'sphinxcontrib.datatemplates',
-    'sphinxcontrib.bibtex',
-    'sphinx_copybutton',
-    'sphinx_rtd_theme',
-    'nbsphinx',
-]
-
-# autodoc configuration
-autodoc_class_signature = 'separated'
-autodoc_member_order = 'bysource'
-autodoc_typehints = 'both'
+# autodoc
+autodoc_class_signature = "separated"
+autodoc_member_order = "bysource"
+autodoc_typehints = "both"
 autodoc_preserve_defaults = True
-# autosummary_generate = True
 
-# interactive badges for binder and colab – now pointing to TimeXAIgroup/signxai2
+# --- nbsphinx badges (adjusted to this repo & docs layout) ----------------------
+
 nbsphinx_prolog = r"""
 {% set docname = 'docs/' + env.doc2path(env.docname, base=False) %}
 
@@ -162,38 +174,43 @@ nbsphinx_prolog = r"""
     </div>
 """
 
+# copybutton
 copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
 copybutton_prompt_is_regexp = True
 copybutton_line_continuation_character = "\\"
 copybutton_here_doc_delimiter = "EOT"
 
-bibtex_bibfiles = ['bibliography.bib']
-bibtex_default_style = 'author_year_style'
-bibtex_reference_style = 'author_year'
+# bibtex
+bibtex_bibfiles = ["bibliography.bib"]
+bibtex_default_style = "author_year_style"
+bibtex_reference_style = "author_year"
 
+# intersphinx
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'numpy': ('https://numpy.org/doc/stable', None),
-    'torch': ('https://pytorch.org/docs/stable', None),
-    'torchvision': ('https://pytorch.org/vision/stable', None),
-    'click': ('https://click.palletsprojects.com/en/stable/', None),
-    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "torch": ("https://pytorch.org/docs/stable", None),
+    "torchvision": ("https://pytorch.org/vision/stable", None),
+    "click": ("https://click.palletsprojects.com/en/stable/", None),
+    "Pillow": ("https://pillow.readthedocs.io/en/stable/", None),
 }
+# avoid accidental cross-project ref resolution
 intersphinx_disabled_reftypes = ["*"]
 
+# extlinks
 extlinks = {
-    'repo': (
-        f'https://github.com/TimeXAIgroup/signxai2/blob/{REVISION}/%s',
-        '%s'
-    )
+    "repo": (
+        f"https://github.com/TimeXAIgroup/signxai2/blob/{REVISION}/%s",
+        "%s",
+    ),
 }
 
+# HTML options
+html_theme = "sphinx_rtd_theme"
 html_context = {
-    'display_github': True,
-    'github_user': 'TimeXAIgroup',
-    'github_repo': 'signxai2',
-    # path to the docs root on the branch
-    'github_version': f'{REVISION}/docs/',
+    "display_github": True,
+    "github_user": "TimeXAIgroup",
+    "github_repo": "signxai2",
+    # path inside the repo where docs live
+    "github_version": f"{REVISION}/docs/",
 }
-
-html_theme = 'sphinx_rtd_theme'
