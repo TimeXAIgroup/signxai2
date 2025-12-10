@@ -1,8 +1,3 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For a full list see:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
 import sys
 import os
 from subprocess import run, CalledProcessError
@@ -35,7 +30,6 @@ def getrev():
             text=True
         ).stdout[:-1]
     except CalledProcessError:
-        # signxai2 uses 'main' as default branch
         revision = 'main'
 
     return revision
@@ -44,8 +38,8 @@ def getrev():
 # revision of the documentation
 REVISION = getrev()
 
-# path for the linkcode plugin — adapted to signxai2
-# NOTE: {filepath} already includes "signxai2/..." from linkcode_resolve.
+# path for the linkcode plugin
+# signxai2 package lives in the top-level "signxai2" directory in the repo
 LINKCODE_URL = (
     f'https://github.com/TimeXAIgroup/signxai2/blob/{REVISION}'
     '/{filepath}#L{linestart}-L{linestop}'
@@ -54,7 +48,7 @@ LINKCODE_URL = (
 
 # revised from https://gist.github.com/nlgranger/55ff2e7ff10c280731348a16d569cb73
 def linkcode_resolve(domain, info):
-    if domain != 'py' or not info.get('module'):
+    if domain != 'py' or not info['module']:
         return None
 
     modname = info['module']
@@ -76,7 +70,7 @@ def linkcode_resolve(domain, info):
         module = sys.modules.get(topmodulename)
         if module is None:
             return None
-        # go one level up from the installed package (site-packages)
+        # point to the package root so filepath is relative to the repo root
         modpath = os.path.abspath(os.path.join(os.path.dirname(module.__file__), '..'))
         filepath = os.path.relpath(inspect.getsourcefile(obj), modpath)
         if filepath is None:
@@ -105,10 +99,12 @@ def setup(app):
 
 
 # -- Project information -----------------------------------------------------
-
 project = 'signxai2'
 copyright = '2025, TimeXAIgroup'
 author = 'TimeXAIgroup'
+
+# If you want, you can also pull the version from pyproject.toml here
+# to keep docs version in sync with the package.
 
 
 # -- General configuration ---------------------------------------------------
@@ -142,9 +138,9 @@ autodoc_typehints = 'both'
 autodoc_preserve_defaults = True
 # autosummary_generate = True
 
-# interactive badges for binder and colab — adapted to TimeXAIgroup/signxai2
+# interactive badges for binder and colab – now pointing to TimeXAIgroup/signxai2
 nbsphinx_prolog = r"""
-{% set docname = 'docs/source/' + env.doc2path(env.docname, base=False) %}
+{% set docname = 'docs/' + env.doc2path(env.docname, base=False) %}
 
 .. raw:: html
 
@@ -175,7 +171,6 @@ bibtex_bibfiles = ['bibliography.bib']
 bibtex_default_style = 'author_year_style'
 bibtex_reference_style = 'author_year'
 
-# Intersphinx: fixed URLs + kept existing projects
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://numpy.org/doc/stable', None),
@@ -184,10 +179,8 @@ intersphinx_mapping = {
     'click': ('https://click.palletsprojects.com/en/stable/', None),
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
 }
-# Disable automatic cross-project resolution of unresolved labels
 intersphinx_disabled_reftypes = ["*"]
 
-# path for the extlinks plugin — adapted to signxai2
 extlinks = {
     'repo': (
         f'https://github.com/TimeXAIgroup/signxai2/blob/{REVISION}/%s',
@@ -199,7 +192,8 @@ html_context = {
     'display_github': True,
     'github_user': 'TimeXAIgroup',
     'github_repo': 'signxai2',
-    'github_version': f'{REVISION}/docs/source/',
+    # path to the docs root on the branch
+    'github_version': f'{REVISION}/docs/',
 }
 
 html_theme = 'sphinx_rtd_theme'
