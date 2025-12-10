@@ -38,7 +38,8 @@ keywords = [
     "SIGN"
 ]
 dependencies = [
-    "zennit==1.0.0"
+    "zennit==1.0.0",
+    "lxt==2.1"
 ]
 
 [project.urls]
