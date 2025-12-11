@@ -39,6 +39,9 @@ extlinks = {
     )
 }
 
+# Do not execute notebooks during the Sphinx build
+nbsphinx_execute = "never"
+
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
