@@ -1,0 +1,170 @@
+/* Custom styles for SignXAI documentation */
+
+.wy-nav-content {
+    max-width: 1000px !important;
+}
+
+.wy-side-nav-search {
+    background-color: #2980B9;
+}
+
+.wy-side-nav-search > div.version {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Method tables styling */
+.py-attribute-table {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.py-attribute-table-column {
+    flex: 1 1 45%;
+    margin: 10px;
+}
+
+.py-attribute-table-column > span {
+    font-weight: bold;
+    font-size: 110%;
+}
+
+.py-attribute-table-entry {
+    margin: 5px 0;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+/* Framework-specific styling */
+.tensorflow-section {
+    border-left: 5px solid #ff6f00;
+    padding-left: 10px;
+    background-color: rgba(255, 111, 0, 0.05);
+}
+
+.pytorch-section {
+    border-left: 5px solid #ee4c2c;
+    padding-left: 10px;
+    background-color: rgba(238, 76, 44, 0.05);
+}
+
+.common-section {
+    border-left: 5px solid #3498db;
+    padding-left: 10px;
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+/* Add some spacing to parameter lists */
+dl.field-list > dt {
+    margin-top: 8px;
+}
+
+dl.field-list > dd {
+    margin-left: 24px;
+}
+
+/* Improve code blocks */
+div.highlight {
+    background-color: #f8f8f8;
+}
+
+div.highlight pre {
+    padding: 12px;
+    border-radius: 3px;
+    border: 1px solid #e1e4e5;
+}
+
+/* Better table styling */
+table.docutils {
+    border: 1px solid #e1e4e5;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+}
+
+table.docutils td, table.docutils th {
+    padding: 8px 16px;
+    border: 1px solid #e1e4e5;
+}
+
+table.docutils thead {
+    background-color: #f3f6f6;
+}
+
+/* Style for note, warning boxes */
+.admonition {
+    padding: 12px;
+    margin-bottom: 24px;
+    border-radius: 4px;
+}
+
+.admonition.note {
+    background-color: #eef7fa;
+    border-left: 6px solid #3498db;
+}
+
+.admonition.warning {
+    background-color: #fcf3f2;
+    border-left: 6px solid #e74c3c;
+}
+
+.admonition.tip {
+    background-color: #ebfaf0;
+    border-left: 6px solid #2ecc71;
+}
+
+/* For API reference pages */
+.class > dt, .function > dt, .method > dt {
+    padding: 8px;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    margin-bottom: 16px;
+    border-left: 4px solid #2980B9;
+}
+
+/* Style for comparison tables */
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.comparison-table td, .comparison-table th {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.comparison-table th {
+    background-color: #f2f2f2;
+}
+
+.comparison-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Method comparison badges */
+.badge {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 10px;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    margin-left: 5px;
+}
+
+.badge-tf {
+    background-color: #ff6f00;
+    color: white;
+}
+
+.badge-torch {
+    background-color: #ee4c2c;
+    color: white;
+}
+
+.badge-both {
+    background-color: #27ae60;
+    color: white;
+}
