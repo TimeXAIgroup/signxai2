@@ -1,5 +1,5 @@
 # .github/workflows/release.yml
-name: release
+name: Build and Release Package to PyPI
 
 on:
   push:
