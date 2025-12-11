@@ -32,6 +32,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev]
         sudo apt-get install python3-sphinx
+        pip3 install myst-parser
+        pip3 install nbsphinx
 
     - name: Build documentation
       run: |
