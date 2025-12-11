@@ -1,4 +1,30 @@
-SignXAI Documentation
-=====================
+====================
+SIGN-XAI2 Documentation
+====================
 
-**SignXAI2** is a comprehensive cross-framework explainable AI (XAI) library that provides unified access to explanation methods across TensorFlow and PyTorch. With over 200 XAI methods and automatic framework detection, SignXAI makes it easy to understand and interpret your deep learning models.
+SIGN (Sign-based Improvement of Gradient-based explaNations) is a novel XAI method intended to reduce bias in explanations that are intrinsically induced by several state-of-the-art XAI methods. The SIGN-XAI-2 package enables simple application of this method in your projects and is based on Zennit (https://pypi.org/project/zennit/) and LRP for Transformers (https://pypi.org/project/lxt/). If your are using TensorFlow instead of PyTorch, have a look at https://pypi.org/project/signxai/.
+
+SIGN-based explanations are particularly well suited for generating bias-reduced heatmaps for both **image** and **time series data**, enhancing interpretability by more reliably uncovering relevant features.
+
+
+.. code-block:: console
+
+   $ pip install signxai2
+
+
+Citing
+------
+
+If you use this package or parts of it in your own work, please consider citing our paper:
+
+.. code-block:: bibtex
+
+    @article{Gumpfer2023SIGN,
+        title = {SIGNed explanations: Unveiling relevant features by reducing bias},
+        author = {Nils Gumpfer and Joshua Prim and Till Keller and Bernhard Seeger and Michael Guckert and Jennifer Hannig},
+        journal = {Information Fusion},
+        pages = {101883},
+        year = {2023},
+        issn = {1566-2535},
+        doi = {https://doi.org/10.1016/j.inffus.2023.101883}
+    }

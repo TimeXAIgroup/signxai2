@@ -36,6 +36,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 
+html_static_path = ["_static"]
+html_favicon = "_static/favicon.svg"
+html_logo = "_static/logo.png"
 html_theme = "sphinx_rtd_theme"
 
 # GitHub Pages canonical URL
