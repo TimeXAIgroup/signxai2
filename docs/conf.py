@@ -28,8 +28,16 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
+    "sphinx.ext.extlinks",
     "myst_parser",       # optional Markdown support
 ]
+
+extlinks = {
+    "repo": (
+        "https://github.com/TimeXAIgroup/signxai2/blob/main/%s",
+        ""
+    )
+}
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
