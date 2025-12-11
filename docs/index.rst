@@ -2,15 +2,27 @@
 SIGN-XAI2 Documentation
 ====================
 
-SIGN (Sign-based Improvement of Gradient-based explaNations) is a novel XAI method intended to reduce bias in explanations that are intrinsically induced by several state-of-the-art XAI methods. The SIGN-XAI-2 package enables simple application of this method in your projects and is based on Zennit (https://pypi.org/project/zennit/) and LRP for Transformers (https://pypi.org/project/lxt/). If your are using TensorFlow instead of PyTorch, have a look at https://pypi.org/project/signxai/.
+SIGN (Sign-based Improvement of Gradient-based explaNations) is a novel XAI method intended to reduce bias in explanations that are intrinsically induced by several state-of-the-art XAI methods. The `SIGN-XAI2 package <https://pypi.org/project/signxai/>`_ enables simple application of this method in your projects and is based on `Zennit <https://pypi.org/project/zennit/>`_ and `LRP for Transformers <https://pypi.org/project/lxt/>`_. If your are using TensorFlow instead of PyTorch, have a look at our `TF-version of SIGN-XAI <https://pypi.org/project/signxai/>`_.
 
 SIGN-based explanations are particularly well suited for generating bias-reduced heatmaps for both **image** and **time series data**, enhancing interpretability by more reliably uncovering relevant features.
 
+Install
+-------
 
 .. code-block:: console
 
    $ pip install signxai2
 
+Contents
+--------
+
+.. toctree::
+    :maxdepth: 2
+
+    getting-started
+    how-to
+    tutorial/index
+    methods
 
 Citing
 ------
