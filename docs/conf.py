@@ -28,7 +28,6 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
-    "sphinx.ext.extlinks",
     "myst_parser",          # optional Markdown support
     "nbsphinx"              # support for jupyter notebooks
 ]
