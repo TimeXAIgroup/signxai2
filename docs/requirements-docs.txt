@@ -1,0 +1,4 @@
+# Extra requirements for building the documentation
+sphinx
+sphinx-rtd-theme
+myst-parser
