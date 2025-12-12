@@ -41,9 +41,7 @@ print('Predicted class: {}'.format(label))
 # Compute attribution
 composite = EpsilonStdXSIGN(mu=0, stdfactor=0.3, signstdfactor=0.3)
 with Gradient(model=model, composite=composite) as attributor:
-# with SmoothGrad(model, noise_level=0.1, n_iter=10) as attributor:
     _, attribution = attributor(data, target)
-    # attribution = attribution * sign_mu(data)
 
 # Prepare relevance map
 attribution = np.nan_to_num(attribution)[0]

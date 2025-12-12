@@ -9,17 +9,20 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = "SignXAI2"
-author = "SignXAI Team"
+project = "SIGN-XAI2"
+author = "TimeXAI Team"
 year = datetime.now().year
 copyright = f"{year}, {author}"
 
 # Try to obtain the version from the package
+from importlib.metadata import version, PackageNotFoundError
+
 try:
-    from signxai2 import __version__
-    release = __version__
-except Exception:
-    release = "0.1.0"
+    release = version("signxai2")   # must match the distribution name in pyproject.toml
+except PackageNotFoundError:
+    release = ""
+
+version = release
 
 # -- General configuration ---------------------------------------------------
 
