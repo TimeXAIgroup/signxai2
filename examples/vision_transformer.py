@@ -6,7 +6,7 @@ from torchvision.models import vision_transformer
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize
 from zennit.attribution import Gradient
 from signxai2.misc import get_example_image
-from signxai2.sign import EpsilonStdXSIGN
+from signxai2.composites import EpsilonStdXSIGN
 
 # Apply patches for attnLRP
 monkey_patch(vision_transformer, verbose=True)

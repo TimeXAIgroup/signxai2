@@ -53,7 +53,7 @@ from torchvision.models import vgg16, VGG16_Weights
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize
 from zennit.attribution import Gradient
 from signxai2.misc import get_example_image
-from signxai2.sign import EpsilonStdXSIGN
+from signxai2.composites import EpsilonStdXSIGN
 
 # Define preprocessing pipeline
 transform = Compose([
@@ -67,7 +67,7 @@ image = get_example_image(1)
 data = transform(image)[None]
 
 # Load pretrained VGG16 model
-weights=VGG16_Weights.IMAGENET1K_V1
+weights = VGG16_Weights.IMAGENET1K_V1
 model = vgg16(weights=weights).eval()
 
 # Get model prediction

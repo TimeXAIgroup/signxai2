@@ -7,7 +7,8 @@ from torchvision.transforms import Compose, Resize, ToTensor, Normalize
 from zennit.attribution import Gradient
 
 from signxai2.misc import get_example_image
-from signxai2.sign import EpsilonStdXSIGN, EpsilonStdXComp
+from signxai2.composites import EpsilonStdX, EpsilonStdXSIGN
+
 
 def run(num):
     # Define the preprocessing pipeline
@@ -39,7 +40,7 @@ def run(num):
     axs[0].imshow(image)
     axs[0].set_title('Image')
 
-    for i, (method, composite) in enumerate(zip(['LRP-Epsilon', 'LRP-Epsilon-SIGN'], [EpsilonStdXComp(stdfactor=0.3), EpsilonStdXSIGN(mu=0, stdfactor=0.3, signstdfactor=0.3)])):
+    for i, (method, composite) in enumerate(zip(['LRP-Epsilon', 'LRP-Epsilon-SIGN'], [EpsilonStdX(stdfactor=0.3), EpsilonStdXSIGN(mu=0, stdfactor=0.3, signstdfactor=0.3)])):
         # Compute attribution
         with Gradient(model=model, composite=composite) as attributor:
             _, attribution = attributor(data, target)

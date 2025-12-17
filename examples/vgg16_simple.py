@@ -4,8 +4,8 @@ import torch
 from torchvision.models import vgg16, VGG16_Weights
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize
 from zennit.attribution import Gradient
+from signxai2.composites import EpsilonStdXSIGN
 from signxai2.misc import get_example_image
-from signxai2.sign import EpsilonStdXSIGN
 
 # Define preprocessing pipeline
 transform = Compose([
