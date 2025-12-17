@@ -44,7 +44,8 @@ class EpsilonStdX(SpecialFirstLayerMapComposite):
             (torch.nn.Linear, EpsilonStdXRule(stdfactor=stdfactor, **rule_kwargs)),
         ]
         first_map = first_map + [
-            (Linear, EpsilonStdXRule(stdfactor=stdfactor, **rule_kwargs))
+            (Convolution, EpsilonStdXRule(stdfactor=stdfactor, **rule_kwargs)),
+            (torch.nn.Linear, EpsilonStdXRule(stdfactor=stdfactor, **rule_kwargs)),
         ]
         super().__init__(layer_map=layer_map, first_map=first_map, canonizers=canonizers)
 
@@ -91,6 +92,7 @@ class EpsilonStdXSIGN(SpecialFirstLayerMapComposite):
             (torch.nn.Linear, EpsilonStdXRule(stdfactor=stdfactor, **rule_kwargs)),
         ]
         first_map = first_map + [
-            (Convolution, EpsStdXSIGNRule(mu=mu, stdfactor=signstdfactor, **rule_kwargs))
+            (Convolution, EpsStdXSIGNRule(mu=mu, stdfactor=signstdfactor, **rule_kwargs)),
+            (torch.nn.Linear, EpsStdXSIGNRule(mu=mu, stdfactor=signstdfactor, **rule_kwargs)),
         ]
         super().__init__(layer_map=layer_map, first_map=first_map, canonizers=canonizers)
