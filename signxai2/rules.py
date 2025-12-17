@@ -41,7 +41,7 @@ class EpsilonStdXRule(BasicHook):
 class EpsStdXSIGNRule(BasicHook):
     """ Epsilon (stdx) + SIGN rule
 
-    Std-x-Source: https://git.tu-berlin.de/gmontavon/lrp-tutorial/-/blob/main/tutorial.ipynb)
+    Std-x-Source: https://git.tu-berlin.de/gmontavon/lrp-tutorial/-/blob/main/tutorial.ipynb
 
     Parameters
     ----------

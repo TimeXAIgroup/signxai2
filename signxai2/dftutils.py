@@ -374,13 +374,26 @@ class DFTLRP():
         return signal_hat, relevance_hat
 
 
-def calculate_dft_explanation(signal_time, relevance_time, cuda):
+def calculate_dft_explanation(signal_time, relevance_time, leverage_symmetry=True, precision=32, window_shift=1, window_width=128, window_shape="rectangle", cuda=False):
+    """
+        Combined call for DFT-LRP
+
+        Args:
+        leverage_symmetry: if True, levereage that for real signal the DF transformed signal is symmetric and compute only first half it
+        cuda: use gpu
+        precision: 32 or 16 for reduced precision with less memory usage
+
+        window_width: width of the window for short time DFT
+        window_shift: width/hopsize of window for short time DFT
+        window_shape: shape of window for STDFT, options are 'rectangle' and 'halfsine'
+    """
+
     signal_length = np.shape(signal_time)[1]
 
     dftlrp = DFTLRP(
         signal_length,
-        leverage_symmetry=True,
-        precision=32,
+        leverage_symmetry=leverage_symmetry,
+        precision=precision,
         create_stdft=False,
         create_inverse=False,
         cuda=cuda,
@@ -397,11 +410,11 @@ def calculate_dft_explanation(signal_time, relevance_time, cuda):
 
     dftlrp = DFTLRP(
         signal_length,
-        leverage_symmetry=True,
-        precision=32,
-        window_shift=1,
-        window_width=128,
-        window_shape="rectangle",
+        leverage_symmetry=leverage_symmetry,
+        precision=precision,
+        window_shift=window_shift,
+        window_width=window_width,
+        window_shape=window_shape,
         create_dft=False,
         create_inverse=False,
         cuda=cuda,
@@ -413,5 +426,7 @@ def calculate_dft_explanation(signal_time, relevance_time, cuda):
         real=False,
         short_time=True,
     )
+
+    del dftlrp
 
     return signal_freq, relevance_freq, signal_timefreq, relevance_timefreq

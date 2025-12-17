@@ -22,7 +22,9 @@ Contents
     getting-started
     how-to
     tutorial/index
-    methods
+    rules
+    composites
+    dft-lrp
 
 Citing
 ------

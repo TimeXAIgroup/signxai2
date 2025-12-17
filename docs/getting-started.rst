@@ -25,14 +25,13 @@ model and random data.
 .. code-block:: python
 
    from zennit.attribution import Gradient
-   from signxai2.sign import EpsilonStdXSIGN
+   from signxai2.composites import EpsilonStdXSIGN
 
    composite = EpsilonStdXSIGN(mu=0, stdfactor=0.3, signstdfactor=0.3)
    with Gradient(model=model, composite=composite) as attributor:
         output, relevance = attributor(data, target)
 
    print('EpsilonStdXSIGN:', relevance)
-
 
 More information on attributors can be found here:
 
