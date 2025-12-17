@@ -37,3 +37,5 @@ Thumbs.db
 
 *.npy
 *.pt
+#examples/dftxai_lrpepsstdx.png
+#examples/dftxai_lrpepsstdxsign.png

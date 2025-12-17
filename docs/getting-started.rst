@@ -43,7 +43,7 @@ More information on attributors can be found here:
 Example Scripts
 --------------
 
-Ready-to use examples to analyze ImageNet models provided by torchvision can be found here:
+Ready-to use examples to analyze image and time series models can be found here:
 
 - `vgg16_simple.py <https://github.com/TimeXAIgroup/signxai2/blob/main/examples/vgg16_simple.py>`_
 - `vision_transformer.py <https://github.com/TimeXAIgroup/signxai2/blob/main/examples/vision_transformer.py>`_
