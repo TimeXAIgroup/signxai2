@@ -34,3 +34,6 @@ docs/_build/
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+*.npy
+*.pt

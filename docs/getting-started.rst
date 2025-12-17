@@ -47,3 +47,4 @@ Ready-to use examples to analyze ImageNet models provided by torchvision can be 
 
 - `vgg16_simple.py <https://github.com/TimeXAIgroup/signxai2/blob/main/examples/vgg16_simple.py>`_
 - `vision_transformer.py <https://github.com/TimeXAIgroup/signxai2/blob/main/examples/vision_transformer.py>`_
+- `dftlrp_synthetic.py <https://github.com/TimeXAIgroup/signxai2/blob/main/examples/dftlrp_synthetic.py>`_
